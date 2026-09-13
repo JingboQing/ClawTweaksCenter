@@ -214,6 +214,7 @@ namespace ClawTweaksCenter
         {
             var stack = new StackPanel();
             stack.Children.Add(SectionHeading("Device drivers"));
+            stack.Children.Add(IntervalHint(Core.CenterSettings.DriverCheckIntervalWeeks));
 
             if (_driversBusy && _driverResult == null)
             {
@@ -391,6 +392,7 @@ namespace ClawTweaksCenter
         {
             var stack = new StackPanel();
             stack.Children.Add(SectionHeading("Windows Update"));
+            stack.Children.Add(IntervalHint(Core.CenterSettings.WindowsUpdateCheckIntervalWeeks));
 
             if (_windowsUpdatesBusy)
             {
@@ -589,6 +591,27 @@ namespace ClawTweaksCenter
             // frozen - the rows below the fold are exactly the ones this navigation exists for.
             _driverRows[_driverRowIndex].Element?.BringIntoView();
         }
+
+        /// <summary>
+        /// What this column does on its own, and where to change it.
+        ///
+        /// It sits at the TOP because it is a property of the whole list underneath, not a footnote
+        /// to it - and because the setting itself no longer lives on this screen (it moved to Center
+        /// settings on 2026-09-13). Without the pointer, a column that quietly checks itself once a
+        /// week would be a behaviour with no visible switch anywhere near it.
+        /// </summary>
+        private static TextBlock IntervalHint(int weeks) => new TextBlock
+        {
+            Text = weeks <= Core.CenterSettings.IntervalOff
+                ? Core.Loc.T("Not checked automatically. You can switch this on in Center settings.")
+                : Core.Loc.F("Checked automatically: {0}. You can change or switch this off in Center settings.",
+                             IntervalLabel(weeks).ToLowerInvariant()),
+            FontSize = 12,
+            Foreground = UiHelpers.Subtle,
+            Opacity = 0.85,
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(2, -4, 10, 12),
+        };
 
         private static TextBlock SectionHeading(string text) => new TextBlock
         {

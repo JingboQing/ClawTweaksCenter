@@ -173,8 +173,11 @@
                      pays for as well. -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal"
                             VerticalAlignment="Center" Margin="8,0,28,0">
+                    <!-- 24 rather than 12: at 12 the count read as part of the clock. It is the
+                         only gap on this side, so it has to do the whole job of separating two
+                         unrelated readings (user, 2026-09-13). -->
                     <Border x:Name="FooterNotify" Visibility="Collapsed"
-                            VerticalAlignment="Center" Margin="0,0,12,0" />
+                            VerticalAlignment="Center" Margin="0,0,24,0" />
                     <TextBlock x:Name="FooterClock"
                                VerticalAlignment="Center"
                                FontSize="12" Foreground="{StaticResource SubtleTextBrush}" />

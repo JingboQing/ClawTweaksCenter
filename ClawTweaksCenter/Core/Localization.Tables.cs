@@ -748,6 +748,8 @@ namespace ClawTweaksCenter.Core
             ["Check for updates and notify"] = "Nach Updates suchen und benachrichtigen",
             ["The widget list is read at every start; this only decides how often Center says so."] = "Die Widget-Liste wird bei jedem Start gelesen; das hier entscheidet nur, wie oft Center es sagt.",
             ["Windows Update"] = "Windows Update",
+            ["Not checked automatically. You can switch this on in Center settings."] = "Wird nicht automatisch gepr\u00FCft. In den Center-Einstellungen kannst du das einschalten.",
+            ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "Wird automatisch gepr\u00FCft: {0}. In den Center-Einstellungen kannst du das \u00E4ndern oder abschalten.",
         };
 
         private static readonly Dictionary<string, string> French = new Dictionary<string, string>
@@ -1469,6 +1471,8 @@ namespace ClawTweaksCenter.Core
             ["Check for updates and notify"] = "Rechercher des mises \u00E0 jour et notifier",
             ["The widget list is read at every start; this only decides how often Center says so."] = "La liste du widget est lue \u00E0 chaque d\u00E9marrage ; ceci d\u00E9cide seulement \u00E0 quelle fr\u00E9quence Center le dit.",
             ["Windows Update"] = "Windows Update",
+            ["Not checked automatically. You can switch this on in Center settings."] = "Pas de v\u00E9rification automatique. Tu peux l'activer dans les param\u00E8tres de Center.",
+            ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "V\u00E9rification automatique : {0}. Tu peux le modifier ou le d\u00E9sactiver dans les param\u00E8tres de Center.",
         };
 
         private static readonly Dictionary<string, string> Korean = new Dictionary<string, string>
@@ -2193,6 +2197,8 @@ namespace ClawTweaksCenter.Core
             ["Check for updates and notify"] = "\uC5C5\uB370\uC774\uD2B8 \uD655\uC778 \uBC0F \uC54C\uB9BC",
             ["The widget list is read at every start; this only decides how often Center says so."] = "\uC704\uC82F \uBAA9\uB85D\uC740 \uC2DC\uC791\uD560 \uB54C\uB9C8\uB2E4 \uC77D\uC2B5\uB2C8\uB2E4. \uC5EC\uAE30\uC11C\uB294 Center\uAC00 \uC5BC\uB9C8\uB098 \uC790\uC8FC \uC54C\uB9B4\uC9C0\uB9CC \uC815\uD569\uB2C8\uB2E4.",
             ["Windows Update"] = "Windows \uC5C5\uB370\uC774\uD2B8",
+            ["Not checked automatically. You can switch this on in Center settings."] = "\uC790\uB3D9\uC73C\uB85C \uD655\uC778\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. Center \uC124\uC815\uC5D0\uC11C \uCF24 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+            ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "\uC790\uB3D9 \uD655\uC778: {0}. Center \uC124\uC815\uC5D0\uC11C \uBCC0\uACBD\uD558\uAC70\uB098 \uB04C \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
         };
 
         private static readonly Dictionary<string, string> Spanish = new Dictionary<string, string>
@@ -2916,6 +2922,8 @@ namespace ClawTweaksCenter.Core
             ["Check for updates and notify"] = "Buscar actualizaciones y notificar",
             ["The widget list is read at every start; this only decides how often Center says so."] = "La lista del widget se lee en cada inicio; esto solo decide con qu\u00E9 frecuencia Center lo dice.",
             ["Windows Update"] = "Windows Update",
+            ["Not checked automatically. You can switch this on in Center settings."] = "No se comprueba autom\u00E1ticamente. Puedes activarlo en los ajustes de Center.",
+            ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "Comprobaci\u00F3n autom\u00E1tica: {0}. Puedes cambiarlo o desactivarlo en los ajustes de Center.",
         };
 
     }
