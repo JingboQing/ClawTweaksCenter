@@ -890,6 +890,11 @@ namespace ClawTweaksCenter
                 RenderLibraryIfNoOverlay();
                 RefreshTabStrip();
 
+                // The library is up and usable: the one moment where a background update check is
+                // affordable. Fire and forget, and it decides for itself whether anything is due -
+                // see CenterMenuWindow.UpdateWatch.cs for the four conditions.
+                StartBackgroundUpdateChecks();
+
                 StartArtFetch();
                 WarmCoverCacheInBackground(ct);
 
@@ -3302,6 +3307,10 @@ namespace ClawTweaksCenter
             // screen has to know when the game ends, and that is the same question the restore was
             // already answering - one tracker, two readers.
             if (started) StartTrackingForRestore(game, startedProcess);
+
+            // Someone who has started something is playing, not maintaining: no background update
+            // check for the rest of this Center session, even after the game ends.
+            if (started) _gameLaunchedThisSession = true;
         }
 
         /// <summary>

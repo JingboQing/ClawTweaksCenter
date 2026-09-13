@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using ClawTweaksCenter.Navigation;
 using ClawTweaksCenter.Ui;
@@ -43,6 +44,12 @@ namespace ClawTweaksCenter
         private bool _windowsUpdatesBusy;
         private string _driversError;
         private DateTime? _windowsUpdatesCheckedLocal;
+
+        /// <summary>The rows on this screen a cursor can sit on, rebuilt on every render: the two
+        /// interval settings and the shortcut into Windows' own page. The driver and update CARDS are
+        /// deliberately not among them - there is nothing to do to a row that only reports.</summary>
+        private readonly List<Action> _driverRowActions = new List<Action>();
+        private int _driverRowIndex;
 
         // Deliberately generous. The driver check can go out to MSI and Intel on a cold cache, and the
         // Windows Update search is a network round trip that measured 29.1 s on this very machine - a
@@ -165,6 +172,7 @@ namespace ClawTweaksCenter
         private void RenderDrivers()
         {
             BeginContent(centred: false);
+            _driverRowActions.Clear();
 
             ContentHost.Children.Add(UiHelpers.Title("Drivers & Windows Updates"));
 
@@ -197,6 +205,10 @@ namespace ClawTweaksCenter
             if (_driversError != null)
             {
                 stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Drivers could not be checked", _driversError));
+                AppendIntervalRow(stack, "Check for driver updates",
+                    Core.CenterSettings.DriverCheckIntervalWeeks,
+                    Core.CenterSettings.DriverCheckLastUtc,
+                    v => Core.CenterSettings.DriverCheckIntervalWeeks = v);
                 return stack;
             }
             if (_driverResult == null)
@@ -238,6 +250,11 @@ namespace ClawTweaksCenter
             if (_driverResult.LiveFetchSucceeded == false)
                 stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Offline",
                     "The list could not be refreshed; showing what was known last."));
+
+            AppendIntervalRow(stack, "Check for driver updates",
+                Core.CenterSettings.DriverCheckIntervalWeeks,
+                Core.CenterSettings.DriverCheckLastUtc,
+                v => Core.CenterSettings.DriverCheckIntervalWeeks = v);
 
             return stack;
         }
@@ -361,6 +378,7 @@ namespace ClawTweaksCenter
                 // The search really does take tens of seconds. Saying so is the difference between a
                 // slow screen and one the user reads as frozen.
                 stack.Children.Add(UiHelpers.Body("Checking with Windows… this can take up to a minute."));
+                AppendWindowsUpdateFooterRows(stack);
                 return stack;
             }
 
@@ -368,12 +386,14 @@ namespace ClawTweaksCenter
             {
                 stack.Children.Add(UiHelpers.Body("Not checked yet."));
                 stack.Children.Add(UiHelpers.Body("The check asks Microsoft directly and takes a moment."));
+                AppendWindowsUpdateFooterRows(stack);
                 return stack;
             }
 
             if (!string.IsNullOrEmpty(_windowsUpdates.ErrorMessage))
             {
                 stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Could not check", _windowsUpdates.ErrorMessage));
+                AppendWindowsUpdateFooterRows(stack);
                 return stack;
             }
 
@@ -383,6 +403,7 @@ namespace ClawTweaksCenter
             {
                 stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "No result from Windows Update",
                     Core.Loc.F("The search ended with code {0}.", _windowsUpdates.ResultCode)));
+                AppendWindowsUpdateFooterRows(stack);
                 return stack;
             }
 
@@ -408,6 +429,7 @@ namespace ClawTweaksCenter
                 stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Restart pending",
                     "Windows needs a restart to finish an update."));
 
+            AppendWindowsUpdateFooterRows(stack);
             return stack;
         }
 
@@ -447,6 +469,106 @@ namespace ClawTweaksCenter
             };
         }
 
+        private void AppendWindowsUpdateFooterRows(StackPanel stack)
+        {
+            AppendIntervalRow(stack, "Check for Windows updates",
+                Core.CenterSettings.WindowsUpdateCheckIntervalWeeks,
+                Core.CenterSettings.WindowsUpdateCheckLastUtc,
+                v => Core.CenterSettings.WindowsUpdateCheckIntervalWeeks = v);
+
+            AppendActionRow(stack, "Open Windows Update", "Windows\u0027 own page.", OpenWindowsUpdateSettings);
+        }
+
+        /// <summary>
+        /// One interval setting: how often Center looks in the background, and when it last did.
+        ///
+        /// The last-checked line is not decoration. Without it "every week" is a promise the screen
+        /// makes and never accounts for, and the first question when something is missed is whether
+        /// the check ran at all.
+        /// </summary>
+        private void AppendIntervalRow(StackPanel stack, string label, int weeks, DateTime? lastUtc, Action<int> setter)
+        {
+            string detail = IntervalLabel(weeks);
+            if (lastUtc.HasValue)
+                detail += "   \u00B7   " + Core.Loc.F("last checked {0}", lastUtc.Value.ToLocalTime().ToString("d MMM"));
+            else if (weeks > Core.CenterSettings.IntervalOff)
+                detail += "   \u00B7   " + Core.Loc.T("not checked yet");
+
+            AppendActionRow(stack, label, detail, () =>
+            {
+                setter(NextInterval(weeks));
+                RenderDrivers();
+                RefreshActionBar();
+            });
+        }
+
+        private void AppendActionRow(StackPanel stack, string label, string detail, Action activate)
+        {
+            int index = _driverRowActions.Count;
+            _driverRowActions.Add(activate);
+            bool selected = index == _driverRowIndex;
+
+            var inner = new StackPanel();
+            inner.Children.Add(new TextBlock
+            {
+                Text = Core.Loc.T(label),
+                FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Text,
+                TextWrapping = TextWrapping.Wrap,
+            });
+            inner.Children.Add(new TextBlock
+            {
+                Text = detail,
+                FontSize = 12, Foreground = UiHelpers.Subtle, TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 3, 0, 0),
+            });
+
+            var pad = new Thickness(14, 11, 14, 11);
+            var row = new Border
+            {
+                Background = UiHelpers.Card,
+                CornerRadius = new CornerRadius(10),
+                Margin = new Thickness(0, 10, 0, 0),
+                BorderBrush = selected ? UiHelpers.Accent : Brushes.Transparent,
+                BorderThickness = new Thickness(selected ? 2 : 0),
+                Padding = selected ? Deflate(pad, 2) : pad,
+                Cursor = Cursors.Hand,
+                Child = inner,
+            };
+            row.MouseLeftButtonUp += (_, __) => { _driverRowIndex = index; activate(); };
+            stack.Children.Add(row);
+        }
+
+        /// <summary>1 \u2192 2 \u2192 3 \u2192 4 \u2192 off \u2192 1. Off is reachable on purpose: a background check that
+        /// reaches the network and cannot be switched off is a behaviour, not a setting.</summary>
+        private static int NextInterval(int weeks) =>
+            weeks >= Core.CenterSettings.IntervalMaxWeeks ? Core.CenterSettings.IntervalOff
+            : weeks <= Core.CenterSettings.IntervalOff ? Core.CenterSettings.IntervalMinWeeks
+            : weeks + 1;
+
+        private static string IntervalLabel(int weeks)
+        {
+            if (weeks <= Core.CenterSettings.IntervalOff) return Core.Loc.T("Never");
+            if (weeks == 1) return Core.Loc.T("Every week");
+            return Core.Loc.F("Every {0} weeks", weeks);
+        }
+
+        // \u2500\u2500 Navigation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        private void MoveDriversSelection(PadButton dir)
+        {
+            if (_driverRowActions.Count == 0) return;
+            int next = _driverRowIndex;
+            if (dir == PadButton.Up) next--;
+            else if (dir == PadButton.Down) next++;
+            else return;
+
+            if (next < 0) next = 0;
+            if (next > _driverRowActions.Count - 1) next = _driverRowActions.Count - 1;
+            if (next == _driverRowIndex) return;
+
+            _driverRowIndex = next;
+            RenderDrivers();
+        }
+
         private static TextBlock SectionHeading(string text) => new TextBlock
         {
             Text = Core.Loc.T(text),
@@ -464,9 +586,16 @@ namespace ClawTweaksCenter
         // ── Action bar ─────────────────────────────────────────────────────────────────────────
         private void RefreshDriversActionBar()
         {
-            AddAction(PadButton.A, "Check Windows Update", !_windowsUpdatesBusy, () => _ = RequestWindowsUpdatesAsync(force: true));
+            // \u24B6 acts on the ROW the cursor is on - the two interval settings and the shortcut into
+            // Windows. The two check buttons keep their own chips: they are what someone came here to
+            // press, and burying them one cursor move deep would be the wrong trade.
+            AddAction(PadButton.A, "Change", _driverRowActions.Count > 0, () =>
+            {
+                if (_driverRowIndex >= 0 && _driverRowIndex < _driverRowActions.Count)
+                    _driverRowActions[_driverRowIndex]();
+            });
+            AddAction(PadButton.X, "Check Windows Update", !_windowsUpdatesBusy, () => _ = RequestWindowsUpdatesAsync(force: true));
             AddAction(PadButton.Y, "Refresh drivers", !_driversBusy, () => _ = RequestDriversAsync(force: true));
-            AddAction(PadButton.X, "Open Windows Update", true, OpenWindowsUpdateSettings);
             AddAction(PadButton.B, "Back", true, GoHome);
             AddScrollHint();
         }

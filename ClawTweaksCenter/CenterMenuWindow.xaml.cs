@@ -62,7 +62,7 @@ namespace ClawTweaksCenter
 
         /// <summary>Which idle screen ContentHost shows — Confirm/Install are transient overlays
         /// triggered from Browse and don't need their own value here.</summary>
-        private enum View { Home, Browse, Onboarding, Maintenance, Library, InstallDone, CenterSettings, Leave, Faq, Drivers }
+        private enum View { Home, Browse, Onboarding, Maintenance, Library, InstallDone, CenterSettings, Leave, Faq, Drivers, Notifications, WidgetNotifySettings }
         private View _view = View.Home;
 
         private DeviceDetect.Model _deviceModel = DeviceDetect.Model.Unknown;
@@ -192,6 +192,11 @@ namespace ClawTweaksCenter
             {
                 if (_view == View.Leave) RenderLeave();
             });
+
+            // Subscribed once, here, rather than each time the list is opened: a per-open
+            // subscription that one exit path forgets to remove leaks a handler for the lifetime of
+            // the window, and this store is written from background checks.
+            HookNotifications();
 
             SizeChanged += (_, __) => { UpdateShellLayout(); OnLibrarySizeChanged(); RefreshFooterBlurMask(); };
             // The footer changes height when the chips wrap, and the blur mask is a fraction of the
@@ -663,6 +668,8 @@ namespace ClawTweaksCenter
                 case View.Leave: RenderLeave(); break;
                 case View.Faq: RenderFaq(); break;
                 case View.Drivers: RenderDrivers(); break;
+                case View.Notifications: RenderNotifications(); break;
+                case View.WidgetNotifySettings: RenderWidgetNotifySettings(); break;
                 default: RenderBrowse(); break;
             }
         }
@@ -2004,7 +2011,9 @@ namespace ClawTweaksCenter
             if (_view == View.Faq) { MoveFaqSelection(dir); return; }
             // Read-only and nothing selectable on it: the right stick scrolls, the d-pad has
             // nothing to move.
-            if (_view == View.Drivers) return;
+            if (_view == View.Drivers) { MoveDriversSelection(dir); return; }
+            if (_view == View.Notifications) { MoveNotificationsSelection(dir); return; }
+            if (_view == View.WidgetNotifySettings) { MoveWidgetNotifySelection(dir); return; }
 
             // A hand-off screen (missing prerequisites / untrusted certificate) is up. _view is still
             // Browse — these screens replace the CONTENT without being their own view — so without this
@@ -2128,6 +2137,14 @@ namespace ClawTweaksCenter
 
             BuildActionBar();
 
+            // Notifications claim LT, but ONLY where the current screen left it alone: the letter bar
+            // owns it in All and Not installed, the ROM tab cycles systems with it. Bound here, after
+            // every screen has declared what it wants, so "is LT free" is a fact rather than a list
+            // of screens somebody has to keep in sync. Where it is taken, no keycap appears - the
+            // letter bar's own rule, and the reason nobody has to press a key to find out whether it
+            // does anything.
+            RefreshNotificationIndicator(bindLeftTrigger: !_liveActions.ContainsKey(PadButton.LT));
+
             // OrderBy, not List.Sort: it is stable, so two chips on the same button (which no screen
             // does today) keep the order the screen declared them in instead of swapping at random.
             foreach (var chip in _pendingChips.OrderBy(c => ChipRank(c.Button)))
@@ -2245,6 +2262,18 @@ namespace ClawTweaksCenter
                 return;
             }
 
+            if (_view == View.Notifications)
+            {
+                RefreshNotificationsActionBar();
+                return;
+            }
+
+            if (_view == View.WidgetNotifySettings)
+            {
+                RefreshWidgetNotifyActionBar();
+                return;
+            }
+
             // Browse-view flow states below (these never apply to the views handled above).
             // Nothing is actionable mid-download/install — an empty bar beats four dead-looking chips.
             if (_busy) return;
@@ -2293,6 +2322,7 @@ namespace ClawTweaksCenter
                 if (_selectedIndex >= 0 && _selectedIndex < _flat.Count) ShowConfirm(_flat[_selectedIndex]);
             });
             AddAction(PadButton.Y, "Refresh", true, () => _ = RefreshSourcesAsync());
+            AddAction(PadButton.X, "Update notifications", true, OpenWidgetNotifySettings);
             AddAction(PadButton.B, "Back", true, GoHome);
             AddScrollHint();
         }

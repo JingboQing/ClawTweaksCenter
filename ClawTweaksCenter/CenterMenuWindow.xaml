@@ -164,9 +164,21 @@
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            Margin="12,4,12,4" />
 
-                <TextBlock x:Name="FooterClock" Grid.Column="2"
-                           VerticalAlignment="Center" Margin="8,0,28,0"
-                           FontSize="12" Foreground="{StaticResource SubtleTextBrush}" />
+                <!-- The clock, with the notification counter to its left in the SAME cell.
+
+                     ⚠️ This column is half of the shared size group above, so anything added here
+                     widens the OTHER side too and moves the centred chip row with it. That is why the
+                     counter is Collapsed until there is something to count, and why it stays as small
+                     as a glyph plus a number: it is not free space, it is space the battery readout
+                     pays for as well. -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                            VerticalAlignment="Center" Margin="8,0,28,0">
+                    <Border x:Name="FooterNotify" Visibility="Collapsed"
+                            VerticalAlignment="Center" Margin="0,0,12,0" />
+                    <TextBlock x:Name="FooterClock"
+                               VerticalAlignment="Center"
+                               FontSize="12" Foreground="{StaticResource SubtleTextBrush}" />
+                </StackPanel>
             </Grid>
         </Border>
     </Grid>
