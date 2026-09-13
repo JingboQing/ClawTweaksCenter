@@ -719,6 +719,7 @@ namespace ClawTweaksCenter.Core
             ["Drivers & Updates"] = "Treiber & Updates",
             ["Device drivers and the state of Windows Update."] = "Ger\u00E4tetreiber und der Stand von Windows Update.",
             ["Device drivers and Windows Update."] = "Ger\u00E4tetreiber und Windows Update.",
+            ["Cannot tell"] = "Nicht feststellbar",
         };
 
         private static readonly Dictionary<string, string> French = new Dictionary<string, string>
@@ -1411,6 +1412,7 @@ namespace ClawTweaksCenter.Core
             ["Drivers & Updates"] = "Pilotes et mises \u00E0 jour",
             ["Device drivers and the state of Windows Update."] = "Pilotes de p\u00E9riph\u00E9riques et \u00E9tat de Windows Update.",
             ["Device drivers and Windows Update."] = "Pilotes de p\u00E9riph\u00E9riques et Windows Update.",
+            ["Cannot tell"] = "Impossible \u00E0 dire",
         };
 
         private static readonly Dictionary<string, string> Korean = new Dictionary<string, string>
@@ -2106,6 +2108,7 @@ namespace ClawTweaksCenter.Core
             ["Drivers & Updates"] = "\uB4DC\uB77C\uC774\uBC84 \uBC0F \uC5C5\uB370\uC774\uD2B8",
             ["Device drivers and the state of Windows Update."] = "\uC7A5\uCE58 \uB4DC\uB77C\uC774\uBC84\uC640 Windows \uC5C5\uB370\uC774\uD2B8 \uC0C1\uD0DC.",
             ["Device drivers and Windows Update."] = "\uC7A5\uCE58 \uB4DC\uB77C\uC774\uBC84\uC640 Windows \uC5C5\uB370\uC774\uD2B8.",
+            ["Cannot tell"] = "\uD655\uC778 \uBD88\uAC00",
         };
 
         private static readonly Dictionary<string, string> Spanish = new Dictionary<string, string>
@@ -2800,6 +2803,7 @@ namespace ClawTweaksCenter.Core
             ["Drivers & Updates"] = "Controladores y actualizaciones",
             ["Device drivers and the state of Windows Update."] = "Controladores de dispositivo y el estado de Windows Update.",
             ["Device drivers and Windows Update."] = "Controladores de dispositivo y Windows Update.",
+            ["Cannot tell"] = "No se puede determinar",
         };
 
     }

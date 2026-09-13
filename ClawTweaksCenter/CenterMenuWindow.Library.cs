@@ -4480,8 +4480,13 @@ namespace ClawTweaksCenter
 
             // Drivers and Windows Update, straight out of the library - the two questions someone asks
             // when a game runs worse than it did last week.
+            //
+            // \u26A0\uFE0F LeaveLibrary() FIRST, and it is not optional. This row draws into ContentHost while
+            // LibraryRoot is still visible ON TOP of it: the first version changed the action bar and
+            // left the quick menu lying over the new screen. GoHome() makes the same call, which is
+            // why the start-screen row above never showed the defect.
             AddExitPromptRow(stack, "\uE977", "Drivers & Updates", "Device drivers and Windows Update.",
-                () => { _exitPromptOpen = false; ClearExitPromptLists(); OpenDrivers(); });
+                () => { _exitPromptOpen = false; ClearExitPromptLists(); LeaveLibrary(); OpenDrivers(); });
 
             // THE DEVICE, not Center - which is why the four sit inside ONE card. They are the same
             // kind of decision as each other and a different kind from the rows above, and four

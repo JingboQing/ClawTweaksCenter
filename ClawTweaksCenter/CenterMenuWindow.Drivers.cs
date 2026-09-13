@@ -264,27 +264,7 @@ namespace ClawTweaksCenter
                 Margin = new Thickness(0, 3, 0, 0),
             });
 
-            // Only "update available" is called out. Unknown is deliberately quiet: it is what a BIOS
-            // row from a foreign board reads as, and shouting about it would be shouting about a row
-            // the helper has already decided not to offer.
-            if (d.UpdateStatus == DriverUpdateStatusDto.UpdateAvailable && !d.Ignored)
-            {
-                string label = d.IsBeta ? Core.Loc.T("Update available (beta)") : Core.Loc.T("Update available");
-                stack.Children.Add(new TextBlock
-                {
-                    Text = label,
-                    FontSize = 13, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Ok,
-                    Margin = new Thickness(0, 4, 0, 0),
-                });
-            }
-            else if (d.Ignored)
-            {
-                stack.Children.Add(new TextBlock
-                {
-                    Text = Core.Loc.T("Muted"),
-                    FontSize = 13, Foreground = UiHelpers.Subtle, Margin = new Thickness(0, 4, 0, 0),
-                });
-            }
+            stack.Children.Add(BuildDriverChip(d));
 
             if (showHighlights && !string.IsNullOrWhiteSpace(d.Highlights))
                 stack.Children.Add(new TextBlock
@@ -301,6 +281,73 @@ namespace ClawTweaksCenter
                 Padding = new Thickness(14, 11, 14, 11),
                 Margin = new Thickness(0, 0, 0, 8),
                 Child = stack,
+            };
+        }
+
+        /// <summary>
+        /// The one-glance answer per row: a coloured pill instead of a line of prose that was only
+        /// there when something was wrong. Before this, "up to date" was rendered as the ABSENCE of a
+        /// line - which reads the same as a row that was never checked.
+        ///
+        /// Four states, and the quiet one is deliberate. Unknown is what a BIOS row from a foreign
+        /// board comes back as (DriverMatchUtil.CompareMsiBiosCodes refuses to compare across board
+        /// prefixes and returns null), and the helper does not offer those - so it stays grey and
+        /// says "cannot tell" rather than colouring a row nobody should act on.
+        /// </summary>
+        private Border BuildDriverChip(DriverEntryDto d)
+        {
+            string text;
+            Brush colour;
+
+            if (d.Ignored)
+            {
+                // A muted row keeps its real state out of the chip on purpose: the user has said they
+                // do not want to hear about it, and a green pill on a muted update would argue.
+                text = Core.Loc.T("Muted");
+                colour = UiHelpers.Subtle;
+            }
+            else
+            {
+                switch (d.UpdateStatus)
+                {
+                    case DriverUpdateStatusDto.UpdateAvailable:
+                        text = d.IsBeta ? Core.Loc.T("Update available (beta)") : Core.Loc.T("Update available");
+                        colour = UiHelpers.Warn;
+                        break;
+                    case DriverUpdateStatusDto.UpToDate:
+                        text = Core.Loc.T("Up to date");
+                        colour = UiHelpers.Ok;
+                        break;
+                    case DriverUpdateStatusDto.NotInstalled:
+                        text = Core.Loc.T("Not installed");
+                        colour = UiHelpers.Accent;
+                        break;
+                    default:
+                        text = Core.Loc.T("Cannot tell");
+                        colour = UiHelpers.Subtle;
+                        break;
+                }
+            }
+
+            // Tinted from the SAME brush as the text, so the pill cannot drift out of the theme the
+            // way a hard-coded pair of colours would. 0.16 keeps it readable on the card behind it.
+            var fill = colour.Clone();
+            fill.Opacity = 0.16;
+
+            return new Border
+            {
+                Background = fill,
+                CornerRadius = new CornerRadius(999),
+                Padding = new Thickness(10, 3, 10, 4),
+                Margin = new Thickness(0, 7, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Child = new TextBlock
+                {
+                    Text = text,
+                    FontSize = 12,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = colour,
+                },
             };
         }
 
