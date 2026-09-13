@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -63,14 +63,20 @@ namespace ClawTweaksCenter
             if (FooterNotify == null) return;
 
             int unread = Core.Notifications.UnreadCount();
-            if (unread <= 0 || _view == View.Notifications)
+
+            // ALWAYS on screen, even at zero (user, 2026-09-13). A bell that exists only while
+            // something is wrong cannot be learned - people would find it once, in the moment they
+            // are least inclined to go exploring. At zero it is dimmed and carries no number, and
+            // opening it says so instead of showing a blank screen.
+            if (_view == View.Notifications)
             {
-                // Nothing waiting, or the list is already open: an unread count pointing at the
-                // screen you are looking at is noise.
+                // The one exception: pointing at the screen you are already looking at is noise.
                 FooterNotify.Visibility = Visibility.Collapsed;
                 FooterNotify.Child = null;
                 return;
             }
+
+            var tone = unread > 0 ? UiHelpers.Accent : UiHelpers.Subtle;
 
             var row = new StackPanel { Orientation = Orientation.Horizontal, Cursor = Cursors.Hand };
             row.Children.Add(new TextBlock
@@ -78,18 +84,19 @@ namespace ClawTweaksCenter
                 Text = "",                    // Segoe MDL2 "Ringer"
                 FontFamily = new FontFamily("Segoe MDL2 Assets"),
                 FontSize = 12,
-                Foreground = UiHelpers.Accent,
+                Foreground = tone,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(0, 0, 5, 0),
+                Margin = new Thickness(0, 0, unread > 0 ? 5 : 0, 0),
             });
-            row.Children.Add(new TextBlock
-            {
-                Text = unread.ToString(),
-                FontSize = 12,
-                FontWeight = FontWeights.SemiBold,
-                Foreground = UiHelpers.Accent,
-                VerticalAlignment = VerticalAlignment.Center,
-            });
+            if (unread > 0)
+                row.Children.Add(new TextBlock
+                {
+                    Text = unread.ToString(),
+                    FontSize = 12,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = tone,
+                    VerticalAlignment = VerticalAlignment.Center,
+                });
 
             if (bindLeftTrigger)
             {
@@ -133,8 +140,7 @@ namespace ClawTweaksCenter
 
             if (_notificationsShown.Count == 0)
             {
-                ContentHost.Children.Add(UiHelpers.Body("Nothing here yet."));
-                ContentHost.Children.Add(UiHelpers.Body(
+                ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Ok, "No new notifications",
                     "Center tells you here when a driver, a Windows update or a new widget build turns up."));
                 return;
             }
@@ -230,6 +236,12 @@ namespace ClawTweaksCenter
                 case "widget":
                     OpenBrowse();
                     break;
+                case "announcement":
+                    // Nowhere to send anyone. The message IS the content, and it is text fetched
+                    // over the network - nothing in it may drive navigation.
+                    RenderNotifications();
+                    RefreshActionBar();
+                    break;
                 default:
                     RenderNotifications();
                     RefreshActionBar();
@@ -237,14 +249,21 @@ namespace ClawTweaksCenter
             }
         }
 
+        /// <summary>
+        /// One glyph per kind, so the list is readable before a single word of it is.
+        ///
+        /// Segoe MDL2 Assets. If one of these renders as an empty box the code point is wrong for
+        /// the installed font - that is the symptom to look for, not a layout problem.
+        /// </summary>
         private static string GlyphFor(string kind)
         {
             switch (kind)
             {
-                case "driver": return "";     // PC
-                case "windows": return "";    // Sync
-                case "widget": return "";     // Download
-                default: return "";           // Info
+                case "announcement": return "\uE789";  // Megaphone - the project talking to you
+                case "driver": return "\uE977";        // PC1 - the device itself
+                case "windows": return "\uE90F";       // Repair - the toolbox
+                case "widget": return "\uE896";        // Download
+                default: return "\uE946";              // Info
             }
         }
 

@@ -742,6 +742,9 @@ namespace ClawTweaksCenter.Core
             ["Driver update: {0}"] = "Treiberupdate: {0}",
             ["Version {0} is available."] = "Version {0} ist verf\u00FCgbar.",
             ["{0} Windows update(s) waiting"] = "{0} Windows-Update(s) warten",
+            ["Automatic check"] = "Automatische Pr\u00FCfung",
+            ["No new notifications"] = "Keine neuen Benachrichtigungen",
+            ["Gamebar Widget Releases"] = "Gamebar Widget Releases",
         };
 
         private static readonly Dictionary<string, string> French = new Dictionary<string, string>
@@ -1457,6 +1460,9 @@ namespace ClawTweaksCenter.Core
             ["Driver update: {0}"] = "Mise \u00E0 jour de pilote : {0}",
             ["Version {0} is available."] = "La version {0} est disponible.",
             ["{0} Windows update(s) waiting"] = "{0} mise(s) \u00E0 jour Windows en attente",
+            ["Automatic check"] = "V\u00E9rification automatique",
+            ["No new notifications"] = "Aucune nouvelle notification",
+            ["Gamebar Widget Releases"] = "Gamebar Widget Releases",
         };
 
         private static readonly Dictionary<string, string> Korean = new Dictionary<string, string>
@@ -2175,6 +2181,9 @@ namespace ClawTweaksCenter.Core
             ["Driver update: {0}"] = "\uB4DC\uB77C\uC774\uBC84 \uC5C5\uB370\uC774\uD2B8: {0}",
             ["Version {0} is available."] = "\uBC84\uC804 {0}\uC744(\uB97C) \uC0AC\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
             ["{0} Windows update(s) waiting"] = "Windows \uC5C5\uB370\uC774\uD2B8 {0}\uAC1C \uB300\uAE30 \uC911",
+            ["Automatic check"] = "\uC790\uB3D9 \uD655\uC778",
+            ["No new notifications"] = "\uC0C8 \uC54C\uB9BC \uC5C6\uC74C",
+            ["Gamebar Widget Releases"] = "Gamebar \uC704\uC82F \uB9B4\uB9AC\uC2A4",
         };
 
         private static readonly Dictionary<string, string> Spanish = new Dictionary<string, string>
@@ -2892,6 +2901,9 @@ namespace ClawTweaksCenter.Core
             ["Driver update: {0}"] = "Actualizaci\u00F3n de controlador: {0}",
             ["Version {0} is available."] = "La versi\u00F3n {0} est\u00E1 disponible.",
             ["{0} Windows update(s) waiting"] = "{0} actualizaci\u00F3n(es) de Windows en espera",
+            ["Automatic check"] = "Comprobaci\u00F3n autom\u00E1tica",
+            ["No new notifications"] = "Sin notificaciones nuevas",
+            ["Gamebar Widget Releases"] = "Gamebar Widget Releases",
         };
 
     }

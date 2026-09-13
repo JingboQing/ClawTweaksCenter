@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,6 +48,33 @@ namespace ClawTweaksCenter
             if (_gameLaunchedThisSession) return;
             _updateWatchRan = true;
             _ = RunBackgroundUpdateChecksAsync();
+        }
+
+        /// <summary>
+        /// Announcements from the manifest. NOT part of the interval machinery and deliberately so:
+        /// the two cases this channel exists for are "something is badly wrong" and "this release
+        /// needs a special setup", and neither of those should wait up to four weeks for a slot.
+        /// The duplicate key does the throttling instead - an announcement arrives once, whenever
+        /// Center happens to read the manifest.
+        /// </summary>
+        private void PostManifestAnnouncements()
+        {
+            var list = _setupVersionCheck?.Announcements;
+            if (list == null || list.Count == 0) return;
+
+            foreach (var a in list)
+            {
+                // A ceiling that is set and already passed means the message has done its job for
+                // this machine - the user installed what it was asking for.
+                if (a.MaxAppVersion != null && _installedVersion != null && _installedVersion > a.MaxAppVersion)
+                    continue;
+
+                Core.Notifications.Add(
+                    key: "announce:" + a.Id,
+                    kind: "announcement",
+                    title: a.Title,
+                    detail: a.Detail);
+            }
         }
 
         private async Task RunBackgroundUpdateChecksAsync()

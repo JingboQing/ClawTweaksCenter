@@ -45,10 +45,25 @@ namespace ClawTweaksCenter
         private string _driversError;
         private DateTime? _windowsUpdatesCheckedLocal;
 
-        /// <summary>The rows on this screen a cursor can sit on, rebuilt on every render: the two
-        /// interval settings and the shortcut into Windows' own page. The driver and update CARDS are
-        /// deliberately not among them - there is nothing to do to a row that only reports.</summary>
-        private readonly List<Action> _driverRowActions = new List<Action>();
+        /// <summary>
+        /// The rows on this screen a cursor can sit on, rebuilt on every render: the two interval
+        /// settings and the shortcut into Windows' own page. The driver and update CARDS are
+        /// deliberately not among them - there is nothing to do to a row that only reports.
+        ///
+        /// ⚠️ EACH ROW REMEMBERS WHICH COLUMN IT IS IN. The first version kept one flat list, so
+        /// Down walked out of the left column and into the right one - and on a machine whose left
+        /// column had nothing selectable (a non-Claw, where the helper answers "Claw only") the
+        /// cursor could never reach the left side at all. That was the report. Left/Right crosses
+        /// between columns now, Up/Down stays inside one.
+        /// </summary>
+        private sealed class DriverRow
+        {
+            public int Column;          // 0 = drivers, 1 = Windows Update
+            public Action Activate;
+            public FrameworkElement Element;
+        }
+
+        private readonly List<DriverRow> _driverRows = new List<DriverRow>();
         private int _driverRowIndex;
 
         // Deliberately generous. The driver check can go out to MSI and Intel on a cold cache, and the
@@ -172,7 +187,7 @@ namespace ClawTweaksCenter
         private void RenderDrivers()
         {
             BeginContent(centred: false);
-            _driverRowActions.Clear();
+            _driverRows.Clear();
 
             ContentHost.Children.Add(UiHelpers.Title("Drivers & Windows Updates"));
 
@@ -200,25 +215,27 @@ namespace ClawTweaksCenter
             if (_driversBusy && _driverResult == null)
             {
                 stack.Children.Add(UiHelpers.Body("Checking…"));
+                AppendDriverIntervalBlock(stack);
                 return stack;
             }
             if (_driversError != null)
             {
                 stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Drivers could not be checked", _driversError));
-                AppendIntervalRow(stack, "Check for driver updates",
-                    Core.CenterSettings.DriverCheckIntervalWeeks,
-                    Core.CenterSettings.DriverCheckLastUtc,
-                    v => Core.CenterSettings.DriverCheckIntervalWeeks = v);
+                AppendDriverIntervalBlock(stack);
                 return stack;
             }
             if (_driverResult == null)
             {
                 stack.Children.Add(UiHelpers.Body("Not checked yet."));
+                AppendDriverIntervalBlock(stack);
                 return stack;
             }
             if (!string.IsNullOrEmpty(_driverResult.Message))
             {
+                // "Driver updates are only available on MSI Claw hardware" lands here. The setting
+                // still belongs on screen: it is about future checks, not about this one.
                 stack.Children.Add(UiHelpers.Body(_driverResult.Message));
+                AppendDriverIntervalBlock(stack);
                 return stack;
             }
 
@@ -251,11 +268,7 @@ namespace ClawTweaksCenter
                 stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Offline",
                     "The list could not be refreshed; showing what was known last."));
 
-            AppendIntervalRow(stack, "Check for driver updates",
-                Core.CenterSettings.DriverCheckIntervalWeeks,
-                Core.CenterSettings.DriverCheckLastUtc,
-                v => Core.CenterSettings.DriverCheckIntervalWeeks = v);
-
+            AppendDriverIntervalBlock(stack);
             return stack;
         }
 
@@ -354,7 +367,9 @@ namespace ClawTweaksCenter
             return new Border
             {
                 Background = fill,
-                CornerRadius = new CornerRadius(999),
+                // A rectangle with soft corners, not a capsule: the pill shape read as a tag, and
+                // these are states (user, 2026-09-13).
+                CornerRadius = new CornerRadius(5),
                 Padding = new Thickness(10, 3, 10, 4),
                 Margin = new Thickness(0, 7, 0, 0),
                 HorizontalAlignment = HorizontalAlignment.Left,
@@ -471,43 +486,95 @@ namespace ClawTweaksCenter
 
         private void AppendWindowsUpdateFooterRows(StackPanel stack)
         {
-            AppendIntervalRow(stack, "Check for Windows updates",
+            // The shortcut first, the setting last. It used to sit UNDERNEATH the interval, which put
+            // "go and look now" below "how often to look later" - the wrong way round, and it read as
+            // if the button belonged to the setting (user, 2026-09-13).
+            AppendActionRow(stack, 1, "Open Windows Update", Core.Loc.T("Windows\u0027 own page."),
+                            OpenWindowsUpdateSettings);
+
+            AppendIntervalBlock(stack, 1, "Check for Windows updates",
                 Core.CenterSettings.WindowsUpdateCheckIntervalWeeks,
                 Core.CenterSettings.WindowsUpdateCheckLastUtc,
                 v => Core.CenterSettings.WindowsUpdateCheckIntervalWeeks = v);
-
-            AppendActionRow(stack, "Open Windows Update", "Windows\u0027 own page.", OpenWindowsUpdateSettings);
         }
 
-        /// <summary>
-        /// One interval setting: how often Center looks in the background, and when it last did.
-        ///
-        /// The last-checked line is not decoration. Without it "every week" is a promise the screen
-        /// makes and never accounts for, and the first question when something is missed is whether
-        /// the check ran at all.
-        /// </summary>
-        private void AppendIntervalRow(StackPanel stack, string label, int weeks, DateTime? lastUtc, Action<int> setter)
-        {
-            string detail = IntervalLabel(weeks);
-            if (lastUtc.HasValue)
-                detail += "   \u00B7   " + Core.Loc.F("last checked {0}", lastUtc.Value.ToLocalTime().ToString("d MMM"));
-            else if (weeks > Core.CenterSettings.IntervalOff)
-                detail += "   \u00B7   " + Core.Loc.T("not checked yet");
+        private void AppendDriverIntervalBlock(StackPanel stack) =>
+            AppendIntervalBlock(stack, 0, "Check for driver updates",
+                Core.CenterSettings.DriverCheckIntervalWeeks,
+                Core.CenterSettings.DriverCheckLastUtc,
+                v => Core.CenterSettings.DriverCheckIntervalWeeks = v);
 
-            AppendActionRow(stack, label, detail, () =>
+        /// <summary>
+        /// One interval setting: a heading, the setting itself as a value line, and the last-checked
+        /// note as plain text UNDERNEATH it.
+        ///
+        /// ⚠️ The three used to be one card with two lines of text, which made a setting look like a
+        /// button and welded the last-checked note to the thing it is only a comment on (user,
+        /// 2026-09-13). The note is not decoration either: without it "every week" is a promise the
+        /// screen makes and never accounts for, and the first question when something is missed is
+        /// whether the check ran at all.
+        /// </summary>
+        private void AppendIntervalBlock(StackPanel stack, int column, string label, int weeks,
+                                         DateTime? lastUtc, Action<int> setter)
+        {
+            stack.Children.Add(new TextBlock
+            {
+                Text = Core.Loc.T("Automatic check"),
+                FontSize = 12, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Subtle,
+                Margin = new Thickness(2, 22, 0, 6),
+            });
+
+            AppendValueLine(stack, column, label, IntervalLabel(weeks), () =>
             {
                 setter(NextInterval(weeks));
                 RenderDrivers();
                 RefreshActionBar();
             });
+
+            stack.Children.Add(new TextBlock
+            {
+                Text = lastUtc.HasValue
+                    ? Core.Loc.F("last checked {0}", lastUtc.Value.ToLocalTime().ToString("d MMM"))
+                    : (weeks > Core.CenterSettings.IntervalOff ? Core.Loc.T("not checked yet") : ""),
+                FontSize = 11, Foreground = UiHelpers.Subtle, Opacity = 0.75,
+                Margin = new Thickness(2, 6, 0, 0),
+            });
         }
 
-        private void AppendActionRow(StackPanel stack, string label, string detail, Action activate)
+        /// <summary>A setting line: name on the left, value on the right, a hairline underneath.
+        /// Deliberately NOT a filled card - a card in this column is a driver, and a setting that
+        /// looks like one invites a press that means something else.</summary>
+        private void AppendValueLine(StackPanel stack, int column, string label, string value, Action activate)
         {
-            int index = _driverRowActions.Count;
-            _driverRowActions.Add(activate);
-            bool selected = index == _driverRowIndex;
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
+            var name = new TextBlock
+            {
+                Text = Core.Loc.T(label),
+                FontSize = 14, Foreground = UiHelpers.Text,
+                TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center,
+            };
+            Grid.SetColumn(name, 0);
+            grid.Children.Add(name);
+
+            var val = new TextBlock
+            {
+                Text = value,
+                FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Accent,
+                Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center,
+            };
+            Grid.SetColumn(val, 1);
+            grid.Children.Add(val);
+
+            AppendRow(stack, column, grid, activate, new Thickness(0, 8, 0, 8));
+        }
+
+        /// <summary>An actionable row that is not a setting: a name, a line of explanation, and a
+        /// press that goes somewhere.</summary>
+        private void AppendActionRow(StackPanel stack, int column, string label, string detail, Action activate)
+        {
             var inner = new StackPanel();
             inner.Children.Add(new TextBlock
             {
@@ -515,26 +582,36 @@ namespace ClawTweaksCenter
                 FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Text,
                 TextWrapping = TextWrapping.Wrap,
             });
-            inner.Children.Add(new TextBlock
-            {
-                Text = detail,
-                FontSize = 12, Foreground = UiHelpers.Subtle, TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 3, 0, 0),
-            });
+            if (!string.IsNullOrEmpty(detail))
+                inner.Children.Add(new TextBlock
+                {
+                    Text = detail,
+                    FontSize = 12, Foreground = UiHelpers.Subtle, TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 3, 0, 0),
+                });
 
-            var pad = new Thickness(14, 11, 14, 11);
+            AppendRow(stack, column, inner, activate, new Thickness(0, 14, 0, 0));
+        }
+
+        /// <summary>The selection frame every row on this screen shares: a left bar in the accent
+        /// colour rather than a full border, so a selected setting still does not read as a card.</summary>
+        private void AppendRow(StackPanel stack, int column, UIElement content, Action activate, Thickness margin)
+        {
+            int index = _driverRows.Count;
+            bool selected = index == _driverRowIndex;
+
             var row = new Border
             {
-                Background = UiHelpers.Card,
-                CornerRadius = new CornerRadius(10),
-                Margin = new Thickness(0, 10, 0, 0),
+                Margin = margin,
+                Padding = new Thickness(selected ? 10 : 2, 6, 2, 6),
                 BorderBrush = selected ? UiHelpers.Accent : Brushes.Transparent,
-                BorderThickness = new Thickness(selected ? 2 : 0),
-                Padding = selected ? Deflate(pad, 2) : pad,
+                BorderThickness = new Thickness(selected ? 3 : 0, 0, 0, 0),
                 Cursor = Cursors.Hand,
-                Child = inner,
+                Child = content,
             };
             row.MouseLeftButtonUp += (_, __) => { _driverRowIndex = index; activate(); };
+
+            _driverRows.Add(new DriverRow { Column = column, Activate = activate, Element = row });
             stack.Children.Add(row);
         }
 
@@ -555,18 +632,36 @@ namespace ClawTweaksCenter
         // \u2500\u2500 Navigation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
         private void MoveDriversSelection(PadButton dir)
         {
-            if (_driverRowActions.Count == 0) return;
-            int next = _driverRowIndex;
-            if (dir == PadButton.Up) next--;
-            else if (dir == PadButton.Down) next++;
+            if (_driverRows.Count == 0) return;
+            if (_driverRowIndex < 0 || _driverRowIndex >= _driverRows.Count) _driverRowIndex = 0;
+
+            int current = _driverRowIndex;
+            int column = _driverRows[current].Column;
+            int next = current;
+
+            if (dir == PadButton.Up || dir == PadButton.Down)
+            {
+                int step = dir == PadButton.Up ? -1 : 1;
+                for (int i = current + step; i >= 0 && i < _driverRows.Count; i += step)
+                    if (_driverRows[i].Column == column) { next = i; break; }
+            }
+            else if (dir == PadButton.Left || dir == PadButton.Right)
+            {
+                // Cross to the other column and land on ITS first row - not on the nearest index,
+                // which would depend on how many driver rows happen to be listed above.
+                int target = dir == PadButton.Left ? 0 : 1;
+                for (int i = 0; i < _driverRows.Count; i++)
+                    if (_driverRows[i].Column == target) { next = i; break; }
+            }
             else return;
 
-            if (next < 0) next = 0;
-            if (next > _driverRowActions.Count - 1) next = _driverRowActions.Count - 1;
-            if (next == _driverRowIndex) return;
-
+            if (next == current) return;
             _driverRowIndex = next;
             RenderDrivers();
+
+            // Without this the cursor walks off the bottom of the viewport and the screen looks
+            // frozen - the rows below the fold are exactly the ones this navigation exists for.
+            _driverRows[_driverRowIndex].Element?.BringIntoView();
         }
 
         private static TextBlock SectionHeading(string text) => new TextBlock
@@ -589,10 +684,10 @@ namespace ClawTweaksCenter
             // \u24B6 acts on the ROW the cursor is on - the two interval settings and the shortcut into
             // Windows. The two check buttons keep their own chips: they are what someone came here to
             // press, and burying them one cursor move deep would be the wrong trade.
-            AddAction(PadButton.A, "Change", _driverRowActions.Count > 0, () =>
+            AddAction(PadButton.A, "Change", _driverRows.Count > 0, () =>
             {
-                if (_driverRowIndex >= 0 && _driverRowIndex < _driverRowActions.Count)
-                    _driverRowActions[_driverRowIndex]();
+                if (_driverRowIndex >= 0 && _driverRowIndex < _driverRows.Count)
+                    _driverRows[_driverRowIndex].Activate();
             });
             AddAction(PadButton.X, "Check Windows Update", !_windowsUpdatesBusy, () => _ = RequestWindowsUpdatesAsync(force: true));
             AddAction(PadButton.Y, "Refresh drivers", !_driversBusy, () => _ = RequestDriversAsync(force: true));

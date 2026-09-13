@@ -336,6 +336,14 @@ namespace ClawTweaksCenter
 
                 _setupVersionCheck = await setupVersionTask;
                 _windowsChannel = await windowsChannelTask;
+
+                // Announcements land the moment the manifest does, NOT with the background update
+                // pass. That pass waits for a library scan, runs once a session and skips entirely
+                // once a game has been started - fine for "a driver is out", wrong for the two cases
+                // this channel exists for: something is badly broken, or a release needs a special
+                // setup. The duplicate key is what stops it repeating.
+                PostManifestAnnouncements();
+
                 RenderCurrentView(); // picks up the outdated-Setup / Insider-channel warnings once known
 
                 // Reached via MainWindow after a successful install/update (release-folder wizard
@@ -866,10 +874,14 @@ namespace ClawTweaksCenter
         // Onboarding moved DOWN out of the first row. It is a once-per-device screen, and it was
         // sitting in the second-most prominent cell on every visit after that one.
 
-        /// <summary>First row: library, builds, maintenance.</summary>
+        /// <summary>First row: the library, the widget releases, and drivers &amp; updates.
+        ///
+        /// Drivers came UP here on 2026-09-13 and backup/restore went down to the last cell: the two
+        /// update screens now sit side by side, which is how they are used - "is there anything new"
+        /// is one question asked of two places.</summary>
         private const int HomeLibraryIndex = 0;
         private const int HomeBrowseIndex = 1;
-        private const int HomeMaintenanceIndex = 2;
+        private const int HomeDriversIndex = 2;
 
         /// <summary>Second row: onboarding, then the two settings screens.</summary>
         private const int HomeOnboardingIndex = 3;
@@ -892,15 +904,16 @@ namespace ClawTweaksCenter
         private const int HomeFaqIndex = 6;
         private const int HomeLeaveIndex = 7;
 
-        /// <summary>Fourth cell of the third row - APPENDED, never inserted.
+        /// <summary>Last cell of the third row. Backup and restore is the least frequent of the
+        /// nine and the one nobody hunts for in a hurry, so it took the cell drivers &amp; updates
+        /// vacated rather than leaving a hole at the end of the grid.
         ///
-        /// The grid is three columns wide, so eight tiles left one cell empty and this fills it.
-        /// Appending is the safe shape: every constant here is a POSITION, and the switch in
-        /// ActivateHomeTile does not move with them. Inserting a tile would silently shift every
-        /// index behind it while the switch kept pointing at the old cells.</summary>
-        private const int HomeDriversIndex = 8;
+        /// ⚠️ ONLY THE NUMBERS MOVED. Every reader uses these names, the switch in ActivateHomeTile
+        /// included, so swapping two values here moves two tiles and nothing else has to be found.
+        /// The order of the Add calls below is the other half of the pair and has to match.</summary>
+        private const int HomeMaintenanceIndex = 8;
 
-        private const int HomeMaxIndex = HomeDriversIndex;
+        private const int HomeMaxIndex = HomeMaintenanceIndex;
 
         /// <summary>True when a newer Center is offered — either as a notice from setup-manifest.json
         /// (SetupVersionCheck.IsUpdateOffered) or as something this installation can install itself
@@ -1100,14 +1113,15 @@ namespace ClawTweaksCenter
                 selected: _homeSelectedIndex == HomeLibraryIndex));
 
             tiles.Children.Add(BuildHomeTile(
-                "", "Update & Release", "Install releases, test builds and nightlies.",
+                "", "Gamebar Widget Releases", "Install releases, test builds and nightlies.",
                 clickable: true, onClick: () => { _homeSelectedIndex = HomeBrowseIndex; OpenBrowse(); },
                 selected: _homeSelectedIndex == HomeBrowseIndex));
 
             tiles.Children.Add(BuildHomeTile(
-                "", "Reset · Backup · Restore", "Reset the app, or back up your profiles.",
-                clickable: true, onClick: () => { _homeSelectedIndex = HomeMaintenanceIndex; OpenMaintenance(); },
-                selected: _homeSelectedIndex == HomeMaintenanceIndex));
+                "", "Drivers & Updates", "Device drivers and the state of Windows Update.",
+                clickable: true,
+                onClick: () => { _homeSelectedIndex = HomeDriversIndex; OpenDrivers(); },
+                selected: _homeSelectedIndex == HomeDriversIndex));
             // Second row. Onboarding came DOWN out of the first row: it is a once-per-device screen
             // that was holding the second-most prominent cell on every visit after that one. The two
             // settings screens follow it.
@@ -1145,13 +1159,12 @@ namespace ClawTweaksCenter
                 onClick: () => { _homeSelectedIndex = HomeLeaveIndex; OpenLeave(); },
                 selected: _homeSelectedIndex == HomeLeaveIndex));
 
-            // Ninth cell: three columns, so this one completes the third row instead of leaving a
-            // hole at the end of it.
+            // Ninth cell: three columns, so this one completes the third row instead of
+            // leaving a hole at the end of it.
             tiles.Children.Add(BuildHomeTile(
-                "", "Drivers & Updates", "Device drivers and the state of Windows Update.",
-                clickable: true,
-                onClick: () => { _homeSelectedIndex = HomeDriversIndex; OpenDrivers(); },
-                selected: _homeSelectedIndex == HomeDriversIndex));
+                "", "Reset · Backup · Restore", "Reset the app, or back up your profiles.",
+                clickable: true, onClick: () => { _homeSelectedIndex = HomeMaintenanceIndex; OpenMaintenance(); },
+                selected: _homeSelectedIndex == HomeMaintenanceIndex));
 
             ContentHost.Children.Add(tiles);
         }
