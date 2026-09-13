@@ -41,6 +41,9 @@ namespace ClawTweaksCenter
             /// <summary>Every Steam achievement the user has unlocked in this game, newest first -
             /// see CenterMenuWindow.Achievements.cs.</summary>
             Achievements,
+            /// <summary>The backgrounds published in the Center repo, one Y away from the user's own
+            /// pictures - see CenterMenuWindow.CtwWallpapers.cs.</summary>
+            CtwWallpapers,
         }
 
         // Fixed column count for the art picker grid - unlike the library's own grid it does not need
@@ -161,6 +164,11 @@ namespace ClawTweaksCenter
                 UserArtBack();
                 return;
             }
+            if (_gameMenuOverlay == GameMenuOverlay.CtwWallpapers)
+            {
+                CtwWallpapersBack();
+                return;
+            }
             if (_gameMenuOverlay == GameMenuOverlay.Achievements)
             {
                 // Straight back to the launch screen when that is where A came from - it is still
@@ -221,6 +229,9 @@ namespace ClawTweaksCenter
             _userArtScroller = null;
             _achievementRows.Clear();
             _achievementScroller = null;
+            // Same rule as the lists above: these hold elements that are about to be detached.
+            _ctwWallpaperTiles.Clear();
+            _ctwWallpaperScroller = null;
 
             switch (_gameMenuOverlay)
             {
@@ -230,6 +241,7 @@ namespace ClawTweaksCenter
                 case GameMenuOverlay.UserArt: RenderUserArtGrid(); break;
                 case GameMenuOverlay.UserArtFolder: RenderUserArtFolder(); break;
                 case GameMenuOverlay.Achievements: RenderAchievements(); break;
+                case GameMenuOverlay.CtwWallpapers: RenderCtwWallpapers(); break;
             }
         }
 
@@ -422,6 +434,7 @@ namespace ClawTweaksCenter
             if (_gameMenuOverlay == GameMenuOverlay.UserArt) { MoveUserArtSelection(dir); return; }
             if (_gameMenuOverlay == GameMenuOverlay.UserArtFolder) { MoveUserArtFolderSelection(dir); return; }
             if (_gameMenuOverlay == GameMenuOverlay.Achievements) { MoveAchievementSelection(dir); return; }
+            if (_gameMenuOverlay == GameMenuOverlay.CtwWallpapers) { MoveCtwWallpaperSelection(dir); return; }
             if (_gameMenuRows.Count == 0) return;
 
             int next = _gameMenuIndex + (dir == PadButton.Down ? 1 : dir == PadButton.Up ? -1 : 0);
@@ -932,8 +945,9 @@ namespace ClawTweaksCenter
         #region Footer
         private bool RefreshGameMenuActionBar()
         {
-            // The two picker screens keep their footer in their own file, next to the state it reads.
+            // The picker screens keep their footer in their own file, next to the state it reads.
             if (RefreshUserArtActionBar()) return true;
+            if (RefreshCtwWallpaperActionBar()) return true;
 
             switch (_gameMenuOverlay)
             {

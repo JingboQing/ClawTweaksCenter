@@ -119,6 +119,22 @@ namespace ClawTweaksCenter.Core
         }
 
         /// <summary>
+        /// Which of Center's own default backgrounds has already been handed out, so it happens
+        /// EXACTLY ONCE.
+        ///
+        /// NOT "is BackgroundImagePath empty". That question cannot tell somebody who has never seen
+        /// a background from somebody who chose "No background" on purpose - and the second of those
+        /// is a decision we would overrule on every start. A stamp answers it: the seed runs only
+        /// while this is behind, and it writes the stamp whether or not it put a picture in place.
+        /// Same shape as the widget's versioned defaults migrations, for the same reason.
+        /// </summary>
+        public static int BackgroundSeedVersion
+        {
+            get => ReadInt("BackgroundSeedVersion", 0);
+            set => WriteInt("BackgroundSeedVersion", value);
+        }
+
+        /// <summary>
         /// Open straight into the game library instead of the start screen.
         ///
         /// Off by default: Center is an installer and control panel first, and someone who has just

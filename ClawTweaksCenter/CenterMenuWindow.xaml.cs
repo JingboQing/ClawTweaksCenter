@@ -175,6 +175,9 @@ namespace ClawTweaksCenter
             // ModernWindow.Apply — see WindowMode.Attach for why the ordering is not cosmetic.
             WindowMode.Attach(this);
 
+            // BEFORE ApplyBackgroundImage, not after: the seed writes the setting that call reads,
+            // so the other order would show the packaged default one start late.
+            Core.DefaultBackground.SeedOnce();
             // Before anything else is rendered: the background is the one thing that must already be
             // there on the first frame. Painting it later is a visible flash of the flat colour.
             ApplyBackgroundImage();
