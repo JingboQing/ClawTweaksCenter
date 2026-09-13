@@ -745,6 +745,9 @@ namespace ClawTweaksCenter.Core
             ["Automatic check"] = "Automatische Pr\u00FCfung",
             ["No new notifications"] = "Keine neuen Benachrichtigungen",
             ["Gamebar Widget Releases"] = "Gamebar Widget Releases",
+            ["Check for updates and notify"] = "Nach Updates suchen und benachrichtigen",
+            ["The widget list is read at every start; this only decides how often Center says so."] = "Die Widget-Liste wird bei jedem Start gelesen; das hier entscheidet nur, wie oft Center es sagt.",
+            ["Windows Update"] = "Windows Update",
         };
 
         private static readonly Dictionary<string, string> French = new Dictionary<string, string>
@@ -1463,6 +1466,9 @@ namespace ClawTweaksCenter.Core
             ["Automatic check"] = "V\u00E9rification automatique",
             ["No new notifications"] = "Aucune nouvelle notification",
             ["Gamebar Widget Releases"] = "Gamebar Widget Releases",
+            ["Check for updates and notify"] = "Rechercher des mises \u00E0 jour et notifier",
+            ["The widget list is read at every start; this only decides how often Center says so."] = "La liste du widget est lue \u00E0 chaque d\u00E9marrage ; ceci d\u00E9cide seulement \u00E0 quelle fr\u00E9quence Center le dit.",
+            ["Windows Update"] = "Windows Update",
         };
 
         private static readonly Dictionary<string, string> Korean = new Dictionary<string, string>
@@ -2184,6 +2190,9 @@ namespace ClawTweaksCenter.Core
             ["Automatic check"] = "\uC790\uB3D9 \uD655\uC778",
             ["No new notifications"] = "\uC0C8 \uC54C\uB9BC \uC5C6\uC74C",
             ["Gamebar Widget Releases"] = "Gamebar \uC704\uC82F \uB9B4\uB9AC\uC2A4",
+            ["Check for updates and notify"] = "\uC5C5\uB370\uC774\uD2B8 \uD655\uC778 \uBC0F \uC54C\uB9BC",
+            ["The widget list is read at every start; this only decides how often Center says so."] = "\uC704\uC82F \uBAA9\uB85D\uC740 \uC2DC\uC791\uD560 \uB54C\uB9C8\uB2E4 \uC77D\uC2B5\uB2C8\uB2E4. \uC5EC\uAE30\uC11C\uB294 Center\uAC00 \uC5BC\uB9C8\uB098 \uC790\uC8FC \uC54C\uB9B4\uC9C0\uB9CC \uC815\uD569\uB2C8\uB2E4.",
+            ["Windows Update"] = "Windows \uC5C5\uB370\uC774\uD2B8",
         };
 
         private static readonly Dictionary<string, string> Spanish = new Dictionary<string, string>
@@ -2904,6 +2913,9 @@ namespace ClawTweaksCenter.Core
             ["Automatic check"] = "Comprobaci\u00F3n autom\u00E1tica",
             ["No new notifications"] = "Sin notificaciones nuevas",
             ["Gamebar Widget Releases"] = "Gamebar Widget Releases",
+            ["Check for updates and notify"] = "Buscar actualizaciones y notificar",
+            ["The widget list is read at every start; this only decides how often Center says so."] = "La lista del widget se lee en cada inicio; esto solo decide con qu\u00E9 frecuencia Center lo dice.",
+            ["Windows Update"] = "Windows Update",
         };
 
     }

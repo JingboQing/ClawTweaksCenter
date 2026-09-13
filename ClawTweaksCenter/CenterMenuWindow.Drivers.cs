@@ -59,7 +59,7 @@ namespace ClawTweaksCenter
         private sealed class DriverRow
         {
             public int Column;          // 0 = drivers, 1 = Windows Update
-            public Action Activate;
+            public Action Activate;     // null for a row that only reports
             public FrameworkElement Element;
         }
 
@@ -75,8 +75,11 @@ namespace ClawTweaksCenter
         // ── Entry ──────────────────────────────────────────────────────────────────────────────
         private void OpenDrivers()
         {
+            LeaveLibrary();
             _view = View.Drivers;
+            _driverRowIndex = 0;
             RenderDrivers();
+            RefreshTabStrip();   // the library's tabs are not navigation for this screen
             RefreshActionBar();
 
             // Cheap side: the helper serves its cached result unless something asks it not to.
@@ -215,19 +218,16 @@ namespace ClawTweaksCenter
             if (_driversBusy && _driverResult == null)
             {
                 stack.Children.Add(UiHelpers.Body("Checking…"));
-                AppendDriverIntervalBlock(stack);
                 return stack;
             }
             if (_driversError != null)
             {
                 stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Drivers could not be checked", _driversError));
-                AppendDriverIntervalBlock(stack);
                 return stack;
             }
             if (_driverResult == null)
             {
                 stack.Children.Add(UiHelpers.Body("Not checked yet."));
-                AppendDriverIntervalBlock(stack);
                 return stack;
             }
             if (!string.IsNullOrEmpty(_driverResult.Message))
@@ -235,7 +235,6 @@ namespace ClawTweaksCenter
                 // "Driver updates are only available on MSI Claw hardware" lands here. The setting
                 // still belongs on screen: it is about future checks, not about this one.
                 stack.Children.Add(UiHelpers.Body(_driverResult.Message));
-                AppendDriverIntervalBlock(stack);
                 return stack;
             }
 
@@ -268,7 +267,6 @@ namespace ClawTweaksCenter
                 stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Offline",
                     "The list could not be refreshed; showing what was known last."));
 
-            AppendDriverIntervalBlock(stack);
             return stack;
         }
 
@@ -304,7 +302,7 @@ namespace ClawTweaksCenter
                     Margin = new Thickness(0, 6, 0, 0),
                 });
 
-            return new Border
+            var card = new Border
             {
                 Background = UiHelpers.Card,
                 CornerRadius = new CornerRadius(10),
@@ -312,6 +310,12 @@ namespace ClawTweaksCenter
                 Margin = new Thickness(0, 0, 0, 8),
                 Child = stack,
             };
+
+            // A cursor stop even though pressing it does nothing. That is the point: without it the
+            // left column cannot be reached or scrolled with the pad at all, and reading the list is
+            // exactly what somebody comes to this column for (user, 2026-09-13).
+            RegisterDriverRow(0, card, null);
+            return card;
         }
 
         /// <summary>
@@ -474,7 +478,7 @@ namespace ClawTweaksCenter
                     TextWrapping = TextWrapping.Wrap,
                 });
 
-            return new Border
+            var card = new Border
             {
                 Background = UiHelpers.Card,
                 CornerRadius = new CornerRadius(10),
@@ -482,137 +486,59 @@ namespace ClawTweaksCenter
                 Margin = new Thickness(0, 0, 0, 8),
                 Child = stack,
             };
+            RegisterDriverRow(1, card, null);
+            return card;
         }
 
+        /// <summary>The one thing this column does besides report: a real BUTTON into Windows' own
+        /// page. It was briefly a settings-style row and that was wrong - it is an action, not a
+        /// value (user, 2026-09-13). The interval that sat under it moved to Center settings.</summary>
         private void AppendWindowsUpdateFooterRows(StackPanel stack)
         {
-            // The shortcut first, the setting last. It used to sit UNDERNEATH the interval, which put
-            // "go and look now" below "how often to look later" - the wrong way round, and it read as
-            // if the button belonged to the setting (user, 2026-09-13).
-            AppendActionRow(stack, 1, "Open Windows Update", Core.Loc.T("Windows\u0027 own page."),
-                            OpenWindowsUpdateSettings);
+            var button = new Button
+            {
+                Content = Core.Loc.T("Open Windows Update"),
+                Style = (Style)Application.Current.Resources["SetupButton"],
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(0, 16, 0, 0),
+            };
+            button.Click += (_, __) => OpenWindowsUpdateSettings();
 
-            AppendIntervalBlock(stack, 1, "Check for Windows updates",
-                Core.CenterSettings.WindowsUpdateCheckIntervalWeeks,
-                Core.CenterSettings.WindowsUpdateCheckLastUtc,
-                v => Core.CenterSettings.WindowsUpdateCheckIntervalWeeks = v);
+            RegisterDriverRow(1, button, OpenWindowsUpdateSettings);
+            stack.Children.Add(button);
         }
-
-        private void AppendDriverIntervalBlock(StackPanel stack) =>
-            AppendIntervalBlock(stack, 0, "Check for driver updates",
-                Core.CenterSettings.DriverCheckIntervalWeeks,
-                Core.CenterSettings.DriverCheckLastUtc,
-                v => Core.CenterSettings.DriverCheckIntervalWeeks = v);
 
         /// <summary>
-        /// One interval setting: a heading, the setting itself as a value line, and the last-checked
-        /// note as plain text UNDERNEATH it.
+        /// Makes an element a cursor stop. <paramref name="activate"/> may be null: a row that only
+        /// reports still has to be somewhere the cursor can go, or a column of pure information
+        /// cannot be reached or scrolled with a pad.
         ///
-        /// ⚠️ The three used to be one card with two lines of text, which made a setting look like a
-        /// button and welded the last-checked note to the thing it is only a comment on (user,
-        /// 2026-09-13). The note is not decoration either: without it "every week" is a promise the
-        /// screen makes and never accounts for, and the first question when something is missed is
-        /// whether the check ran at all.
+        /// The selection is drawn as an outline on whatever the element already is, so a card still
+        /// looks like a card and a button still looks like a button.
         /// </summary>
-        private void AppendIntervalBlock(StackPanel stack, int column, string label, int weeks,
-                                         DateTime? lastUtc, Action<int> setter)
-        {
-            stack.Children.Add(new TextBlock
-            {
-                Text = Core.Loc.T("Automatic check"),
-                FontSize = 12, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Subtle,
-                Margin = new Thickness(2, 22, 0, 6),
-            });
-
-            AppendValueLine(stack, column, label, IntervalLabel(weeks), () =>
-            {
-                setter(NextInterval(weeks));
-                RenderDrivers();
-                RefreshActionBar();
-            });
-
-            stack.Children.Add(new TextBlock
-            {
-                Text = lastUtc.HasValue
-                    ? Core.Loc.F("last checked {0}", lastUtc.Value.ToLocalTime().ToString("d MMM"))
-                    : (weeks > Core.CenterSettings.IntervalOff ? Core.Loc.T("not checked yet") : ""),
-                FontSize = 11, Foreground = UiHelpers.Subtle, Opacity = 0.75,
-                Margin = new Thickness(2, 6, 0, 0),
-            });
-        }
-
-        /// <summary>A setting line: name on the left, value on the right, a hairline underneath.
-        /// Deliberately NOT a filled card - a card in this column is a driver, and a setting that
-        /// looks like one invites a press that means something else.</summary>
-        private void AppendValueLine(StackPanel stack, int column, string label, string value, Action activate)
-        {
-            var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-            var name = new TextBlock
-            {
-                Text = Core.Loc.T(label),
-                FontSize = 14, Foreground = UiHelpers.Text,
-                TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center,
-            };
-            Grid.SetColumn(name, 0);
-            grid.Children.Add(name);
-
-            var val = new TextBlock
-            {
-                Text = value,
-                FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Accent,
-                Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center,
-            };
-            Grid.SetColumn(val, 1);
-            grid.Children.Add(val);
-
-            AppendRow(stack, column, grid, activate, new Thickness(0, 8, 0, 8));
-        }
-
-        /// <summary>An actionable row that is not a setting: a name, a line of explanation, and a
-        /// press that goes somewhere.</summary>
-        private void AppendActionRow(StackPanel stack, int column, string label, string detail, Action activate)
-        {
-            var inner = new StackPanel();
-            inner.Children.Add(new TextBlock
-            {
-                Text = Core.Loc.T(label),
-                FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Text,
-                TextWrapping = TextWrapping.Wrap,
-            });
-            if (!string.IsNullOrEmpty(detail))
-                inner.Children.Add(new TextBlock
-                {
-                    Text = detail,
-                    FontSize = 12, Foreground = UiHelpers.Subtle, TextWrapping = TextWrapping.Wrap,
-                    Margin = new Thickness(0, 3, 0, 0),
-                });
-
-            AppendRow(stack, column, inner, activate, new Thickness(0, 14, 0, 0));
-        }
-
-        /// <summary>The selection frame every row on this screen shares: a left bar in the accent
-        /// colour rather than a full border, so a selected setting still does not read as a card.</summary>
-        private void AppendRow(StackPanel stack, int column, UIElement content, Action activate, Thickness margin)
+        private void RegisterDriverRow(int column, FrameworkElement element, Action activate)
         {
             int index = _driverRows.Count;
             bool selected = index == _driverRowIndex;
 
-            var row = new Border
+            if (element is Control control)
             {
-                Margin = margin,
-                Padding = new Thickness(selected ? 10 : 2, 6, 2, 6),
-                BorderBrush = selected ? UiHelpers.Accent : Brushes.Transparent,
-                BorderThickness = new Thickness(selected ? 3 : 0, 0, 0, 0),
-                Cursor = Cursors.Hand,
-                Child = content,
-            };
-            row.MouseLeftButtonUp += (_, __) => { _driverRowIndex = index; activate(); };
+                control.BorderBrush = selected ? UiHelpers.Accent : Brushes.Transparent;
+                control.BorderThickness = new Thickness(selected ? 2 : 0);
+            }
+            else if (element is Border border)
+            {
+                border.BorderBrush = selected ? UiHelpers.Accent : Brushes.Transparent;
+                border.BorderThickness = new Thickness(selected ? 2 : 0);
+            }
 
-            _driverRows.Add(new DriverRow { Column = column, Activate = activate, Element = row });
-            stack.Children.Add(row);
+            if (activate != null)
+            {
+                element.Cursor = Cursors.Hand;
+                element.MouseLeftButtonUp += (_, __) => { _driverRowIndex = index; activate(); };
+            }
+
+            _driverRows.Add(new DriverRow { Column = column, Activate = activate, Element = element });
         }
 
         /// <summary>1 \u2192 2 \u2192 3 \u2192 4 \u2192 off \u2192 1. Off is reachable on purpose: a background check that
@@ -684,10 +610,13 @@ namespace ClawTweaksCenter
             // \u24B6 acts on the ROW the cursor is on - the two interval settings and the shortcut into
             // Windows. The two check buttons keep their own chips: they are what someone came here to
             // press, and burying them one cursor move deep would be the wrong trade.
-            AddAction(PadButton.A, "Change", _driverRows.Count > 0, () =>
+            // Enabled only when the row under the cursor actually does something - most of them are
+            // driver and update cards, which exist to be read.
+            bool canAct = _driverRowIndex >= 0 && _driverRowIndex < _driverRows.Count
+                          && _driverRows[_driverRowIndex].Activate != null;
+            AddAction(PadButton.A, "Open", canAct, () =>
             {
-                if (_driverRowIndex >= 0 && _driverRowIndex < _driverRows.Count)
-                    _driverRows[_driverRowIndex].Activate();
+                if (canAct) _driverRows[_driverRowIndex].Activate();
             });
             AddAction(PadButton.X, "Check Windows Update", !_windowsUpdatesBusy, () => _ = RequestWindowsUpdatesAsync(force: true));
             AddAction(PadButton.Y, "Refresh drivers", !_driversBusy, () => _ = RequestDriversAsync(force: true));

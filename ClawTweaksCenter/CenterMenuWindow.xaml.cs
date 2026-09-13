@@ -62,7 +62,7 @@ namespace ClawTweaksCenter
 
         /// <summary>Which idle screen ContentHost shows — Confirm/Install are transient overlays
         /// triggered from Browse and don't need their own value here.</summary>
-        private enum View { Home, Browse, Onboarding, Maintenance, Library, InstallDone, CenterSettings, Leave, Faq, Drivers, Notifications, WidgetNotifySettings }
+        private enum View { Home, Browse, Onboarding, Maintenance, Library, InstallDone, CenterSettings, Leave, Faq, Drivers, Notifications }
         private View _view = View.Home;
 
         private DeviceDetect.Model _deviceModel = DeviceDetect.Model.Unknown;
@@ -677,7 +677,6 @@ namespace ClawTweaksCenter
                 case View.Faq: RenderFaq(); break;
                 case View.Drivers: RenderDrivers(); break;
                 case View.Notifications: RenderNotifications(); break;
-                case View.WidgetNotifySettings: RenderWidgetNotifySettings(); break;
                 default: RenderBrowse(); break;
             }
         }
@@ -2026,7 +2025,6 @@ namespace ClawTweaksCenter
             // nothing to move.
             if (_view == View.Drivers) { MoveDriversSelection(dir); return; }
             if (_view == View.Notifications) { MoveNotificationsSelection(dir); return; }
-            if (_view == View.WidgetNotifySettings) { MoveWidgetNotifySelection(dir); return; }
 
             // A hand-off screen (missing prerequisites / untrusted certificate) is up. _view is still
             // Browse — these screens replace the CONTENT without being their own view — so without this
@@ -2281,12 +2279,6 @@ namespace ClawTweaksCenter
                 return;
             }
 
-            if (_view == View.WidgetNotifySettings)
-            {
-                RefreshWidgetNotifyActionBar();
-                return;
-            }
-
             // Browse-view flow states below (these never apply to the views handled above).
             // Nothing is actionable mid-download/install — an empty bar beats four dead-looking chips.
             if (_busy) return;
@@ -2335,7 +2327,6 @@ namespace ClawTweaksCenter
                 if (_selectedIndex >= 0 && _selectedIndex < _flat.Count) ShowConfirm(_flat[_selectedIndex]);
             });
             AddAction(PadButton.Y, "Refresh", true, () => _ = RefreshSourcesAsync());
-            AddAction(PadButton.X, "Update notifications", true, OpenWidgetNotifySettings);
             AddAction(PadButton.B, "Back", true, GoHome);
             AddScrollHint();
         }

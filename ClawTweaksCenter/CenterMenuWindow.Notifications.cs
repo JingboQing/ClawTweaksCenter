@@ -122,13 +122,18 @@ namespace ClawTweaksCenter
             _view = View.Notifications;
             _notificationsSelectedIndex = 0;
             RenderNotifications();
+
+            // ⚠️ Opened FROM the library, the tab strip stayed on screen: LeaveLibrary collapses the
+            // library host but the strip is drawn from _view, and nothing had told it the view had
+            // changed. Tabs are navigation for a shelf that is no longer there (user, 2026-09-13).
+            RefreshTabStrip();
             RefreshActionBar();
         }
 
         private void CloseNotifications()
         {
             if (_notificationsCameFrom == View.Library) { OpenLibrary(); return; }
-            GoHome();
+            GoHome();   // brings the tab strip back on its own
         }
 
         private void RenderNotifications()
@@ -136,17 +141,24 @@ namespace ClawTweaksCenter
             BeginContent(centred: false);
             _notificationsShown = Core.Notifications.All();
 
-            ContentHost.Children.Add(UiHelpers.Title("Notifications"));
+            // A column, not the full window. Notification cards are one or two lines of text, and
+            // stretched across a 16:9 screen the eye has to travel the whole width to read a
+            // sentence that ends after a third of it (user, 2026-09-13).
+            var column = new StackPanel { MaxWidth = 900, Margin = new Thickness(8, 0, 24, 0) };
+            column.Children.Add(UiHelpers.Title("Notifications"));
 
             if (_notificationsShown.Count == 0)
             {
-                ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Ok, "No new notifications",
+                column.Children.Add(UiHelpers.StatusRow(StatusKind.Ok, "No new notifications",
                     "Center tells you here when a driver, a Windows update or a new widget build turns up."));
+                ContentHost.Children.Add(column);
                 return;
             }
 
             for (int i = 0; i < _notificationsShown.Count; i++)
-                ContentHost.Children.Add(BuildNotificationCard(_notificationsShown[i], i));
+                column.Children.Add(BuildNotificationCard(_notificationsShown[i], i));
+
+            ContentHost.Children.Add(column);
         }
 
         private Border BuildNotificationCard(Core.Notification n, int index)
