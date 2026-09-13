@@ -834,6 +834,18 @@ asks Windows directly. That is not a second answer to a question the helper alre
 page already had this P/Invoke and the footer was about to grow an identical one. Unknown (255) and
 a failed call both read as "not on AC" - unplugged is this product's primary state.
 
+## ✅ The six sections below are CONFIRMED ON DEVICE (2026-09-13)
+
+Tested by the user on an A2VM from `ClawTweaks_0.3.1.168_Setup.exe` (Center 0.2.53): the packaged
+default background on a machine that had none, the CTW wallpaper gallery behind Y including the
+download and applying one, the device banner over a picture, the centred footer chips, the rewritten
+full screen section on the info screen, Center gone from the tray list, and the default-browser row.
+All working and accepted.
+
+⚠️ **Not covered by that run, because the machine could not produce the state:** the seed on a user
+who already HAS a background (it is skipped there by design), and the gallery with no network - the
+"could not be reached" sentence has never been on a screen.
+
 ## The wallpapers live in the repository, not in the exe (2026-09-13)
 
 `wallpapers/index.json` plus the PNGs beside it, in **this** repository, read over
