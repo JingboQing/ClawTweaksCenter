@@ -62,7 +62,7 @@ namespace ClawTweaksCenter
 
         /// <summary>Which idle screen ContentHost shows — Confirm/Install are transient overlays
         /// triggered from Browse and don't need their own value here.</summary>
-        private enum View { Home, Browse, Onboarding, Maintenance, Library, InstallDone, CenterSettings, Leave, Faq }
+        private enum View { Home, Browse, Onboarding, Maintenance, Library, InstallDone, CenterSettings, Leave, Faq, Drivers }
         private View _view = View.Home;
 
         private DeviceDetect.Model _deviceModel = DeviceDetect.Model.Unknown;
@@ -662,6 +662,7 @@ namespace ClawTweaksCenter
                 case View.CenterSettings: RenderCenterSettings(); break;
                 case View.Leave: RenderLeave(); break;
                 case View.Faq: RenderFaq(); break;
+                case View.Drivers: RenderDrivers(); break;
                 default: RenderBrowse(); break;
             }
         }
@@ -844,6 +845,7 @@ namespace ClawTweaksCenter
                 case HomeLibrarySettingsIndex: OpenLibrarySettingsFromHome(); break;
                 case HomeFaqIndex: OpenFaq(); break;
                 case HomeLeaveIndex: OpenLeave(); break;
+                case HomeDriversIndex: OpenDrivers(); break;
             }
         }
 
@@ -883,7 +885,15 @@ namespace ClawTweaksCenter
         private const int HomeFaqIndex = 6;
         private const int HomeLeaveIndex = 7;
 
-        private const int HomeMaxIndex = HomeLeaveIndex;
+        /// <summary>Fourth cell of the third row - APPENDED, never inserted.
+        ///
+        /// The grid is three columns wide, so eight tiles left one cell empty and this fills it.
+        /// Appending is the safe shape: every constant here is a POSITION, and the switch in
+        /// ActivateHomeTile does not move with them. Inserting a tile would silently shift every
+        /// index behind it while the switch kept pointing at the old cells.</summary>
+        private const int HomeDriversIndex = 8;
+
+        private const int HomeMaxIndex = HomeDriversIndex;
 
         /// <summary>True when a newer Center is offered — either as a notice from setup-manifest.json
         /// (SetupVersionCheck.IsUpdateOffered) or as something this installation can install itself
@@ -1127,6 +1137,14 @@ namespace ClawTweaksCenter
                 clickable: true,
                 onClick: () => { _homeSelectedIndex = HomeLeaveIndex; OpenLeave(); },
                 selected: _homeSelectedIndex == HomeLeaveIndex));
+
+            // Ninth cell: three columns, so this one completes the third row instead of leaving a
+            // hole at the end of it.
+            tiles.Children.Add(BuildHomeTile(
+                "", "Drivers & Updates", "Device drivers and the state of Windows Update.",
+                clickable: true,
+                onClick: () => { _homeSelectedIndex = HomeDriversIndex; OpenDrivers(); },
+                selected: _homeSelectedIndex == HomeDriversIndex));
 
             ContentHost.Children.Add(tiles);
         }
@@ -1984,6 +2002,9 @@ namespace ClawTweaksCenter
             if (_view == View.CenterSettings) { MoveCenterSettingsSelection(dir); return; }
             if (_view == View.Leave) { MoveLeaveSelection(dir); return; }
             if (_view == View.Faq) { MoveFaqSelection(dir); return; }
+            // Read-only and nothing selectable on it: the right stick scrolls, the d-pad has
+            // nothing to move.
+            if (_view == View.Drivers) return;
 
             // A hand-off screen (missing prerequisites / untrusted certificate) is up. _view is still
             // Browse — these screens replace the CONTENT without being their own view — so without this
@@ -2215,6 +2236,12 @@ namespace ClawTweaksCenter
             if (_view == View.Faq)
             {
                 RefreshFaqActionBar();
+                return;
+            }
+
+            if (_view == View.Drivers)
+            {
+                RefreshDriversActionBar();
                 return;
             }
 

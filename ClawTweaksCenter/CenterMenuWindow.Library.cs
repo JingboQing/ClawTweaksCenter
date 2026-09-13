@@ -4465,25 +4465,23 @@ namespace ClawTweaksCenter
                     Margin = new Thickness(0, 0, 0, 12),
                 });
 
-            // \u26A0\uFE0F LEAVING CENTER IS ONE ROW, NOT TWO. "Minimize to tray" and "Close Center" both stood
-            // here, and with Run in background OFF they did the SAME THING: the minimize row calls
-            // Close(), and the Closing handler exits when there is no tray to go to. Two rows, one
-            // outcome, and nothing on screen said which. The setting decides which row exists at all.
+            // \u26A0\uFE0F NEITHER "Minimize" NOR "Close Center" IS HERE ANY MORE (user, 2026-09-13).
             //
-            // Ordered by how much each throws away, least first - so the row order differs between
-            // the two cases rather than the label just swapping in place.
-            if (Core.CenterSettings.RunInBackground)
-                AddExitPromptRow(stack, "\uE921", "Minimize", "Center keeps running.",
-                    () => { _exitPromptOpen = false; Close(); });
-
+            // They used to stand around the start-screen row, and with Run in background OFF they did
+            // the SAME THING: the minimize row calls Close(), and the Closing handler exits when there
+            // is no tray to go to. Two rows, one outcome, and nothing on screen said which.
+            //
+            // The obvious objection is that removing both leaves a handheld with no way out, because
+            // the title bar X cannot be reached with the pad in fullscreen. It is answered, and by the
+            // platform rather than by this menu: the Alt-Tab / fullscreen-experience overview carries
+            // its own close button for the running app.
             AddExitPromptRow(stack, "\uE80F", "Center start screen", "Leave the library open.",
-                () => { _exitPromptOpen = false; _exitPromptRows.Clear(); _exitPromptActions.Clear();
-                        _exitPromptTrayRows.Clear(); _exitPromptTrayActions.Clear(); _exitPromptTrayCloseActions.Clear();
-                        _exitPromptToolsRows.Clear(); _exitPromptToolsActions.Clear(); GoHome(); });
+                () => { _exitPromptOpen = false; ClearExitPromptLists(); GoHome(); });
 
-            if (!Core.CenterSettings.RunInBackground)
-                AddExitPromptRow(stack, "\uE711", "Close Center", "Ends Center completely.",
-                    () => Application.Current.Shutdown());
+            // Drivers and Windows Update, straight out of the library - the two questions someone asks
+            // when a game runs worse than it did last week.
+            AddExitPromptRow(stack, "\uE977", "Drivers & Updates", "Device drivers and Windows Update.",
+                () => { _exitPromptOpen = false; ClearExitPromptLists(); OpenDrivers(); });
 
             // THE DEVICE, not Center - which is why the four sit inside ONE card. They are the same
             // kind of decision as each other and a different kind from the rows above, and four
@@ -4564,6 +4562,19 @@ namespace ClawTweaksCenter
         /// rather than passed in: two hand-kept sequences over the same positions is how the wrong row
         /// gets triggered the moment somebody inserts one, and four of these rows now end the
         /// session.</summary>
+        /// <summary>Drops every cached row and action of the quick menu. Extracted when a second row
+        /// needed it: seven lists cleared inline are seven chances for the next caller to miss one.</summary>
+        private void ClearExitPromptLists()
+        {
+            _exitPromptRows.Clear();
+            _exitPromptActions.Clear();
+            _exitPromptTrayRows.Clear();
+            _exitPromptTrayActions.Clear();
+            _exitPromptTrayCloseActions.Clear();
+            _exitPromptToolsRows.Clear();
+            _exitPromptToolsActions.Clear();
+        }
+
         private void AddExitPromptRow(StackPanel stack, string glyph, string title, string subtitle,
                                       Action activate, bool inCard = false)
         {
