@@ -119,6 +119,22 @@ namespace ClawTweaksCenter.Core
         }
 
         /// <summary>
+        /// Which of Center's own default backgrounds has already been handed out, so it happens
+        /// EXACTLY ONCE.
+        ///
+        /// NOT "is BackgroundImagePath empty". That question cannot tell somebody who has never seen
+        /// a background from somebody who chose "No background" on purpose - and the second of those
+        /// is a decision we would overrule on every start. A stamp answers it: the seed runs only
+        /// while this is behind, and it writes the stamp whether or not it put a picture in place.
+        /// Same shape as the widget's versioned defaults migrations, for the same reason.
+        /// </summary>
+        public static int BackgroundSeedVersion
+        {
+            get => ReadInt("BackgroundSeedVersion", 0);
+            set => WriteInt("BackgroundSeedVersion", value);
+        }
+
+        /// <summary>
         /// Open straight into the game library instead of the start screen.
         ///
         /// Off by default: Center is an installer and control panel first, and someone who has just
@@ -397,6 +413,104 @@ namespace ClawTweaksCenter.Core
             try { Registry.CurrentUser.DeleteSubKeyTree(KeyPath, throwOnMissingSubKey: false); }
             catch { }
         }
+
+        // ── How often Center looks for updates, and how often it says so ────────────────────────
+        //
+        // THREE SEPARATE INTERVALS, one per source (user, 2026-09-13). They are genuinely different
+        // questions: the widget list is already fetched at every start, so its interval decides how
+        // often a FINDING becomes a notification; the driver check and the Windows Update search do
+        // not run at all on their own, so theirs decide whether the check happens.
+        //
+        // Stored in WEEKS, 1-4, with 0 meaning off. ⚠️ The user asked for 1, 2, 3 and 4 weeks and did
+        // not ask for an off switch - it is here because a background check that reaches the network
+        // and cannot be turned off is not a setting, it is a behaviour. Say so if it should go.
+        public const int IntervalOff = 0;
+        public const int IntervalMinWeeks = 1;
+        public const int IntervalMaxWeeks = 4;
+
+        /// <summary>Weeks between driver checks in the background. 0 = never.</summary>
+        public static int DriverCheckIntervalWeeks
+        {
+            get => ClampInterval(ReadInt("DriverCheckIntervalWeeks", 1));
+            set => WriteInt("DriverCheckIntervalWeeks", ClampInterval(value));
+        }
+
+        /// <summary>Weeks between Windows Update searches in the background. 0 = never.
+        ///
+        /// ⚠️ The one that actually costs something: measured 13.6 s and 29.1 s against Microsoft's
+        /// servers. Everything about when it may run is in the caller, not here.</summary>
+        public static int WindowsUpdateCheckIntervalWeeks
+        {
+            get => ClampInterval(ReadInt("WindowsUpdateCheckIntervalWeeks", 1));
+            set => WriteInt("WindowsUpdateCheckIntervalWeeks", ClampInterval(value));
+        }
+
+        /// <summary>Weeks between widget-update NOTIFICATIONS. The list itself is fetched at every
+        /// start either way, so this throttles the message and not the search. 0 = never.</summary>
+        public static int WidgetUpdateNotifyIntervalWeeks
+        {
+            get => ClampInterval(ReadInt("WidgetUpdateNotifyIntervalWeeks", 1));
+            set => WriteInt("WidgetUpdateNotifyIntervalWeeks", ClampInterval(value));
+        }
+
+        /// <summary>Whether widget TEST builds count as something worth a notification. Off: a test
+        /// build is an invitation to help, not an update somebody is waiting for.</summary>
+        public static bool WidgetNotifyTestBuilds
+        {
+            get => ReadBool("WidgetNotifyTestBuilds", false);
+            set => WriteBool("WidgetNotifyTestBuilds", value);
+        }
+
+        // The last time each source was actually checked. Stored as an ISO-8601 UTC string: a DWORD
+        // cannot hold a date, and a local-time string would jump an hour twice a year and let a
+        // weekly check fire early or late for no visible reason.
+        public static DateTime? DriverCheckLastUtc
+        {
+            get => ReadUtc("DriverCheckLastUtc");
+            set => WriteUtc("DriverCheckLastUtc", value);
+        }
+
+        public static DateTime? WindowsUpdateCheckLastUtc
+        {
+            get => ReadUtc("WindowsUpdateCheckLastUtc");
+            set => WriteUtc("WindowsUpdateCheckLastUtc", value);
+        }
+
+        public static DateTime? WidgetNotifyLastUtc
+        {
+            get => ReadUtc("WidgetNotifyLastUtc");
+            set => WriteUtc("WidgetNotifyLastUtc", value);
+        }
+
+        /// <summary>True when <paramref name="last"/> is longer ago than the interval - and when the
+        /// interval is off, always false.
+        ///
+        /// A last-check time in the FUTURE also counts as due. That is not hypothetical: the clock
+        /// moves backwards after a CMOS reset or a timezone fix, and a stored future date would
+        /// otherwise silence the check until it caught up.</summary>
+        public static bool IsCheckDue(DateTime? last, int intervalWeeks)
+        {
+            if (intervalWeeks <= IntervalOff) return false;
+            if (last == null) return true;
+            var now = DateTime.UtcNow;
+            if (last > now) return true;
+            return now - last.Value >= TimeSpan.FromDays(7.0 * intervalWeeks);
+        }
+
+        private static int ClampInterval(int weeks) =>
+            weeks <= IntervalOff ? IntervalOff : Math.Min(weeks, IntervalMaxWeeks);
+
+        private static DateTime? ReadUtc(string name)
+        {
+            string raw = ReadString(name, null);
+            if (string.IsNullOrEmpty(raw)) return null;
+            return DateTime.TryParse(raw, null, System.Globalization.DateTimeStyles.RoundtripKind, out var dt)
+                ? dt.ToUniversalTime()
+                : (DateTime?)null;
+        }
+
+        private static void WriteUtc(string name, DateTime? value) =>
+            WriteString(name, value?.ToUniversalTime().ToString("o") ?? string.Empty);
 
         private static bool ReadBool(string name, bool fallback)
         {

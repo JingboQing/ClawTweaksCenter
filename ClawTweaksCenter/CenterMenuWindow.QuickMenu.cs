@@ -77,13 +77,43 @@ namespace ClawTweaksCenter
             try
             {
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                return JsonSerializer.Deserialize<List<TrayAppEntry>>(json, options) ?? new List<TrayAppEntry>();
+                var list = JsonSerializer.Deserialize<List<TrayAppEntry>>(json, options) ?? new List<TrayAppEntry>();
+                list.RemoveAll(IsThisCenter);
+                return list;
             }
             catch (Exception ex)
             {
                 Core.InstallLog.Write("TrayAppList JSON could not be parsed: " + ex.Message);
                 return new List<TrayAppEntry>();
             }
+        }
+
+        /// <summary>
+        /// Center's own process, which has no business being in a list of apps to switch to: it is
+        /// the app the user is looking at, and "open" would raise the window it is already on
+        /// (reported 2026-09-13).
+        ///
+        /// FILTERED HERE, NOT IN THE HELPER, and that is the point rather than convenience: the
+        /// helper would have to recognise Center by name, and the name is not stable - the installed
+        /// copy is CTW_Center.exe while a portable build carries its version ("CTW_Center_0.2.52_
+        /// Setup.exe"). This side does not have to recognise anything, it just knows which process
+        /// it is.
+        ///
+        /// The PID is the answer for THIS instance; the exe name also catches a second copy of
+        /// Center, which is a thing that should never be opened from here either.
+        /// </summary>
+        private static bool IsThisCenter(TrayAppEntry app)
+        {
+            if (app == null) return true;
+            try
+            {
+                using (var self = Process.GetCurrentProcess())
+                {
+                    if (app.Pid == self.Id) return true;
+                    return string.Equals(app.Exe, self.ProcessName + ".exe", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            catch { return false; }
         }
 
         /// <summary>The whole exit prompt re-renders wholesale, the same as ShowPowerActionFailed
@@ -290,7 +320,16 @@ namespace ClawTweaksCenter
             ("Control Panel (classic)", "control.exe"),
             ("Computer Management", "compmgmt.msc"),
             ("Installed apps", "ms-settings:appsfeatures"),
+            // LAST, on the user's request (2026-09-13). It is the one row here that is not a
+            // Windows tool but a way out to the web, and the tile the widget already carries as
+            // "Open Default Browser" - the same thing, reachable from the other surface.
+            ("Default browser", DefaultBrowserTarget),
         };
+
+        /// <summary>Not a path and not a scheme: the marker LaunchTool recognises, so the table above
+        /// stays one shape. A literal url here would be the wrong answer anyway - it would open the
+        /// browser ON a page nobody asked for.</summary>
+        private const string DefaultBrowserTarget = "@DefaultBrowser";
 
         private UIElement BuildToolsColumn()
         {
@@ -323,12 +362,77 @@ namespace ClawTweaksCenter
         {
             try
             {
+                if (target == DefaultBrowserTarget) { LaunchDefaultBrowser(); return; }
                 Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
             }
             catch (Exception ex)
             {
                 Core.InstallLog.Write($"Could not launch '{target}': {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Opens the browser the user has chosen, on NO page.
+        ///
+        /// Windows has no verb for that. Shell-executing an "http" target opens a browser at a url,
+        /// which is why the fallback at the bottom is a fallback: it has to invent a page. The
+        /// registered handler is two documented registry reads away - the ProgId the user picked,
+        /// then that ProgId's open command - and starting that exe with no argument is what a taskbar
+        /// pin does.
+        ///
+        /// ⚠️ The command line is "C:\...\app.exe" --flags "%1" or path --flags "%1"; only the exe
+        /// may be started. Passing the whole string as a filename is the silent failure here - it
+        /// resolves to nothing and looks like a row that does not work.
+        /// </summary>
+        private static void LaunchDefaultBrowser()
+        {
+            string exe = null;
+            try
+            {
+                string progId;
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                    @"Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice"))
+                {
+                    progId = key?.GetValue("ProgId") as string;
+                }
+
+                string command = null;
+                if (!string.IsNullOrEmpty(progId))
+                {
+                    using (var cmd = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(progId + @"\shell\open\command"))
+                    {
+                        command = cmd?.GetValue(null) as string;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(command))
+                {
+                    if (command.StartsWith("\""))
+                    {
+                        int end = command.IndexOf('"', 1);
+                        if (end > 1) exe = command.Substring(1, end - 1);
+                    }
+                    else
+                    {
+                        int space = command.IndexOf(' ');
+                        exe = space > 0 ? command.Substring(0, space) : command;
+                    }
+                }
+            }
+            catch (Exception ex) { Core.InstallLog.Write("Default browser lookup failed: " + ex.Message); }
+
+            try
+            {
+                if (!string.IsNullOrEmpty(exe))
+                {
+                    Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
+                    return;
+                }
+                // Nothing registered, or a command shape we could not read. A blank tab is a worse
+                // answer than the right browser and a better one than a row that does nothing.
+                Process.Start(new ProcessStartInfo("https://www.bing.com/") { UseShellExecute = true });
+            }
+            catch (Exception ex) { Core.InstallLog.Write("Could not open the default browser: " + ex.Message); }
         }
     }
 }

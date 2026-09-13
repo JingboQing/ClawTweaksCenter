@@ -260,6 +260,9 @@ their own cover — and after that it is the same D-pad grid the SteamGridDB pic
 Downloads, Desktop and Pictures are offered as suggestions; **Browse… is last on that screen on
 purpose**, as the answer for the folder nothing can guess.
 
+**Y on the background grid opens the wallpapers that ship with the project** — see "The wallpapers
+live in the repository" below. It took that button from "Rescan" on 2026-09-13.
+
 **Sub-folders are included**, six levels deep, newest file first, capped at 400. Newest first is not
 cosmetic: the reason to open this right after saving a cover in a browser is the file you just
 saved.
@@ -830,3 +833,151 @@ asks Windows directly. That is not a second answer to a question the helper alre
 ⚠️ **It lives in `Core/PowerLine.cs` because there were TWO copies.** The profile detail
 page already had this P/Invoke and the footer was about to grow an identical one. Unknown (255) and
 a failed call both read as "not on AC" - unplugged is this product's primary state.
+
+## ✅ The six sections below are CONFIRMED ON DEVICE (2026-09-13)
+
+Tested by the user on an A2VM from `ClawTweaks_0.3.1.168_Setup.exe` (Center 0.2.53): the packaged
+default background on a machine that had none, the CTW wallpaper gallery behind Y including the
+download and applying one, the device banner over a picture, the centred footer chips, the rewritten
+full screen section on the info screen, Center gone from the tray list, and the default-browser row.
+All working and accepted.
+
+⚠️ **Not covered by that run, because the machine could not produce the state:** the seed on a user
+who already HAS a background (it is skipped there by design), and the gallery with no network - the
+"could not be reached" sentence has never been on a screen.
+
+## The wallpapers live in the repository, not in the exe (2026-09-13)
+
+`wallpapers/index.json` plus the PNGs beside it, in **this** repository, read over
+`raw.githubusercontent.com`. `Library/CtwWallpapers.cs` fetches, `CenterMenuWindow.CtwWallpapers.cs`
+is the screen. Reached with **Y from the background picker**, and only there: these are 16:10
+pictures, and a portrait cover tile is not what they are for.
+
+**Adding a wallpaper is a commit to `wallpapers/index.json` and the file next to it. No build, no
+release** — every Center already installed picks it up. That is the whole reason they are not in the
+binary: Center is one self-contained ~70 MB download that every user takes in full, and a wallpaper
+is a megabyte and a half each. Putting them in would charge everybody for pictures most of them never
+open, and adding one would then need a release.
+
+⚠️ **`raw.githubusercontent.com` caches for about four minutes.** A wallpaper pushed and immediately
+looked for is not missing, it is early.
+
+⚠️ **The tile IS the download**, one after another, cached in
+`%LOCALAPPDATA%\ClawTweaks\Center\wallpapers`. There is nothing smaller to fetch first, and a
+thumbnail set would be a second thing in the repository that can fall out of step with the pictures
+it claims to show. Picking one goes through `ApplyPickedBackground` — the same code a picture of the
+user's own takes — so there is exactly one route into "this is the background".
+
+⚠️ **`ListAsync` returns null for "could not read" and an empty list for "nothing published".** Two
+different sentences belong on screen, and a caller that cannot tell them apart writes the wrong one.
+
+⚠️ **The index names a FILE, never a path.** `EnsureFileAsync` runs it through `Path.GetFileName`, so
+a `"file"` of `..\..\something` cannot write outside the cache. Downloads land on a `.tmp` and are
+moved into place — a download cut off halfway would otherwise leave a truncated PNG under the right
+name, and every later visit would find that file, decode nothing, and never try again.
+
+### Exactly ONE wallpaper is in the binary, as a one-shot seed
+
+`Assets/wallpapers/ctw-default.png` (1.4 MB) and `Core/DefaultBackground.cs`. It has to work before
+there is any network, on the very first start.
+
+🔴 **It is a SEED, never a fallback, and the difference is the whole design.** "Nothing stored, so
+draw the packaged one" cannot be undone: it would put the picture back on every single start for
+anyone who chose "No background", and nothing on screen would explain why. Instead the file is copied
+into the art cache **once**, stamped in `CenterSettings.BackgroundSeedVersion`, and is an ordinary
+stored background from that moment on — removable, replaceable, and retired by the same
+`DeleteCachedBackground` as any other one, which is why it carries the `background_` prefix.
+
+⚠️ **The stamp is written even when the copy fails.** A seed that retries is a seed that runs again
+on a machine where the user has since said no; the price of never retrying is one start without a
+picture.
+
+⚠️ **A user who already has a background keeps it** — the stamp still moves, so they are never asked
+again either. To hand out a different default later: new `ctw-default.png` **and** raise both
+`SeedVersion` and `BackgroundSeedVersion`. It still only reaches people whose background is empty at
+that moment.
+
+⚠️ **`SeedOnce()` runs BEFORE `ApplyBackgroundImage()` in the window constructor.** It writes the
+setting that call reads, so the other order shows the packaged default one start late.
+
+## Cards over a picture are thinned, and only over a picture (2026-09-13)
+
+The device banner on Home (`RenderDeviceBanner` → `ApplyDeviceBannerChrome`) is solid on the flat
+background and see-through once a wallpaper is behind it.
+
+**The condition is not decoration.** `CardColor` is `#2B2B2B` against a `#202020` window, so a
+translucent card over the flat background very nearly vanishes — it reads as the banner having lost
+its shape, not as a lighter card.
+
+The brush is **thinned from the resource** (`colour.A = 0x66`), the way `ApplyFooterChrome` already
+does it, rather than written out as a second hex value: a palette change moves both, and a
+hand-picked colour here would be the one left behind.
+
+⚠️ **ONE writer, always recomputed, and it hangs off `ApplyBackgroundImage` as well as off the
+render** — all three of its exits (picture present, no picture, picture will not decode). The picture
+can arrive or be removed long after that row was drawn, and a fill computed only while drawing is the
+stale-derived-state trap this file keeps naming.
+
+## The footer chips are centred on the WINDOW (2026-09-13)
+
+Battery left, clock right, chips in the middle — and the chips used to be centred inside *what was
+left between them*. The two are different lengths (`85 % · 2.4 h` against `12:05`), so the row sat off
+to one side by exactly that difference.
+
+The two outer columns now share **one** width (`Grid.IsSharedSizeScope` on the footer grid,
+`SharedSizeGroup="FooterSide"` on both). It always resolves to the wider of the two, so the row stays
+centred when the battery text grows and when it is hidden altogether.
+
+⚠️ **A margin picked by eye is the wrong fix** — right at one text length and wrong at the next.
+⚠️ **`Grid.IsSharedSizeScope` has to be on a parent of both columns.** Drop it and the group silently
+does nothing: the columns fall back to `Auto`, the row drifts again, and nothing anywhere errors.
+
+## The full screen route is the SETUP, not AnyFSE (2026-09-13)
+
+The library info screen (X) used to send people to AnyFSE: a third-party launcher they had to
+install, find Center's install folder for, and paste a path into. Center can be the full screen app
+itself since ClawTweaks 0.3.1.148, and the setup offers that as a plain yes/no question.
+
+```
+Use the library as the Windows full screen experience
+  • Download the ClawTweaks setup from the releases page.
+  • Answer Yes when it asks about the full screen mode.
+  https://github.com/enterTheVoidCode/ClawTweaks/releases
+```
+
+**The link is the releases page and stays that from here on**: the setup is how the library gets its
+full screen mode *and* how it is updated, so one address answers both. It comes from
+`Core.SetupVersionCheck.ReleasesPageUrl` — the constant already existed, so there is no second
+literal to leave behind.
+
+Gone with it: the read-only path box, its Copy button, `AnyFsePath`, `CopyAnyFsePath` and the URL
+constant. The action bar on that screen is now **A Open SteamGridDB · Y Open releases · B Close**; the
+X ("Copy Center path") went because there is no path to hand anybody.
+
+⚠️ **That screen has no `ScrollViewer` and was already clipping at the bottom.** Anything added there
+has to earn its lines — this change made it shorter, which is the direction it needs.
+
+## Center is filtered out of its own tray list (2026-09-13)
+
+The library quick menu's tray column listed **ClawTweaks Center**. It is the app the user is looking
+at, and "open" would raise the window they are already on.
+
+**Filtered in Center, not in the helper** (`ParseTrayApps` → `IsThisCenter`), and that is the point
+rather than convenience: the helper would have to recognise Center by name, and the name is not
+stable — the installed copy is `CTW_Center.exe` while a portable build carries its version
+(`CTW_Center_0.2.53_Setup.exe`). This side does not have to recognise anything, it knows which process
+it is. The **process id** answers it for this instance; the exe name also catches a second copy of
+Center, which should not be opened from here either.
+
+## The default browser is the last of the Windows tools (2026-09-13)
+
+It is the one row in that column that is not a Windows tool but a way out to the web, and it is the
+same thing the widget already carries as the "Open Default Browser" tile.
+
+⚠️ **Windows has no verb for "open the browser on no page".** Shell-executing an `http` target opens
+a browser *at a url*. `LaunchDefaultBrowser` resolves the registered handler instead — the UserChoice
+ProgId, then that ProgId's `shell\open\command` — and starts only the exe, which is what a taskbar
+pin does. The command line is `"C:\...\app.exe" --flags "%1"`; **passing the whole string as a
+filename is the silent failure here** — it resolves to nothing and looks like a row that does not
+work. The fallback opens a page, because at that point inventing one beats a dead row.
+

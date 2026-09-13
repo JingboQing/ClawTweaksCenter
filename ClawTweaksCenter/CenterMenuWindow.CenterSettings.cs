@@ -38,6 +38,17 @@ namespace ClawTweaksCenter
         private const int CenterSettingsLanguageRow = 0;
         private const int CenterSettingsFullscreenRow = 1;
 
+        // ── Nach Updates suchen und benachrichtigen ─────────────────────────────────────────────
+        //
+        // All three intervals live HERE and not next to the thing they are about (user, 2026-09-13).
+        // They were under their own columns on the drivers screen and inside Update & Release, which
+        // put settings in three places and made two screens part settings screen. One place, one
+        // shape, and each screen keeps only what it is for.
+        private const int CenterSettingsDriverCheckRow = 2;
+        private const int CenterSettingsWindowsCheckRow = 3;
+        private const int CenterSettingsWidgetCheckRow = 4;
+        private const int CenterSettingsWidgetTestRow = 5;
+
         private void OpenCenterSettings()
         {
             LeaveLibrary();
@@ -72,6 +83,39 @@ namespace ClawTweaksCenter
             pairs.Children.Add(BuildCenterSettingRow(CenterSettingsFullscreenRow, Loc.T("Fullscreen"),
                 null, WindowMode.IsFullscreen(this)));
             stack.Children.Add(pairs);
+
+            stack.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Check for updates and notify"),
+                FontSize = 15,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = UiHelpers.Subtle,
+                Margin = new Thickness(2, 18, 0, 8),
+            });
+
+            var checks = new UniformGrid { Columns = 2 };
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsDriverCheckRow, Loc.T("Device drivers"),
+                IntervalLabel(CenterSettings.DriverCheckIntervalWeeks)));
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsWindowsCheckRow, Loc.T("Windows Update"),
+                IntervalLabel(CenterSettings.WindowsUpdateCheckIntervalWeeks)));
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsWidgetCheckRow, Loc.T("Gamebar Widget Releases"),
+                IntervalLabel(CenterSettings.WidgetUpdateNotifyIntervalWeeks)));
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsWidgetTestRow, Loc.T("Include test versions"),
+                null, CenterSettings.WidgetNotifyTestBuilds));
+            stack.Children.Add(checks);
+
+            // The widget list is fetched at every start anyway, so ITS interval throttles the
+            // message and not the search. Saying so under the row is cheaper than a setting that
+            // will be blamed for the next surprise.
+            stack.Children.Add(new TextBlock
+            {
+                Text = Loc.T("The widget list is read at every start; this only decides how often Center says so."),
+                FontSize = 12,
+                Foreground = UiHelpers.Subtle,
+                Opacity = 0.8,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(2, 2, 10, 0),
+            });
 
             if (_languageListOpen) stack.Children.Add(BuildLanguageList());
 
@@ -300,12 +344,20 @@ namespace ClawTweaksCenter
             int last = _centerSettingsRows.Count - 1;
             int next = _centerSettingsIndex;
 
-            // One row of two, so Left/Right move and Up/Down do not. Written as the two directions
-            // that DO something rather than as a grid: a second row would need the stride anyway, and
-            // guessing at one now would be a rule nobody can check.
+            // A two-column GRID since the update intervals moved in: Left/Right step one cell,
+            // Up/Down a whole row. Both UniformGrids on this screen are two wide, so one stride
+            // covers them - if a third grid ever arrives with a different width, this is the line
+            // that has to know.
+            const int stride = 2;
             if (dir == PadButton.Left) next--;
             else if (dir == PadButton.Right) next++;
+            else if (dir == PadButton.Up) next -= stride;
+            else if (dir == PadButton.Down) next += stride;
             else return;
+
+            // Down from the last row lands on the last cell rather than nowhere: with an odd number
+            // of rows the cell below is missing, and refusing the press reads as a dead d-pad.
+            if (next > last && dir == PadButton.Down) next = last;
 
             if (next < 0 || next > last || next == _centerSettingsIndex) return;
 
@@ -332,6 +384,25 @@ namespace ClawTweaksCenter
 
                 case CenterSettingsFullscreenRow:
                     WindowMode.Toggle(this);
+                    break;
+
+                case CenterSettingsDriverCheckRow:
+                    CenterSettings.DriverCheckIntervalWeeks =
+                        NextInterval(CenterSettings.DriverCheckIntervalWeeks);
+                    break;
+
+                case CenterSettingsWindowsCheckRow:
+                    CenterSettings.WindowsUpdateCheckIntervalWeeks =
+                        NextInterval(CenterSettings.WindowsUpdateCheckIntervalWeeks);
+                    break;
+
+                case CenterSettingsWidgetCheckRow:
+                    CenterSettings.WidgetUpdateNotifyIntervalWeeks =
+                        NextInterval(CenterSettings.WidgetUpdateNotifyIntervalWeeks);
+                    break;
+
+                case CenterSettingsWidgetTestRow:
+                    CenterSettings.WidgetNotifyTestBuilds = !CenterSettings.WidgetNotifyTestBuilds;
                     break;
 
             }

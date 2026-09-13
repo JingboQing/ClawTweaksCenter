@@ -62,7 +62,7 @@ namespace ClawTweaksCenter
 
         /// <summary>Which idle screen ContentHost shows — Confirm/Install are transient overlays
         /// triggered from Browse and don't need their own value here.</summary>
-        private enum View { Home, Browse, Onboarding, Maintenance, Library, InstallDone, CenterSettings, Leave, Faq }
+        private enum View { Home, Browse, Onboarding, Maintenance, Library, InstallDone, CenterSettings, Leave, Faq, Drivers, Notifications }
         private View _view = View.Home;
 
         private DeviceDetect.Model _deviceModel = DeviceDetect.Model.Unknown;
@@ -175,6 +175,9 @@ namespace ClawTweaksCenter
             // ModernWindow.Apply — see WindowMode.Attach for why the ordering is not cosmetic.
             WindowMode.Attach(this);
 
+            // BEFORE ApplyBackgroundImage, not after: the seed writes the setting that call reads,
+            // so the other order would show the packaged default one start late.
+            Core.DefaultBackground.SeedOnce();
             // Before anything else is rendered: the background is the one thing that must already be
             // there on the first frame. Painting it later is a visible flash of the flat colour.
             ApplyBackgroundImage();
@@ -189,6 +192,11 @@ namespace ClawTweaksCenter
             {
                 if (_view == View.Leave) RenderLeave();
             });
+
+            // Subscribed once, here, rather than each time the list is opened: a per-open
+            // subscription that one exit path forgets to remove leaks a handler for the lifetime of
+            // the window, and this store is written from background checks.
+            HookNotifications();
 
             SizeChanged += (_, __) => { UpdateShellLayout(); OnLibrarySizeChanged(); RefreshFooterBlurMask(); };
             // The footer changes height when the chips wrap, and the blur mask is a fraction of the
@@ -328,6 +336,14 @@ namespace ClawTweaksCenter
 
                 _setupVersionCheck = await setupVersionTask;
                 _windowsChannel = await windowsChannelTask;
+
+                // Announcements land the moment the manifest does, NOT with the background update
+                // pass. That pass waits for a library scan, runs once a session and skips entirely
+                // once a game has been started - fine for "a driver is out", wrong for the two cases
+                // this channel exists for: something is badly broken, or a release needs a special
+                // setup. The duplicate key is what stops it repeating.
+                PostManifestAnnouncements();
+
                 RenderCurrentView(); // picks up the outdated-Setup / Insider-channel warnings once known
 
                 // Reached via MainWindow after a successful install/update (release-folder wizard
@@ -527,13 +543,52 @@ namespace ClawTweaksCenter
             content.Children.Add(image);
             content.Children.Add(textStack);
 
-            DeviceBanner.Content = new Border
+            _deviceBannerCard = new Border
             {
-                Background = UiHelpers.Card,
                 CornerRadius = new CornerRadius(10),
                 Padding = new Thickness(14, 10, 18, 10),
                 Child = content,
             };
+            ApplyDeviceBannerChrome();
+            DeviceBanner.Content = _deviceBannerCard;
+        }
+
+        /// <summary>The card itself, kept so its fill can be recomputed without rebuilding the row.</summary>
+        private Border _deviceBannerCard;
+
+        /// <summary>
+        /// The banner's fill: solid on the flat background, see-through once there is a picture
+        /// behind it (user, 2026-09-13 - the grey slab sat on top of the wallpaper).
+        ///
+        /// THE CONDITION IS NOT DECORATION. CardColor is #2B2B2B against a #202020 window, so a
+        /// translucent card over the flat background would very nearly vanish - it would read as the
+        /// banner having lost its shape rather than as a lighter card.
+        ///
+        /// Thinned from the resource rather than written out as a second hex, the same way
+        /// ApplyFooterChrome does it: a palette change moves both, and a hand-picked colour here
+        /// would be the one left behind.
+        ///
+        /// ⚠️ ONE writer, always recomputed, and it hangs off ApplyBackgroundImage as well as the
+        /// render - the picture can arrive or be removed long after this row was drawn, and a fill
+        /// that is only computed while drawing is the stale-derived-state trap CLAUDE.md keeps
+        /// naming.
+        /// </summary>
+        private void ApplyDeviceBannerChrome()
+        {
+            if (_deviceBannerCard == null) return;
+
+            bool overPicture = BackgroundImage != null && BackgroundImage.Visibility == Visibility.Visible;
+            if (!overPicture || !(UiHelpers.Card is SolidColorBrush card))
+            {
+                _deviceBannerCard.Background = UiHelpers.Card;
+                return;
+            }
+
+            var colour = card.Color;
+            colour.A = 0x66;
+            var brush = new SolidColorBrush(colour);
+            brush.Freeze();
+            _deviceBannerCard.Background = brush;
         }
         #endregion
 
@@ -620,6 +675,8 @@ namespace ClawTweaksCenter
                 case View.CenterSettings: RenderCenterSettings(); break;
                 case View.Leave: RenderLeave(); break;
                 case View.Faq: RenderFaq(); break;
+                case View.Drivers: RenderDrivers(); break;
+                case View.Notifications: RenderNotifications(); break;
                 default: RenderBrowse(); break;
             }
         }
@@ -802,6 +859,7 @@ namespace ClawTweaksCenter
                 case HomeLibrarySettingsIndex: OpenLibrarySettingsFromHome(); break;
                 case HomeFaqIndex: OpenFaq(); break;
                 case HomeLeaveIndex: OpenLeave(); break;
+                case HomeDriversIndex: OpenDrivers(); break;
             }
         }
 
@@ -815,10 +873,14 @@ namespace ClawTweaksCenter
         // Onboarding moved DOWN out of the first row. It is a once-per-device screen, and it was
         // sitting in the second-most prominent cell on every visit after that one.
 
-        /// <summary>First row: library, builds, maintenance.</summary>
+        /// <summary>First row: the library, the widget releases, and drivers &amp; updates.
+        ///
+        /// Drivers came UP here on 2026-09-13 and backup/restore went down to the last cell: the two
+        /// update screens now sit side by side, which is how they are used - "is there anything new"
+        /// is one question asked of two places.</summary>
         private const int HomeLibraryIndex = 0;
         private const int HomeBrowseIndex = 1;
-        private const int HomeMaintenanceIndex = 2;
+        private const int HomeDriversIndex = 2;
 
         /// <summary>Second row: onboarding, then the two settings screens.</summary>
         private const int HomeOnboardingIndex = 3;
@@ -841,7 +903,16 @@ namespace ClawTweaksCenter
         private const int HomeFaqIndex = 6;
         private const int HomeLeaveIndex = 7;
 
-        private const int HomeMaxIndex = HomeLeaveIndex;
+        /// <summary>Last cell of the third row. Backup and restore is the least frequent of the
+        /// nine and the one nobody hunts for in a hurry, so it took the cell drivers &amp; updates
+        /// vacated rather than leaving a hole at the end of the grid.
+        ///
+        /// ⚠️ ONLY THE NUMBERS MOVED. Every reader uses these names, the switch in ActivateHomeTile
+        /// included, so swapping two values here moves two tiles and nothing else has to be found.
+        /// The order of the Add calls below is the other half of the pair and has to match.</summary>
+        private const int HomeMaintenanceIndex = 8;
+
+        private const int HomeMaxIndex = HomeMaintenanceIndex;
 
         /// <summary>True when a newer Center is offered — either as a notice from setup-manifest.json
         /// (SetupVersionCheck.IsUpdateOffered) or as something this installation can install itself
@@ -1044,14 +1115,15 @@ namespace ClawTweaksCenter
                 selected: _homeSelectedIndex == HomeLibraryIndex));
 
             tiles.Children.Add(BuildHomeTile(
-                "", "Update & Release", "Install releases, test builds and nightlies.",
+                "", "Gamebar Widget Releases", "Install releases, test builds and nightlies.",
                 clickable: true, onClick: () => { _homeSelectedIndex = HomeBrowseIndex; OpenBrowse(); },
                 selected: _homeSelectedIndex == HomeBrowseIndex));
 
             tiles.Children.Add(BuildHomeTile(
-                "", "Reset · Backup · Restore", "Reset the app, or back up your profiles.",
-                clickable: true, onClick: () => { _homeSelectedIndex = HomeMaintenanceIndex; OpenMaintenance(); },
-                selected: _homeSelectedIndex == HomeMaintenanceIndex));
+                "", "Drivers & Updates", "Device drivers and the state of Windows Update.",
+                clickable: true,
+                onClick: () => { _homeSelectedIndex = HomeDriversIndex; OpenDrivers(); },
+                selected: _homeSelectedIndex == HomeDriversIndex));
             // Second row. Onboarding came DOWN out of the first row: it is a once-per-device screen
             // that was holding the second-most prominent cell on every visit after that one. The two
             // settings screens follow it.
@@ -1088,6 +1160,13 @@ namespace ClawTweaksCenter
                 clickable: true,
                 onClick: () => { _homeSelectedIndex = HomeLeaveIndex; OpenLeave(); },
                 selected: _homeSelectedIndex == HomeLeaveIndex));
+
+            // Ninth cell: three columns, so this one completes the third row instead of
+            // leaving a hole at the end of it.
+            tiles.Children.Add(BuildHomeTile(
+                "", "Reset · Backup · Restore", "Reset the app, or back up your profiles.",
+                clickable: true, onClick: () => { _homeSelectedIndex = HomeMaintenanceIndex; OpenMaintenance(); },
+                selected: _homeSelectedIndex == HomeMaintenanceIndex));
 
             ContentHost.Children.Add(tiles);
         }
@@ -1947,6 +2026,10 @@ namespace ClawTweaksCenter
             if (_view == View.CenterSettings) { MoveCenterSettingsSelection(dir); return; }
             if (_view == View.Leave) { MoveLeaveSelection(dir); return; }
             if (_view == View.Faq) { MoveFaqSelection(dir); return; }
+            // Read-only and nothing selectable on it: the right stick scrolls, the d-pad has
+            // nothing to move.
+            if (_view == View.Drivers) { MoveDriversSelection(dir); return; }
+            if (_view == View.Notifications) { MoveNotificationsSelection(dir); return; }
 
             // A hand-off screen (missing prerequisites / untrusted certificate) is up. _view is still
             // Browse — these screens replace the CONTENT without being their own view — so without this
@@ -2070,6 +2153,14 @@ namespace ClawTweaksCenter
 
             BuildActionBar();
 
+            // Notifications claim LT, but ONLY where the current screen left it alone: the letter bar
+            // owns it in All and Not installed, the ROM tab cycles systems with it. Bound here, after
+            // every screen has declared what it wants, so "is LT free" is a fact rather than a list
+            // of screens somebody has to keep in sync. Where it is taken, no keycap appears - the
+            // letter bar's own rule, and the reason nobody has to press a key to find out whether it
+            // does anything.
+            RefreshNotificationIndicator(bindLeftTrigger: !_liveActions.ContainsKey(PadButton.LT));
+
             // OrderBy, not List.Sort: it is stable, so two chips on the same button (which no screen
             // does today) keep the order the screen declared them in instead of swapping at random.
             foreach (var chip in _pendingChips.OrderBy(c => ChipRank(c.Button)))
@@ -2178,6 +2269,18 @@ namespace ClawTweaksCenter
             if (_view == View.Faq)
             {
                 RefreshFaqActionBar();
+                return;
+            }
+
+            if (_view == View.Drivers)
+            {
+                RefreshDriversActionBar();
+                return;
+            }
+
+            if (_view == View.Notifications)
+            {
+                RefreshNotificationsActionBar();
                 return;
             }
 

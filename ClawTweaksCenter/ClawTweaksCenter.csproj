@@ -26,7 +26,7 @@
          else ("it must be a 3-part SemVer2 compliant version string"), measured 2026-09-03. It has to
          stay in step with the packVersion the feed is built with, or Center shows the user one
          number while deciding on another. -->
-    <Version>0.2.51</Version>
+    <Version>0.2.57</Version>
     <!-- Our own Main (Program.cs), not the one generated from App.xaml - see the splash note below. -->
     <StartupObject>ClawTweaksCenter.Program</StartupObject>
     <!-- Distributed filename carries the version + "Setup" suffix (e.g. CTW_Center_0.1.0.2_Setup.exe)
@@ -120,6 +120,11 @@
          It closes itself once the first window appears — nothing to dispose, and nothing to do on the
          uninstall-callback path either, where no window ever opens and the process exits immediately. -->
     <Resource Include="Assets\branding\splash.png" />
+    <!-- The background Center starts life with, copied into the art cache on the FIRST start only
+         (Core\DefaultBackground.cs). The only wallpaper in the binary, and it is in here because it
+         has to be there before there is any network: every other one is fetched from the repo's
+         wallpapers\ folder, which is what keeps a 68 MB download from growing with each one added. -->
+    <Resource Include="Assets\wallpapers\ctw-default.png" />
     <!-- Library sounds and background music, looked up by base name (navigate, confirm, back, launch,
          music*). The folder may be empty: a sound without a file is silence. Loose files in
          %LOCALAPPDATA%\ClawTweaks\Center\sounds\ win over these - see Audio\UiSounds.cs. -->

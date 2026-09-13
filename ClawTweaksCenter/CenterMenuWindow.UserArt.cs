@@ -703,6 +703,7 @@ namespace ClawTweaksCenter
                     BackgroundBlur.Visibility = Visibility.Collapsed;
                 }
                 ApplyFooterChrome();
+                ApplyDeviceBannerChrome();
                 return;
             }
 
@@ -722,6 +723,7 @@ namespace ClawTweaksCenter
                         BackgroundScrim.Visibility = Visibility.Collapsed;
                         if (BackgroundBlur != null) BackgroundBlur.Visibility = Visibility.Collapsed;
                         ApplyFooterChrome();
+                        ApplyDeviceBannerChrome();
                         return;
                     }
                     BackgroundImage.Source = bmp;
@@ -739,6 +741,7 @@ namespace ClawTweaksCenter
                         RefreshFooterBlurMask();
                     }
                     ApplyFooterChrome();
+                    ApplyDeviceBannerChrome();
                 }));
             }, TaskScheduler.Default);
         }
@@ -768,7 +771,13 @@ namespace ClawTweaksCenter
                         RenderGameMenuOverlay();
                         RefreshActionBar();
                     });
-                    AddAction(PadButton.Y, "Rescan", !_userArtApplying && !_userArtScanning, StartUserArtScan);
+                    // Y USED TO BE "Rescan", and it was spent on the cheaper button (user,
+                    // 2026-09-13): a folder listing that is out of date is already one B and one A
+                    // away from being read again, so nothing is lost. Offered for the BACKGROUND
+                    // only - the pictures behind it are 16:10 wallpapers, and putting one on a
+                    // portrait shelf tile as a game cover is not what they are for.
+                    if (_userArtPurpose == UserArtPurpose.Background)
+                        AddAction(PadButton.Y, "Download CTW wallpapers", !_userArtApplying, OpenCtwWallpapers);
                     AddAction(PadButton.B, "Back", true, UserArtBack);
                     return true;
 
