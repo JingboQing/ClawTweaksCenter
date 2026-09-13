@@ -703,6 +703,7 @@ namespace ClawTweaksCenter
                     BackgroundBlur.Visibility = Visibility.Collapsed;
                 }
                 ApplyFooterChrome();
+                ApplyDeviceBannerChrome();
                 return;
             }
 
@@ -722,6 +723,7 @@ namespace ClawTweaksCenter
                         BackgroundScrim.Visibility = Visibility.Collapsed;
                         if (BackgroundBlur != null) BackgroundBlur.Visibility = Visibility.Collapsed;
                         ApplyFooterChrome();
+                        ApplyDeviceBannerChrome();
                         return;
                     }
                     BackgroundImage.Source = bmp;
@@ -739,6 +741,7 @@ namespace ClawTweaksCenter
                         RefreshFooterBlurMask();
                     }
                     ApplyFooterChrome();
+                    ApplyDeviceBannerChrome();
                 }));
             }, TaskScheduler.Default);
         }

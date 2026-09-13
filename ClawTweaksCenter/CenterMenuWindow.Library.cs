@@ -194,7 +194,6 @@ namespace ClawTweaksCenter
         private bool _infoOpen;
 
         private const string SteamGridDbUrl = "https://www.steamgriddb.com/";
-        private const string AnyFseUrl = "https://github.com/ashpynov/AnyFSE";
 
         private bool _exitPromptOpen;
         private int _exitPromptIndex;
@@ -4310,13 +4309,20 @@ namespace ClawTweaksCenter
             // it was the least load-bearing section on it: the setting explains itself where it
             // lives, in Library Settings. The "Immersive mode" translation key stays - the settings
             // row still uses it.
-            stack.Children.Add(InfoHeading("Use CTW Library with Windows Fullscreen Experience (FSE) via AnyFSE"));
-            stack.Children.Add(InfoLine("Add ClawTweaks Center in AnyFSE as your full screen app.", indent: true));
-            stack.Children.Add(InfoLine("Enter the path below, then turn on Start in the library.", indent: true));
-            stack.Children.Add(BuildAnyFsePathRow());
+            // AnyFSE is GONE from this screen (user, 2026-09-13). It was a third-party launcher the
+            // user had to install, find Center's install folder for, and paste a path into - and
+            // Center can be the full screen app itself since 0.3.1.148, which the setup offers as a
+            // plain yes/no question. Two routes to one result meant the harder of the two was on the
+            // screen that explains the library.
+            //
+            // The link is the RELEASES PAGE and stays that from here on: the setup is how the
+            // library gets its full screen mode and how it is updated, so one address answers both.
+            stack.Children.Add(InfoHeading("Use the library as the Windows full screen experience"));
+            stack.Children.Add(InfoLine("Download the ClawTweaks setup from the releases page.", indent: true));
+            stack.Children.Add(InfoLine("Answer Yes when it asks about the full screen mode.", indent: true));
             stack.Children.Add(new TextBlock
             {
-                Text = AnyFseUrl,
+                Text = Core.SetupVersionCheck.ReleasesPageUrl,
                 FontSize = 13,
                 Foreground = UiHelpers.Accent,
                 Margin = new Thickness(InfoIndent + InfoBulletColumn, 6, 0, 0),
@@ -4383,55 +4389,9 @@ namespace ClawTweaksCenter
 
         private static UIElement InfoGap() => new Border { Height = 10 };
 
-        /// <summary>The Center path AnyFSE has to be pointed at, with a Copy button next to it.
-        /// Typing it out on a handheld means an on-screen keyboard and a path with two capitalised
-        /// folder names in it, so the path is offered rather than described.</summary>
-        private UIElement BuildAnyFsePathRow()
-        {
-            var row = new Grid { Margin = new Thickness(InfoIndent + InfoBulletColumn, 6, 0, 0) };
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-            var path = new TextBox
-            {
-                Text = AnyFsePath,
-                IsReadOnly = true,
-                FontSize = 13,
-                Padding = new Thickness(8, 5, 8, 5),
-                VerticalAlignment = VerticalAlignment.Center,
-                VerticalContentAlignment = VerticalAlignment.Center,
-            };
-            row.Children.Add(path);
-
-            var copy = new Button
-            {
-                Content = "Copy",
-                Style = (Style)Application.Current.Resources["SetupButton"],
-                MinWidth = 90,
-                Margin = new Thickness(8, 0, 0, 0),
-            };
-            copy.Click += (_, __) => CopyAnyFsePath();
-            Grid.SetColumn(copy, 1);
-            row.Children.Add(copy);
-
-            return row;
-        }
-
-        /// <summary>The FOLDER Center is installed in, not the exe inside it - AnyFSE's own path
-        /// field does not accept a path down to the exe itself (reported 2026-09-03: it silently
-        /// refused "...\ClawTweaksCenter\CTW_Center.exe"). Derived from <see
-        /// cref="Core.SelfInstaller.InstalledExe"/>, which already resolves classic vs. Velopack -
-        /// stripping the filename here keeps that one source of truth instead of duplicating it.</summary>
-        private static string AnyFsePath => System.IO.Path.GetDirectoryName(Core.SelfInstaller.InstalledExe);
-
-        /// <summary>Puts the installed Center folder on the clipboard. Wrapped because the clipboard
-        /// is a shared OS resource - another process holding it open makes Clipboard.SetText throw,
-        /// and a failed copy must not take the library down with it.</summary>
-        private void CopyAnyFsePath()
-        {
-            try { Clipboard.SetText(AnyFsePath); }
-            catch (Exception ex) { Core.InstallLog.Write("Copying the Center path failed: " + ex.Message); }
-        }
+        // The read-only path box, its Copy button and the clipboard helper went with AnyFSE -
+        // there is no path to hand anybody any more. Where Center is installed is still resolved
+        // in one place (Core.SelfInstaller.InstalledExe); nothing on this screen prints it.
         #endregion
 
         #region Leaving the library
@@ -4945,9 +4905,9 @@ namespace ClawTweaksCenter
             {
                 AddAction(PadButton.A, "Open SteamGridDB", true,
                     () => Core.PrerequisiteGuide.OpenPage(SteamGridDbUrl, m => Core.InstallLog.Write(m)));
-                AddAction(PadButton.Y, "Open AnyFSE", true,
-                    () => Core.PrerequisiteGuide.OpenPage(AnyFseUrl, m => Core.InstallLog.Write(m)));
-                AddAction(PadButton.X, "Copy Center path", true, CopyAnyFsePath);
+                AddAction(PadButton.Y, "Open releases", true,
+                    () => Core.PrerequisiteGuide.OpenPage(Core.SetupVersionCheck.ReleasesPageUrl,
+                        m => Core.InstallLog.Write(m)));
                 AddAction(PadButton.B, "Close", true, CloseLibraryInfo);
                 return;
             }

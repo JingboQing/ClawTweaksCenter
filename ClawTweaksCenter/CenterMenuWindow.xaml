@@ -135,11 +135,24 @@
              the chips go and these two stay - see ApplyFooterVisibility. -->
         <Border x:Name="FooterBar" Grid.Row="3" Background="{StaticResource FooterBrush}"
                 BorderBrush="{StaticResource StrokeBrush}" BorderThickness="0,1,0,0">
-            <Grid>
+            <!-- The two outer columns share ONE width, so the middle cell is centred on the WINDOW
+                 rather than on whatever is left between them. Battery and clock are different
+                 lengths, and without this the chip row sat off to one side by the difference -
+                 reported the moment those two arrived (user, 2026-09-13).
+
+                 A shared size group rather than a margin picked by eye: it always resolves to the
+                 wider of the two, so the row stays centred when the battery text grows ("85 % -
+                 2.4 h" against "12:05") and when it is hidden altogether. A hand-set gutter would be
+                 right on one machine and wrong at the next text length.
+
+                 ⚠️ Grid.IsSharedSizeScope has to be on a parent of both columns, and it is this
+                 Grid. Dropping it makes the group silently do nothing - the columns fall back to
+                 Auto and the row drifts again, with no error anywhere. -->
+            <Grid Grid.IsSharedSizeScope="True">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="FooterSide" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="FooterSide" />
                 </Grid.ColumnDefinitions>
 
                 <TextBlock x:Name="FooterBattery" Grid.Column="0"

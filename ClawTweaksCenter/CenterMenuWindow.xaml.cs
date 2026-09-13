@@ -530,13 +530,52 @@ namespace ClawTweaksCenter
             content.Children.Add(image);
             content.Children.Add(textStack);
 
-            DeviceBanner.Content = new Border
+            _deviceBannerCard = new Border
             {
-                Background = UiHelpers.Card,
                 CornerRadius = new CornerRadius(10),
                 Padding = new Thickness(14, 10, 18, 10),
                 Child = content,
             };
+            ApplyDeviceBannerChrome();
+            DeviceBanner.Content = _deviceBannerCard;
+        }
+
+        /// <summary>The card itself, kept so its fill can be recomputed without rebuilding the row.</summary>
+        private Border _deviceBannerCard;
+
+        /// <summary>
+        /// The banner's fill: solid on the flat background, see-through once there is a picture
+        /// behind it (user, 2026-09-13 - the grey slab sat on top of the wallpaper).
+        ///
+        /// THE CONDITION IS NOT DECORATION. CardColor is #2B2B2B against a #202020 window, so a
+        /// translucent card over the flat background would very nearly vanish - it would read as the
+        /// banner having lost its shape rather than as a lighter card.
+        ///
+        /// Thinned from the resource rather than written out as a second hex, the same way
+        /// ApplyFooterChrome does it: a palette change moves both, and a hand-picked colour here
+        /// would be the one left behind.
+        ///
+        /// ⚠️ ONE writer, always recomputed, and it hangs off ApplyBackgroundImage as well as the
+        /// render - the picture can arrive or be removed long after this row was drawn, and a fill
+        /// that is only computed while drawing is the stale-derived-state trap CLAUDE.md keeps
+        /// naming.
+        /// </summary>
+        private void ApplyDeviceBannerChrome()
+        {
+            if (_deviceBannerCard == null) return;
+
+            bool overPicture = BackgroundImage != null && BackgroundImage.Visibility == Visibility.Visible;
+            if (!overPicture || !(UiHelpers.Card is SolidColorBrush card))
+            {
+                _deviceBannerCard.Background = UiHelpers.Card;
+                return;
+            }
+
+            var colour = card.Color;
+            colour.A = 0x66;
+            var brush = new SolidColorBrush(colour);
+            brush.Freeze();
+            _deviceBannerCard.Background = brush;
         }
         #endregion
 
