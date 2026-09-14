@@ -197,6 +197,7 @@ namespace ClawTweaksCenter.Navigation
             // witness: a gap here is not the dispatcher's doing and not a driver's - it is this
             // thread not being given the CPU, which is either a collection or the machine being busy.
             Ui.UiStallTrace.GcMark gapMark = Ui.UiStallTrace.MarkGc();
+            Ui.UiStallTrace.CpuMark gapCpuMark = Ui.UiStallTrace.MarkCpu();
 
             while (_running)
             {
@@ -205,6 +206,8 @@ namespace ClawTweaksCenter.Navigation
                 long gap = roundClock.ElapsedMilliseconds - lastRoundEnd;
                 Ui.UiStallTrace.GcMark gapGc = gapMark;
                 gapMark = Ui.UiStallTrace.MarkGc();
+                Ui.UiStallTrace.CpuMark gapCpu = gapCpuMark;
+                gapCpuMark = Ui.UiStallTrace.MarkCpu();
                 try
                 {
                     PollOnce();
@@ -220,7 +223,8 @@ namespace ClawTweaksCenter.Navigation
 
                 if (gap > TickMs + Ui.UiStallTrace.GapWarnMs)
                     Ui.UiStallTrace.Write($"gap {gap}ms between rounds (asked for {TickMs}ms) - " +
-                                          $"{Ui.UiStallTrace.SinceGc(gapGc)} - {Ui.UiStallTrace.Witnesses()}");
+                                          $"{Ui.UiStallTrace.SinceGc(gapGc)} - {Ui.UiStallTrace.Witnesses()} - " +
+                                          $"{Ui.UiStallTrace.SinceCpu(gapCpu)}");
 
                 MeasureUiResponsiveness();
                 ReportIfUiStillBlocked();
@@ -344,6 +348,7 @@ namespace ClawTweaksCenter.Navigation
             Ui.UiStallTrace.GcMark gc = Ui.UiStallTrace.MarkGc();
             System.Threading.Volatile.Write(ref _probeQueuedAt, System.Diagnostics.Stopwatch.GetTimestamp());
             System.Threading.Volatile.Write(ref _probeReported, 0);
+            _probeCpu = Ui.UiStallTrace.MarkCpu();
             try
             {
                 _window.Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
@@ -364,6 +369,7 @@ namespace ClawTweaksCenter.Navigation
 
         private long _probeQueuedAt;
         private int _probeReported;
+        private Ui.UiStallTrace.CpuMark _probeCpu;
 
         /// <summary>
         /// Asks the witnesses WHILE the UI thread is still stuck, from this thread.
@@ -397,7 +403,8 @@ namespace ClawTweaksCenter.Navigation
             if (System.Threading.Interlocked.Exchange(ref _probeReported, 1) != 0) return;
 
             Ui.UiStallTrace.Write($"ui thread STILL BLOCKED after {waited}ms (read from the poll thread, " +
-                                  $"while it is down) - {Ui.UiStallTrace.Witnesses()}");
+                                  $"while it is down) - {Ui.UiStallTrace.Witnesses()} - " +
+                                  $"{Ui.UiStallTrace.SinceCpu(_probeCpu)}");
         }
 
         private int _uiProbeInFlight;

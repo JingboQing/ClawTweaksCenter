@@ -279,6 +279,78 @@ namespace ClawTweaksCenter.Ui
             return opPart + "; " + msgPart;
         }
 
+        // ── WAS THE PROCESS RUNNING, OR WAS IT NOT GIVEN THE CPU? ───────────────────────────────
+        //
+        // The last discriminator, and the one that decides between the only two explanations left
+        // after everything else was measured out:
+        //
+        //   near-zero process CPU across the stall   Center was not SCHEDULED. Nothing inside it can
+        //                                            cause that and nothing inside it can fix it;
+        //                                            the question becomes who else is using the
+        //                                            machine, and what we can stop asking of it.
+        //   process CPU close to the wall time       Center WAS running - just not our dispatcher
+        //                                            work, which Dispatcher.Hooks already showed is
+        //                                            idle. Then it is native: WPF rebuilding its
+        //                                            rendering surface, or a driver call underneath.
+        //
+        // The system-wide figure comes along because the first case has two very different
+        // sub-cases. A machine at 100% with us getting nothing is contention. A machine that is
+        // mostly IDLE while we get nothing is not contention at all - it is our threads being held
+        // somewhere, and that would be a far more specific fault.
+
+        internal struct CpuMark
+        {
+            public TimeSpan Process;
+            public long SystemIdle, SystemKernel, SystemUser;
+            public long Wall;
+        }
+
+        internal static CpuMark MarkCpu()
+        {
+            var m = new CpuMark { Wall = System.Diagnostics.Stopwatch.GetTimestamp() };
+            try { m.Process = System.Diagnostics.Process.GetCurrentProcess().TotalProcessorTime; } catch { }
+            try
+            {
+                if (GetSystemTimes(out long idle, out long kernel, out long user))
+                {
+                    m.SystemIdle = idle; m.SystemKernel = kernel; m.SystemUser = user;
+                }
+            }
+            catch { }
+            return m;
+        }
+
+        /// <summary>Reads again and says, in one clause, whether we ran and whether the machine was busy.</summary>
+        internal static string SinceCpu(CpuMark before)
+        {
+            try
+            {
+                CpuMark now = MarkCpu();
+                double wallMs = (now.Wall - before.Wall) / (System.Diagnostics.Stopwatch.Frequency / 1000.0);
+                if (wallMs <= 0) return "cpu: no interval";
+
+                double procMs = (now.Process - before.Process).TotalMilliseconds;
+
+                // Kernel time from GetSystemTimes INCLUDES idle, which is the usual trap here.
+                long kernel = now.SystemKernel - before.SystemKernel;
+                long user = now.SystemUser - before.SystemUser;
+                long idle = now.SystemIdle - before.SystemIdle;
+                long total = kernel + user;
+
+                string system = total > 0
+                    ? $"machine {100.0 * (total - idle) / total:F0}% busy"
+                    : "machine load unreadable";
+
+                // Per core-second: 1000 ms of process CPU over 1000 ms of wall clock is one core.
+                return $"cpu: this process used {procMs:F0}ms over {wallMs:F0}ms wall ({procMs / wallMs:F2} cores), {system}";
+            }
+            catch (Exception ex) { return "cpu: unreadable (" + ex.Message + ")"; }
+        }
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        private static extern bool GetSystemTimes(out long idleTime, out long kernelTime, out long userTime);
+
         internal static void Write(string message)
         {
             if (Path_ == null) return;
