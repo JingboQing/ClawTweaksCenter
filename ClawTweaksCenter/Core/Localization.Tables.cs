@@ -4,15 +4,21 @@ namespace ClawTweaksCenter.Core
 {
     public static partial class Loc
     {
+        // GENERATED FROM Tools/i18n/strings.tsv BY Tools/i18n/loc_build.py - DO NOT EDIT BY HAND.
+        // An edit here survives exactly until the next run of that script. Change the TSV instead,
+        // regenerate, and commit both.
+        //
         // The tables behind T(). Keyed by the English string; anything absent renders in English,
         // which is what makes leaving a string out a decision rather than a bug.
         //
         // WIDTH-CHECKED. Every entry passed a rendered-width check against its English original: at
         // most 1.7x the English, or five characters more, whichever is larger, with CJK characters
         // counted double because they render about twice as wide. Center's chips, tabs and tiles are
-        // sized for the English word and do not grow, so a label that fails the check is left out
-        // and stays English rather than being clipped. The ones that failed are listed at the bottom
-        // of this file - that list is the record of what is deliberately NOT translated.
+        // sized for the English word and do not grow. A translation that failed the check was
+        // SHORTENED until it fit rather than dropped - a half-English Russian screen reads as broken
+        // where a half-English German one merely reads as unfinished. The handful that could not be
+        // shortened honestly are left empty in the TSV and stay English; Tools/i18n/check_width.py
+        // reports them.
         //
         // Menu headings are English on purpose: the Home tiles keep their English titles and only
         // their one-line descriptions are translated. "Library" is the exception, and it is
@@ -260,7 +266,7 @@ namespace ClawTweaksCenter.Core
             ["Language"] = "Sprache",
             ["Last played"] = "Zuletzt gespielt",
             ["Layout"] = "Belegung",
-            ["Library quick menu"] = "Bibliothek Schnellmenü",
+            ["Library quick menu"] = "Bibliothek Schnellmen\u00FC",
             ["Leave the library open."] = "Bibliothek offen lassen.",
             ["Left stick"] = "Linker Stick",
             ["Left trigger"] = "Linker Trigger",
@@ -677,8 +683,6 @@ namespace ClawTweaksCenter.Core
             ["{0} is starting"] = "{0} startet",
             ["{0} of {1} unlocked"] = "{0} von {1} freigeschaltet",
             ["{0}% of players"] = "{0}% der Spieler",
-
-            // -- Drivers & Windows Updates (2026-09-13) ------------------------------------------
             ["Drivers & Windows Updates"] = "Treiber & Windows-Updates",
             ["Device drivers"] = "Ger\u00E4tetreiber",
             ["Drivers could not be checked"] = "Treiber konnten nicht gepr\u00FCft werden",
@@ -719,8 +723,6 @@ namespace ClawTweaksCenter.Core
             ["Device drivers and the state of Windows Update."] = "Ger\u00E4tetreiber und der Stand von Windows Update.",
             ["Device drivers and Windows Update."] = "Ger\u00E4tetreiber und Windows Update.",
             ["Cannot tell"] = "Nicht feststellbar",
-
-            // -- Notifications and update intervals (2026-09-13) ----------------------------------
             ["Notifications"] = "Benachrichtigungen",
             ["Nothing here yet."] = "Noch nichts da.",
             ["Center tells you here when a driver, a Windows update or a new widget build turns up."] = "Hier meldet Center, wenn ein Treiber, ein Windows-Update oder eine neue Widget-Version auftaucht.",
@@ -987,6 +989,8 @@ namespace ClawTweaksCenter.Core
             ["Layout"] = "Disposition",
             ["Library quick menu"] = "Menu rapide de la biblioth\u00E8que",
             ["Leave the library open."] = "Laisser la biblioth\u00E8que ouverte.",
+            ["Left stick"] = "Stick gauche",
+            ["Left trigger"] = "G\u00E2chette gauche",
             ["Library tabs"] = "Onglets de la biblioth\u00E8que",
             ["Looking for pictures\u2026"] = "Recherche d'images\u2026",
             ["Move a tab with LB and RB."] = "D\u00E9placez un onglet avec LB et RB.",
@@ -1037,8 +1041,6 @@ namespace ClawTweaksCenter.Core
             ["Looking for wallpapers\u2026"] = "Recherche de fonds\u2026",
             ["The wallpaper list could not be reached. Check your connection."] = "Liste des fonds inaccessible. V\u00E9rifie ta connexion.",
             ["No wallpapers published yet."] = "Aucun fond publi\u00E9 pour l'instant.",
-            ["Left stick"] = "Stick gauche",
-            ["Left trigger"] = "G\u00E2chette gauche",
             ["Library"] = "Biblioth\u00E8que",
             ["Library Settings"] = "R\u00E9glages biblioth\u00E8que",
             ["Library settings"] = "R\u00E9glages biblioth\u00E8que",
@@ -1400,8 +1402,6 @@ namespace ClawTweaksCenter.Core
             ["{0} is starting"] = "{0} d\u00E9marre",
             ["{0} of {1} unlocked"] = "{0} sur {1} d\u00E9bloqu\u00E9s",
             ["{0}% of players"] = "{0}% des joueurs",
-
-            // -- Drivers & Windows Updates (2026-09-13) ------------------------------------------
             ["Drivers & Windows Updates"] = "Pilotes et mises \u00E0 jour Windows",
             ["Device drivers"] = "Pilotes de p\u00E9riph\u00E9riques",
             ["Drivers could not be checked"] = "Impossible de v\u00E9rifier les pilotes",
@@ -1442,8 +1442,6 @@ namespace ClawTweaksCenter.Core
             ["Device drivers and the state of Windows Update."] = "Pilotes de p\u00E9riph\u00E9riques et \u00E9tat de Windows Update.",
             ["Device drivers and Windows Update."] = "Pilotes de p\u00E9riph\u00E9riques et Windows Update.",
             ["Cannot tell"] = "Impossible \u00E0 dire",
-
-            // -- Notifications and update intervals (2026-09-13) ----------------------------------
             ["Notifications"] = "Notifications",
             ["Nothing here yet."] = "Rien pour l'instant.",
             ["Center tells you here when a driver, a Windows update or a new widget build turns up."] = "Center vous pr\u00E9vient ici quand un pilote, une mise \u00E0 jour Windows ou une nouvelle version du widget arrive.",
@@ -1710,6 +1708,8 @@ namespace ClawTweaksCenter.Core
             ["Layout"] = "\uBC30\uCE58",
             ["Library quick menu"] = "\uB77C\uC774\uBE0C\uB7EC\uB9AC \uBE60\uB978 \uBA54\uB274",
             ["Leave the library open."] = "\uB77C\uC774\uBE0C\uB7EC\uB9AC\uB97C \uC5F4\uC5B4 \uB461\uB2C8\uB2E4.",
+            ["Left stick"] = "\uC67C\uCABD \uC2A4\uD2F1",
+            ["Left trigger"] = "\uC67C\uCABD \uD2B8\uB9AC\uAC70",
             ["Library tabs"] = "\uB77C\uC774\uBE0C\uB7EC\uB9AC \uD0ED",
             ["Looking for pictures\u2026"] = "\uC0AC\uC9C4\uC744 \uCC3E\uB294 \uC911\u2026",
             ["Move a tab with LB and RB."] = "LB\uC640 RB\uB85C \uD0ED\uC744 \uC62E\uAE30\uC138\uC694.",
@@ -1760,8 +1760,6 @@ namespace ClawTweaksCenter.Core
             ["Looking for wallpapers\u2026"] = "\uBC30\uACBD\uC744 \uCC3E\uB294 \uC911\u2026",
             ["The wallpaper list could not be reached. Check your connection."] = "\uBC30\uACBD \uBAA9\uB85D\uC5D0 \uC5F0\uACB0\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC5F0\uACB0\uC744 \uD655\uC778\uD558\uC138\uC694.",
             ["No wallpapers published yet."] = "\uC544\uC9C1 \uACF5\uAC1C\uB41C \uBC30\uACBD\uC774 \uC5C6\uC2B5\uB2C8\uB2E4.",
-            ["Left stick"] = "\uC67C\uCABD \uC2A4\uD2F1",
-            ["Left trigger"] = "\uC67C\uCABD \uD2B8\uB9AC\uAC70",
             ["Library"] = "\uB77C\uC774\uBE0C\uB7EC\uB9AC",
             ["Library Settings"] = "\uB77C\uC774\uBE0C\uB7EC\uB9AC \uC124\uC815",
             ["Library settings"] = "\uB77C\uC774\uBE0C\uB7EC\uB9AC \uC124\uC815",
@@ -1963,7 +1961,6 @@ namespace ClawTweaksCenter.Core
             ["Start menu, desktop and startup"] = "\uC2DC\uC791 \uBA54\uB274, \uBC14\uD0D5 \uD654\uBA74, \uC2DC\uC791 \uD504\uB85C\uADF8\uB7A8",
             ["Started from Windows"] = "Windows\uC5D0\uC11C \uC2DC\uC791\uB428",
             ["Starting\u2026"] = "\uC2DC\uC791 \uC911\u2026",
-            ["Status"] = "\uC0C1\uD0DC",
             ["Stay open"] = "\uC5F4\uC5B4 \uB450\uAE30",
             ["Steam Xbox filter driver"] = "Steam Xbox \uD544\uD130 \uB4DC\uB77C\uC774\uBC84",
             ["Steam asks you where to put it."] = "Steam\uC774 \uC124\uCE58 \uC704\uCE58\uB97C \uBB3B\uC2B5\uB2C8\uB2E4.",
@@ -2126,8 +2123,6 @@ namespace ClawTweaksCenter.Core
             ["{0} is starting"] = "{0} \uC2DC\uC791 \uC911",
             ["{0} of {1} unlocked"] = "{1}\uAC1C \uC911 {0}\uAC1C \uB2EC\uC131",
             ["{0}% of players"] = "\uD50C\uB808\uC774\uC5B4 {0}%",
-
-            // -- Drivers & Windows Updates (2026-09-13) ------------------------------------------
             ["Drivers & Windows Updates"] = "\uB4DC\uB77C\uC774\uBC84 \uBC0F Windows \uC5C5\uB370\uC774\uD2B8",
             ["Device drivers"] = "\uC7A5\uCE58 \uB4DC\uB77C\uC774\uBC84",
             ["Drivers could not be checked"] = "\uB4DC\uB77C\uC774\uBC84\uB97C \uD655\uC778\uD560 \uC218 \uC5C6\uC74C",
@@ -2168,8 +2163,6 @@ namespace ClawTweaksCenter.Core
             ["Device drivers and the state of Windows Update."] = "\uC7A5\uCE58 \uB4DC\uB77C\uC774\uBC84\uC640 Windows \uC5C5\uB370\uC774\uD2B8 \uC0C1\uD0DC.",
             ["Device drivers and Windows Update."] = "\uC7A5\uCE58 \uB4DC\uB77C\uC774\uBC84\uC640 Windows \uC5C5\uB370\uC774\uD2B8.",
             ["Cannot tell"] = "\uD655\uC778 \uBD88\uAC00",
-
-            // -- Notifications and update intervals (2026-09-13) ----------------------------------
             ["Notifications"] = "\uC54C\uB9BC",
             ["Nothing here yet."] = "\uC544\uC9C1 \uC544\uBB34\uAC83\uB3C4 \uC5C6\uC2B5\uB2C8\uB2E4.",
             ["Center tells you here when a driver, a Windows update or a new widget build turns up."] = "\uB4DC\uB77C\uC774\uBC84, Windows \uC5C5\uB370\uC774\uD2B8, \uC0C8 \uC704\uC82F \uBC84\uC804\uC774 \uB098\uC624\uBA74 Center\uAC00 \uC5EC\uAE30\uC5D0\uC11C \uC54C\uB824\uC90D\uB2C8\uB2E4.",
@@ -2199,6 +2192,7 @@ namespace ClawTweaksCenter.Core
             ["Windows Update"] = "Windows \uC5C5\uB370\uC774\uD2B8",
             ["Not checked automatically. You can switch this on in Center settings."] = "\uC790\uB3D9\uC73C\uB85C \uD655\uC778\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. Center \uC124\uC815\uC5D0\uC11C \uCF24 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
             ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "\uC790\uB3D9 \uD655\uC778: {0}. Center \uC124\uC815\uC5D0\uC11C \uBCC0\uACBD\uD558\uAC70\uB098 \uB04C \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+            ["Status"] = "\uC0C1\uD0DC",
         };
 
         private static readonly Dictionary<string, string> Spanish = new Dictionary<string, string>
@@ -2434,8 +2428,10 @@ namespace ClawTweaksCenter.Core
             ["Language"] = "Idioma",
             ["Last played"] = "\u00DAltima partida",
             ["Layout"] = "Distribuci\u00F3n",
-            ["Library quick menu"] = "Menú rápido de la biblioteca",
+            ["Library quick menu"] = "Men\u00FA r\u00E1pido de la biblioteca",
             ["Leave the library open."] = "Deja la biblioteca abierta.",
+            ["Left stick"] = "Stick izquierdo",
+            ["Left trigger"] = "Gatillo izquierdo",
             ["Library tabs"] = "Pesta\u00F1as de biblioteca",
             ["Looking for pictures\u2026"] = "Buscando im\u00E1genes\u2026",
             ["Move a tab with LB and RB."] = "Mueve una pesta\u00F1a con LB y RB.",
@@ -2471,9 +2467,9 @@ namespace ClawTweaksCenter.Core
             ["Windows tools"] = "Herramientas de Windows",
             ["Windows Explorer"] = "Explorador de Windows",
             ["Task Manager"] = "Administrador de tareas",
-            ["Windows Settings"] = "Configuración de Windows",
-            ["Control Panel (classic)"] = "Panel de control (clásico)",
-            ["Computer Management"] = "Administración de equipos",
+            ["Windows Settings"] = "Configuraci\u00F3n de Windows",
+            ["Control Panel (classic)"] = "Panel de control (cl\u00E1sico)",
+            ["Computer Management"] = "Administraci\u00F3n de equipos",
             ["Installed apps"] = "Aplicaciones instaladas",
             ["Use the library as the Windows full screen experience"] = "Usar la biblioteca como modo de pantalla completa de Windows",
             ["Download the ClawTweaks setup from the releases page."] = "Descarga el instalador de ClawTweaks desde la p\u00E1gina de releases.",
@@ -2486,8 +2482,6 @@ namespace ClawTweaksCenter.Core
             ["Looking for wallpapers\u2026"] = "Buscando fondos\u2026",
             ["The wallpaper list could not be reached. Check your connection."] = "No se pudo acceder a la lista de fondos. Comprueba tu conexi\u00F3n.",
             ["No wallpapers published yet."] = "A\u00FAn no hay fondos publicados.",
-            ["Left stick"] = "Stick izquierdo",
-            ["Left trigger"] = "Gatillo izquierdo",
             ["Library"] = "Biblioteca",
             ["Library Settings"] = "Ajustes de biblioteca",
             ["Library settings"] = "Ajustes de biblioteca",
@@ -2851,8 +2845,6 @@ namespace ClawTweaksCenter.Core
             ["{0} is starting"] = "{0} se est\u00E1 iniciando",
             ["{0} of {1} unlocked"] = "{0} de {1} desbloqueados",
             ["{0}% of players"] = "{0}% de jugadores",
-
-            // -- Drivers & Windows Updates (2026-09-13) ------------------------------------------
             ["Drivers & Windows Updates"] = "Controladores y actualizaciones de Windows",
             ["Device drivers"] = "Controladores de dispositivo",
             ["Drivers could not be checked"] = "No se pudieron comprobar los controladores",
@@ -2893,8 +2885,6 @@ namespace ClawTweaksCenter.Core
             ["Device drivers and the state of Windows Update."] = "Controladores de dispositivo y el estado de Windows Update.",
             ["Device drivers and Windows Update."] = "Controladores de dispositivo y Windows Update.",
             ["Cannot tell"] = "No se puede determinar",
-
-            // -- Notifications and update intervals (2026-09-13) ----------------------------------
             ["Notifications"] = "Notificaciones",
             ["Nothing here yet."] = "A\u00FAn no hay nada.",
             ["Center tells you here when a driver, a Windows update or a new widget build turns up."] = "Center te avisa aqu\u00ED cuando aparece un controlador, una actualizaci\u00F3n de Windows o una nueva versi\u00F3n del widget.",
@@ -2926,14 +2916,37 @@ namespace ClawTweaksCenter.Core
             ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "Comprobaci\u00F3n autom\u00E1tica: {0}. Puedes cambiarlo o desactivarlo en los ajustes de Center.",
         };
 
+        private static readonly Dictionary<string, string> Russian = new Dictionary<string, string>
+        {
+        };
+
+        private static readonly Dictionary<string, string> Greek = new Dictionary<string, string>
+        {
+        };
+
+        private static readonly Dictionary<string, string> ChineseSimplified = new Dictionary<string, string>
+        {
+        };
+
+        private static readonly Dictionary<string, string> ChineseTraditional = new Dictionary<string, string>
+        {
+        };
+
+        private static readonly Dictionary<string, string> Italian = new Dictionary<string, string>
+        {
+        };
+
+        private static readonly Dictionary<string, string> Portuguese = new Dictionary<string, string>
+        {
+        };
+
+        private static readonly Dictionary<string, string> Japanese = new Dictionary<string, string>
+        {
+        };
+
+        private static readonly Dictionary<string, string> Polish = new Dictionary<string, string>
+        {
+        };
+
     }
 }
-
-/*
- * LEFT IN ENGLISH ON PURPOSE - the honest translation is wider than the control it has to
- * fit in (see the width rule above). This list is the answer to "why is this one word
- * still English", so it is kept rather than tidied away:
- *
- *   French:  "Save" -> "Enregistrer" (11 wide, budget 9)
- *   French:  "Select" -> "Sélectionner" (12 wide, budget 11)
- */
