@@ -252,6 +252,22 @@ namespace ClawTweaksCenter
                     "starting anyway, without the single-instance claim.");
             }
 
+            // The helper, as early as we can ask for it — but only when Center is what Windows
+            // booted into. In FSE we are up long before the logon-triggered task gets its turn, so
+            // the virtual pad lands in the middle of the user's first navigation; outside FSE the
+            // dependency runs the other way and this does nothing. Every guard lives in
+            // FseHelperStart; here it is one fire-and-forget call, off the UI thread, so a slow
+            // schtasks cannot hold up the window.
+            //
+            // Deliberately AFTER the uninstall branches and the single-instance gate (an uninstall
+            // must not start anything, and a second launch must not fire a second request), and
+            // BEFORE the window — the library may prewarm Steam, and that has to lose this race.
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                try { Core.InstallLog.Write("FSE helper start: " + Core.FseHelperStart.TryStartHelper()); }
+                catch (Exception ex) { try { Core.InstallLog.Write("FSE helper start threw: " + ex.Message); } catch { } }
+            });
+
             var window = new CenterMenuWindow(
                 startOnboarding: startOnboarding,
                 startLibrary: !startHome && !startOnboarding && (startLibrary || toggleLibrary),
