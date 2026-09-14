@@ -162,6 +162,7 @@ NOT_UI_EXACT = {
     'True', 'False', 'None', 'Auto', 'null', 'true', 'false', 'OK', 'Yes', 'No',
 }
 # A literal that is nothing but a token: no spaces, and cased like an identifier or a constant.
+INTERPOLATED = re.compile(r'\{[A-Za-z_][^}]*\}')
 IDENTIFIERISH = re.compile(r'^[A-Za-z][A-Za-z0-9_]*$')
 CONSTANTISH = re.compile(r'^[A-Z0-9_]{2,}$')
 
@@ -203,6 +204,27 @@ ARGUMENT_OF = ('Loc.T(', 'Loc.F(', 'Core.Loc.T(', 'Core.Loc.F(')
 NOT_TEXT_POSITION = ('Resources[', 'ToString(', 'FindResource(', 'GetValue(', 'nameof(',
                      'StartsWith(', 'EndsWith(', 'Contains(', 'Equals(', 'Split(',
                      'GetString(', 'SetValue(', 'Parse(', 'ParseExact(')
+
+# The diagnostic log is not the interface. It is written in English on purpose, it is read by
+# whoever is debugging, and translating it would make a reported log unreadable to the person
+# being asked about it. Without this filter the log swamps the report: most of what first looked
+# like 682 loose candidates was Logger.Info.
+# Matched on the CALLEE NAME rather than a list of full call expressions. The list started as
+# Logger.Info/Warn/Error and missed LogCrash, LogOnce and InstallLog.Write, each of which is a
+# logging function by any reading - and each miss put log text into the report as something to
+# translate. A name is the thing that tells you what a call does, so the name is what is tested.
+CALLEE = re.compile(r'([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)\($')
+ANY_CALL = re.compile(r'([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)\(')
+LOG_NAMES = ('Log', 'Trace', 'Diagnostic')
+LOG_LEAF = {'Info', 'Warn', 'Warning', 'Error', 'Debug', 'Verbose', 'WriteLine'}
+
+
+def is_log_call(name):
+    if any(part in name for part in LOG_NAMES):
+        return True
+    leaf = name.rsplit('.', 1)[-1]
+    # A bare Info("...") could be anything; Logger.Info is unambiguous. Require the qualifier.
+    return leaf in LOG_LEAF and '.' in name
 BUILDERS = (
     'Title(', 'Caption(', 'Body(', 'StatusRow(', 'ActionCallout(', 'ToolRow(', 'ModeBanner(',
     'AddAction(', 'Chip(', 'Tile(', 'Tab(', 'SettingRow(', 'LibraryMessage(', 'PromptRow(',
@@ -218,14 +240,26 @@ def classify_site(before):
     # so those come off before anything is matched against it. Leaving them on made every
     # classification fall through to "loose" and reported zero wrapped literals in a codebase
     # that has hundreds.
+    # The literal's own prefix characters come off first: the quote, and whichever of $ and @ the
+    # source put in front of it, in either order ($@" and @$" are both legal C#). Leaving the $ on
+    # meant every Logger.Info($"...") - which is most of them - failed the log test and was
+    # reported as a candidate for translation.
     tail = before.rstrip()
-    if tail.endswith('"'):
-        tail = tail[:-1]
-    if tail.endswith('@'):
+    while tail and tail[-1] in '"@$':
         tail = tail[:-1]
     tail = tail.rstrip()
     if any(tail.endswith(p) for p in NOT_TEXT_POSITION):
         return 'ignore'
+    callee = CALLEE.search(tail)
+    if callee and is_log_call(callee.group(1)):
+        return 'log'
+    # A CONTINUATION of a concatenation: Log("a: " + x + " b: " + y) hands the test above only
+    # the first fragment, because every later one sits behind a `+` and a variable. The rest of
+    # the statement is the same call, so the call it belongs to decides them too.
+    if tail.endswith('+'):
+        for name in ANY_CALL.findall(tail[-200:]):
+            if is_log_call(name):
+                return 'log'
     if any(tail.endswith(c) for c in ARGUMENT_OF):
         return 'wrapped'
     if any(b in before for b in BUILDERS):
@@ -253,7 +287,7 @@ def main():
     keys, _ = read_tsv()
     keyset = set(keys)
 
-    translated, candidates, ignored = 0, collections.OrderedDict(), 0
+    translated, candidates, ignored, logged = 0, collections.OrderedDict(), 0, 0
     mentioned = set()
 
     files = [f for f in sorted(glob.glob(SRC_GLOB, recursive=True))
@@ -273,14 +307,28 @@ def main():
                 continue
             before = src[max(0, begin - 300):begin]
             kind = classify_site(before)
-            if kind == 'ignore' and val not in candidates:
-                ignored += 1
+            if kind in ('ignore', 'log') and val not in candidates:
+                if kind == 'log':
+                    logged += 1
+                else:
+                    ignored += 1
                 continue
-            rec = candidates.setdefault(val, {'sites': [], 'kind': 'loose'})
+            # An INTERPOLATED literal can never be a key: the runtime builds a different string
+            # every time, so no table can ever match it. Reported apart from the rest because
+            # filling in a table does not help - the call site has to be rewritten to hand the
+            # FORMAT to Loc.F and fill it in afterwards. That is a code change and a separate
+            # decision, and counting it as a translation gap would overstate the table's holes.
+            if kind != 'wrapped' and INTERPOLATED.search(val):
+                kind = 'interpolated'
+            # Seeded with THIS site's verdict, not with 'loose'. Seeding it with a rank the
+            # interpolated verdict merely ties on meant no literal was ever recorded as
+            # interpolated, and the report claimed zero of them.
+            rec = candidates.setdefault(val, {'sites': [], 'kind': kind})
             rec['sites'].append('%s:%d' % (rel, ln))
             # The strongest site wins: one call site that clearly puts it on screen settles it,
             # however many incidental ones there are.
-            order = {'ignore': 0, 'loose': 1, 'builder': 2, 'wrapped': 3}
+            order = {'ignore': 0, 'log': 0, 'interpolated': 1, 'loose': 1,
+                     'builder': 2, 'wrapped': 3}
             if order[kind] > order[rec['kind']]:
                 rec['kind'] = kind
 
@@ -288,10 +336,13 @@ def main():
     sys.stdout.write('literals already translated       %d occurrences of %d keys\n'
                      % (translated, len(mentioned)))
     sys.stdout.write('literals ignored as non-UI        %d\n' % ignored)
+    sys.stdout.write('literals that are log text        %d\n' % logged)
     sys.stdout.write('CANDIDATES (look like UI, no key) %d\n' % len(candidates))
     for kind, label in (('wrapped', 'inside Loc.T/Loc.F - MUST be translated'),
                         ('builder', 'reaches a known builder - very likely on screen'),
-                        ('loose',   'looks like text but no builder nearby - needs an eye')):
+                        ('loose',   'looks like text but no builder nearby - needs an eye'),
+                        ('interpolated',
+                         'built at runtime - needs a Loc.F rewrite, not a table row')):
         n = sum(1 for r in candidates.values() if r['kind'] == kind)
         sys.stdout.write('    %-8s %5d   %s\n' % (kind, n, label))
 
@@ -300,7 +351,7 @@ def main():
 
     if '--gaps' in sys.argv:
         sys.stdout.write('\n=== candidates ===\n')
-        for kind in ('wrapped', 'builder', 'loose'):
+        for kind in ('wrapped', 'builder', 'loose', 'interpolated'):
             rows = [(v, r) for v, r in candidates.items() if r['kind'] == kind]
             sys.stdout.write('\n-- %s (%d)\n' % (kind, len(rows)))
             for v, r in rows:
@@ -314,7 +365,7 @@ def main():
     if '--gaps-tsv' in sys.argv:
         dest = sys.argv[sys.argv.index('--gaps-tsv') + 1]
         with io.open(dest, 'w', encoding='utf-8', newline='\n') as f:
-            for kind in ('wrapped', 'builder', 'loose'):
+            for kind in ('wrapped', 'builder', 'loose', 'interpolated'):
                 for v, r in candidates.items():
                     if r['kind'] == kind:
                         f.write(u'%s\t%s\t%s\n' % (kind, r['sites'][0],
