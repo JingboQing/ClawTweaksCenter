@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.IO;
 using Microsoft.Win32;
@@ -94,19 +94,24 @@ namespace ClawTweaksCenter.Core
         ///
         /// Guard order is deliberate, cheapest and most decisive first:
         ///   1. not the FSE start app  → not our job (see the class remarks)
-        ///   2. a helper is already running → nothing to do
+        ///   2. a helper is already ALIVE → nothing to do. Alive means a fresh heartbeat and a live
+        ///      pid, NOT merely a process of that name: measured 2026-09-14 those differ by 15s at
+        ///      boot, and the name test skipped every start this method exists to make. See
+        ///      HelperControl.HelperAlive.
         ///   3. a recent request exists  → someone already asked; asking again is how you get two
-        ///   4. no scheduled task        → the helper has not set itself up yet. Center must NOT
+        ///   4. the task is PROVABLY absent → the helper has not set itself up yet. Center must NOT
         ///                                 create it: that path is the helper's, deliberately, and
-        ///                                 it owns the single UAC prompt that comes with it.
+        ///                                 it owns the single UAC prompt that comes with it. A query
+        ///                                 that could not answer is not an absent task and does not
+        ///                                 stop us - see HelperControl.TaskPresence.
         /// </summary>
         internal static string TryStartHelper()
         {
             if (!IsFseStartApp(out string fseDetail))
                 return $"skipped: not the FSE start app ({fseDetail})";
 
-            if (HelperControl.HelperRunning())
-                return "skipped: helper already running";
+            if (HelperControl.HelperAlive(out string aliveDetail))
+                return $"skipped: helper already alive ({aliveDetail})";
 
             string folder = Shared.IPC.HelperHandover.ResolveFolder(PackageFamily);
             string requestPath = Path.Combine(folder, RequestFileName);
@@ -114,13 +119,23 @@ namespace ClawTweaksCenter.Core
             if (TryReadRecentRequest(requestPath, out TimeSpan age))
                 return $"skipped: a start was already requested {age.TotalSeconds:F0}s ago";
 
-            if (!HelperControl.ScheduledTaskExists())
-                return "skipped: no scheduled task yet (the helper registers it itself)";
+            // Only a DEFINITE "not there" stops us. An inconclusive query must not, and that is not
+            // caution for its own sake: measured 2026-09-14 this guard vetoed a start while the task
+            // was running, purely because schtasks was slow under boot load. Acting on Unknown costs
+            // at worst one refused request; believing Unknown costs the whole mechanism.
+            HelperControl.TaskPresence presence = HelperControl.QueryScheduledTask(out string taskDetail);
+            if (presence == HelperControl.TaskPresence.Absent)
+                return $"skipped: no scheduled task yet, the helper registers it itself ({taskDetail})";
 
             WriteRequest(requestPath);
 
-            bool ok = HelperControl.RunScheduledTask();
-            return ok ? "requested: scheduled task run" : "FAILED: schtasks /Run did not succeed";
+            bool ok = HelperControl.RunScheduledTask(out string runDetail);
+            string qualifier = presence == HelperControl.TaskPresence.Unknown
+                ? $" [task presence unknown: {taskDetail}]"
+                : "";
+            return ok
+                ? $"requested: scheduled task run ({runDetail}){qualifier}"
+                : $"FAILED: {runDetail}{qualifier}";
         }
 
         /// <summary>
