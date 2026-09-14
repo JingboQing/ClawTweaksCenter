@@ -10,8 +10,26 @@ namespace ClawTweaksCenter.Navigation
     /// edge of A / B / X / Y / Menu. The wizard maps those to fixed actions (there is no roaming
     /// focus) so the user always sees exactly which button does what.
     ///
-    /// We poll on a DispatcherTimer because XInput has no message-loop hook. All four user slots are
-    /// OR-ed together so the controller works regardless of which slot it occupies.
+    /// XInput has no message-loop hook, so this polls. Two things about HOW it polls are load-bearing
+    /// and were both paid for by the same bug report (2026-09-14: the library goes black and stands
+    /// still for seconds while the virtual pad is mounted, having scrolled perfectly a moment before).
+    ///
+    /// 1. IT POLLS ON ITS OWN THREAD, not on a DispatcherTimer. XInputGetState is a call into the
+    ///    driver stack and it is at its slowest exactly when the device tree is busy - which is the
+    ///    whole mount window. On the UI thread that time is taken straight out of WPF's layout and
+    ///    render budget, and unrendered WPF is literally black. Off it, a slow XInput call delays
+    ///    input by a frame and nothing else. Every subscriber already marshals its own body with
+    ///    Dispatcher.Invoke, so this cost no call site anything.
+    ///
+    /// 2. EMPTY SLOTS ARE NOT ASKED EVERY ROUND. Microsoft's own guidance for XInputGetState is to
+    ///    space out the search for new controllers rather than query an empty user slot per frame.
+    ///    During the mount ALL FOUR are empty - the pad has left XInput mode and the virtual one has
+    ///    not arrived - so the naive loop hits its worst case for several seconds at the worst
+    ///    possible moment. Connected slots are polled every round; the rest are rescanned on the
+    ///    interval below.
+    ///
+    /// All connected slots are still OR-ed together, so the controller works regardless of which slot
+    /// it occupies and a second pad still works alongside the first.
     /// </summary>
     public sealed class XInputNavigator : IDisposable
     {
@@ -55,7 +73,30 @@ namespace ClawTweaksCenter.Navigation
         public event Action<PadButton> ButtonRepeated;
 
         private readonly Window _window;
-        private readonly DispatcherTimer _timer;
+
+        // The poll loop and its stop signal. The thread is IsBackground: whatever else goes wrong at
+        // shutdown, it can never be the reason Center stays in the process list.
+        private readonly System.Threading.ManualResetEventSlim _stop = new System.Threading.ManualResetEventSlim(false);
+        private System.Threading.Thread _pollThread;
+        private volatile bool _running;
+
+        /// <summary>Window.IsActive, mirrored. See the constructor for why it cannot simply be read.</summary>
+        private volatile bool _windowActive;
+
+        /// <summary>Which user slots answered last time we looked. Only these are polled every round.</summary>
+        private readonly bool[] _slotConnected = new bool[4];
+
+        /// <summary>When all four slots were last swept for newly arrived pads.</summary>
+        private DateTime _lastFullScan = DateTime.MinValue;
+
+        private const int TickMs = 40;
+
+        /// <summary>
+        /// How often the slots nobody answered from are asked again. Half a second is far below what
+        /// anyone notices when picking a controller up, and a twelfth of the calls that asking every
+        /// 40 ms would make - which is the entire point.
+        /// </summary>
+        private static readonly TimeSpan FullScanInterval = TimeSpan.FromMilliseconds(500);
         private ushort _prevButtons;
         private ushort _prevStickDirBits;
         private ushort _prevRightStickDirBits;
@@ -101,20 +142,87 @@ namespace ClawTweaksCenter.Navigation
         public XInputNavigator(Window window)
         {
             _window = window ?? throw new ArgumentNullException(nameof(window));
-            _timer = new DispatcherTimer(DispatcherPriority.Input)
-            {
-                Interval = TimeSpan.FromMilliseconds(40),
-            };
-            _timer.Tick += OnTick;
+
+            // Window.IsActive is the ONE UI-affine thing this class ever touched, and off the UI
+            // thread it throws rather than answering. Read it once here - the constructor runs on the
+            // UI thread - and let the two events keep it current, so the poll loop never has to ask
+            // the Window anything.
+            _windowActive = _window.IsActive;
+            _window.Activated += (_, __) => _windowActive = true;
+            _window.Deactivated += (_, __) => _windowActive = false;
         }
 
-        public void Start() => _timer.Start();
-        public void Stop() => _timer.Stop();
-        public void Dispose() { _timer.Stop(); _timer.Tick -= OnTick; }
-
-        private void OnTick(object sender, EventArgs e)
+        public void Start()
         {
-            if (!_window.IsActive) { ForgetHeldInput(); return; }
+            if (_running) return;
+            _running = true;
+            _stop.Reset();
+            _pollThread = new System.Threading.Thread(PollLoop)
+            {
+                IsBackground = true,
+                Name = "CenterPadPoll",
+            };
+            _pollThread.Start();
+            PadPollTrace.Write($"poll loop started ({TickMs}ms, empty slots rescanned every {FullScanInterval.TotalMilliseconds:F0}ms)");
+        }
+
+        public void Stop()
+        {
+            if (!_running) return;
+            _running = false;
+            _stop.Set();
+
+            // BOUNDED join, deliberately. This is called from the UI thread, and the poll thread may
+            // at this instant be sitting inside a subscriber's Dispatcher.Invoke waiting for that very
+            // thread - joining without a limit is then a two-party deadlock with the window half
+            // closed. A bounded wait turns the worst case into a quarter second and a background
+            // thread that dies on its own; the Invoke it is stuck in throws once the dispatcher
+            // shuts down, and PollLoop swallows that.
+            try { _pollThread?.Join(250); } catch { }
+            _pollThread = null;
+        }
+
+        public void Dispose() { Stop(); try { _stop.Dispose(); } catch { } }
+
+        /// <summary>
+        /// The loop. Waits on the stop signal instead of sleeping, so Stop() is acted on at once
+        /// rather than up to a tick later.
+        /// </summary>
+        private void PollLoop()
+        {
+            var roundClock = System.Diagnostics.Stopwatch.StartNew();
+            long lastRoundEnd = 0;
+
+            while (_running)
+            {
+                if (_stop.Wait(TickMs)) break;
+
+                long gap = roundClock.ElapsedMilliseconds - lastRoundEnd;
+                try
+                {
+                    PollOnce();
+                }
+                catch (Exception ex)
+                {
+                    // Anything at all - including the TaskCanceledException a Dispatcher.Invoke
+                    // raises once the window is shutting down. An input poll is never worth taking
+                    // the process down for.
+                    PadPollTrace.Write($"poll round threw: {ex.GetType().Name}: {ex.Message}");
+                }
+                lastRoundEnd = roundClock.ElapsedMilliseconds;
+
+                if (gap > TickMs + PadPollTrace.GapWarnMs)
+                    PadPollTrace.Write($"gap {gap}ms between rounds (asked for {TickMs}ms)");
+
+                MeasureUiResponsiveness();
+            }
+
+            PadPollTrace.Write("poll loop ended");
+        }
+
+        private void PollOnce()
+        {
+            if (!_windowActive) { ForgetHeldInput(); return; }
             if (!TryPollCombined(out ushort buttons, out short lx, out short ly, out short rx, out short ry, out byte lt, out byte rt))
             { ForgetHeldInput(); return; }
 
@@ -202,6 +310,46 @@ namespace ClawTweaksCenter.Navigation
             if ((pressed & XINPUT_GAMEPAD_DPAD_LEFT) != 0) Raise(PadButton.Left);
             if ((pressed & XINPUT_GAMEPAD_DPAD_RIGHT) != 0) Raise(PadButton.Right);
         }
+
+        /// <summary>
+        /// Asks the UI thread how busy it is, without asking it to do anything.
+        ///
+        /// A no-op queued at Input priority - the same priority the old DispatcherTimer used - and
+        /// timed from queueing to running. That number IS the stutter the user sees: while it is
+        /// large, WPF is not laying out or rendering either.
+        ///
+        /// It is here because the fix above could be right about the poll and still leave the
+        /// symptom, and then the next question has to be answerable from the same log: the mount
+        /// window is also full of PnP broadcasts (HidHide hiding the physical pad, VIIPER creating
+        /// the virtual one, the phantom cleanup uninstalling stale nodes), and those go through the
+        /// same message pump. A small "poll" next to a large "ui" says so in one line.
+        ///
+        /// Fire-and-forget on purpose: never waited on, so a stalled UI thread delays the report, not
+        /// the poll. At most one in flight, so a long stall produces one line and not a queue.
+        /// </summary>
+        private void MeasureUiResponsiveness()
+        {
+            if (System.Threading.Interlocked.CompareExchange(ref _uiProbeInFlight, 1, 0) != 0) return;
+
+            var queuedAt = System.Diagnostics.Stopwatch.StartNew();
+            try
+            {
+                _window.Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+                {
+                    long waited = queuedAt.ElapsedMilliseconds;
+                    System.Threading.Volatile.Write(ref _uiProbeInFlight, 0);
+                    if (waited > PadPollTrace.UiWarnMs)
+                        PadPollTrace.Write($"ui thread took {waited}ms to run a no-op at input priority");
+                }));
+            }
+            catch
+            {
+                // The dispatcher is shutting down. Release the slot so a restart is not blocked.
+                System.Threading.Volatile.Write(ref _uiProbeInFlight, 0);
+            }
+        }
+
+        private int _uiProbeInFlight;
 
         /// <summary>
         /// The repeats for a held direction. D-pad and left stick are ONE input here - they mean the
@@ -296,16 +444,44 @@ namespace ClawTweaksCenter.Navigation
 
         private const uint ERROR_SUCCESS = 0;
 
-        private static bool TryPollCombined(out ushort buttons, out short leftStickX, out short leftStickY,
-                                            out short rightStickX, out short rightStickY,
-                                            out byte leftTrigger, out byte rightTrigger)
+        /// <summary>
+        /// Reads every slot that is known to hold a pad, and - no more often than
+        /// <see cref="FullScanInterval"/> - the ones that are not, to notice a pad that has arrived.
+        ///
+        /// ⚠️ THE SWEEP IS THE EXPENSIVE HALF, and it is expensive in proportion to how many slots are
+        /// empty. With a pad connected that is three calls twice a second. With NONE connected - the
+        /// mount window - it is four, and they are the slow kind, which is why they are not made
+        /// twenty-five times a second on the thread that draws the screen.
+        /// </summary>
+        private bool TryPollCombined(out ushort buttons, out short leftStickX, out short leftStickY,
+                                     out short rightStickX, out short rightStickY,
+                                     out byte leftTrigger, out byte rightTrigger)
         {
             buttons = 0; leftStickX = 0; leftStickY = 0; rightStickX = 0; rightStickY = 0; leftTrigger = 0; rightTrigger = 0;
             bool any = false;
+
+            var now = DateTime.UtcNow;
+            bool sweep = now - _lastFullScan >= FullScanInterval;
+            if (sweep) _lastFullScan = now;
+
+            var cost = System.Diagnostics.Stopwatch.StartNew();
+            int asked = 0;
+
             for (uint i = 0; i < 4; i++)
             {
+                // A slot nobody answered from is worth a call only on the sweep. A slot that DID
+                // answer is read every round - that one is cheap, and it is the user's controller.
+                if (!_slotConnected[i] && !sweep) continue;
+
                 var state = new XINPUT_STATE();
-                if (XInputGetState(i, ref state) != ERROR_SUCCESS) continue;
+                asked++;
+                if (XInputGetState(i, ref state) != ERROR_SUCCESS)
+                {
+                    // Gone, or never there. Either way stop paying for it every round.
+                    _slotConnected[i] = false;
+                    continue;
+                }
+                _slotConnected[i] = true;
                 any = true;
                 buttons |= state.Gamepad.wButtons;
                 // Cast to int before Math.Abs: a stick pushed to its exact extreme reports
@@ -321,6 +497,15 @@ namespace ClawTweaksCenter.Navigation
                 if (state.Gamepad.bLeftTrigger > leftTrigger) leftTrigger = state.Gamepad.bLeftTrigger;
                 if (state.Gamepad.bRightTrigger > rightTrigger) rightTrigger = state.Gamepad.bRightTrigger;
             }
+
+            long ms = cost.ElapsedMilliseconds;
+            if (ms > PadPollTrace.PollWarnMs)
+            {
+                int connected = 0;
+                foreach (bool c in _slotConnected) if (c) connected++;
+                PadPollTrace.Write($"XInput took {ms}ms for {asked} slot(s){(sweep ? " (sweep)" : "")}, {connected} connected");
+            }
+
             return any;
         }
         #endregion
