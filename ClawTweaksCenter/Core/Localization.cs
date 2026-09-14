@@ -4,7 +4,12 @@ using System.Globalization;
 
 namespace ClawTweaksCenter.Core
 {
-    /// <summary>The five languages Center ships, plus "follow the OS".</summary>
+    /// <summary>The thirteen languages Center ships, plus "follow the OS".
+    ///
+    /// APPEND ONLY, and for the usual reason: the chosen language is stored as this enum's NUMBER,
+    /// so inserting a value in the middle silently moves every setting that was saved before it.
+    /// New languages go at the end, however untidy that leaves the order. <see cref="Loc.Order"/>
+    /// decides what the settings row shows, and it is free to sort them properly.</summary>
     public enum UiLanguage
     {
         /// <summary>Whatever Windows is set to, if we have it. The default, and what a fresh
@@ -15,6 +20,19 @@ namespace ClawTweaksCenter.Core
         French,
         Korean,
         Spanish,
+        Russian,
+        Greek,
+        /// <summary>Mainland characters.</summary>
+        ChineseSimplified,
+        /// <summary>Taiwan and Hong Kong. Not a nicety on this hardware - MSI is a Taiwanese
+        /// company, and its handhelds sell into a market that reads these characters.</summary>
+        ChineseTraditional,
+        Italian,
+        /// <summary>Brazilian. Ten times the players of European Portuguese, and Portugal reads
+        /// Brazilian far more comfortably than Brazil reads European.</summary>
+        Portuguese,
+        Japanese,
+        Polish,
     }
 
     /// <summary>
@@ -87,22 +105,58 @@ namespace ClawTweaksCenter.Core
         /// English.
         ///
         /// Matched on the two-letter code, so de-AT and de-CH arrive at German rather than falling
-        /// through to English on a technicality.
+        /// through to English on a technicality. The same reasoning sends pt-PT to the Brazilian
+        /// table and es-MX to the Spanish one: a table in the reader's language, written for a
+        /// different country, beats a screen in a language they may not have at all.
+        ///
+        /// CHINESE IS THE EXCEPTION, because the two-letter code does not carry the answer. "zh"
+        /// alone says nothing about which characters to draw, and the two sets are not mutually
+        /// readable at a glance. The script subtag decides it when Windows supplies one, and the
+        /// region decides it otherwise - Taiwan, Hong Kong and Macau read traditional, everywhere
+        /// else reads simplified.
         /// </summary>
         public static UiLanguage Detect()
         {
             try
             {
-                switch (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName)
+                CultureInfo ui = CultureInfo.CurrentUICulture;
+                switch (ui.TwoLetterISOLanguageName)
                 {
                     case "de": return UiLanguage.German;
                     case "fr": return UiLanguage.French;
                     case "ko": return UiLanguage.Korean;
                     case "es": return UiLanguage.Spanish;
+                    case "ru": return UiLanguage.Russian;
+                    case "el": return UiLanguage.Greek;
+                    case "it": return UiLanguage.Italian;
+                    case "pt": return UiLanguage.Portuguese;
+                    case "ja": return UiLanguage.Japanese;
+                    case "pl": return UiLanguage.Polish;
+                    case "zh": return DetectChinese(ui);
                 }
             }
             catch { }
             return UiLanguage.English;
+        }
+
+        /// <summary>Which characters this Chinese reader expects. Simplified unless told otherwise.</summary>
+        private static UiLanguage DetectChinese(CultureInfo ui)
+        {
+            string name = ui.Name ?? string.Empty;
+
+            // "zh-Hant", "zh-Hant-TW", "zh-Hant-HK" - the explicit answer, when there is one.
+            if (name.IndexOf("Hant", StringComparison.OrdinalIgnoreCase) >= 0)
+                return UiLanguage.ChineseTraditional;
+            if (name.IndexOf("Hans", StringComparison.OrdinalIgnoreCase) >= 0)
+                return UiLanguage.ChineseSimplified;
+
+            // "zh-TW", "zh-HK", "zh-MO" - the older spelling, still what a lot of installations
+            // report. Everything else, mainland and Singapore included, is simplified.
+            foreach (string region in new[] { "-TW", "-HK", "-MO" })
+                if (name.EndsWith(region, StringComparison.OrdinalIgnoreCase))
+                    return UiLanguage.ChineseTraditional;
+
+            return UiLanguage.ChineseSimplified;
         }
 
         /// <summary>
@@ -151,17 +205,46 @@ namespace ClawTweaksCenter.Core
                 case UiLanguage.French: return "Français";
                 case UiLanguage.Korean: return "한국어";
                 case UiLanguage.Spanish: return "Español";
+                case UiLanguage.Russian: return "Русский";
+                case UiLanguage.Greek: return "Ελληνικά";
+                // Named as each side names itself, not as "Chinese (Simplified)". The parenthesis
+                // is a librarian's distinction; these are what the two look like to their readers.
+                case UiLanguage.ChineseSimplified: return "简体中文";
+                case UiLanguage.ChineseTraditional: return "繁體中文";
+                case UiLanguage.Italian: return "Italiano";
+                case UiLanguage.Portuguese: return "Português (BR)";
+                case UiLanguage.Japanese: return "日本語";
+                case UiLanguage.Polish: return "Polski";
                 case UiLanguage.English: return "English";
                 default: return T("System language");
             }
         }
 
-        /// <summary>The order the settings row cycles through. System first: it is the default, and
-        /// it is the entry somebody looking for "put it back" wants.</summary>
+        /// <summary>A reading order for the languages. System first: it is the default, and it is
+        /// the entry somebody looking for "put it back" wants. English second, because it is the one
+        /// name on this list that a reader of any of the others can recognise. After those two, the
+        /// alphabetical order of their OWN names - the order they are written in on screen.
+        ///
+        /// ⚠️ NOTHING USES THIS, and nothing has since the settings screen grew a list that opens
+        /// instead of a value that steps: it sorts with its own LanguageOrder(), by English name,
+        /// because that is the column the list is read down. Order and <see cref="Next"/> are kept
+        /// rather than deleted only because they are public and harmless - if a second screen ever
+        /// needs an order, it should call LanguageOrder() and these two should go.</summary>
         public static readonly UiLanguage[] Order =
         {
-            UiLanguage.System, UiLanguage.English, UiLanguage.German,
-            UiLanguage.French, UiLanguage.Korean, UiLanguage.Spanish,
+            UiLanguage.System, UiLanguage.English,
+            UiLanguage.German,               // Deutsch
+            UiLanguage.Spanish,              // Español
+            UiLanguage.French,               // Français
+            UiLanguage.Italian,              // Italiano
+            UiLanguage.Polish,               // Polski
+            UiLanguage.Portuguese,           // Português
+            UiLanguage.Greek,                // Ελληνικά
+            UiLanguage.Russian,              // Русский
+            UiLanguage.ChineseSimplified,    // 简体中文
+            UiLanguage.ChineseTraditional,   // 繁體中文
+            UiLanguage.Japanese,             // 日本語
+            UiLanguage.Korean,               // 한국어
         };
 
         public static UiLanguage Next(UiLanguage current)
@@ -178,6 +261,14 @@ namespace ClawTweaksCenter.Core
                 case UiLanguage.French: return French;
                 case UiLanguage.Korean: return Korean;
                 case UiLanguage.Spanish: return Spanish;
+                case UiLanguage.Russian: return Russian;
+                case UiLanguage.Greek: return Greek;
+                case UiLanguage.ChineseSimplified: return ChineseSimplified;
+                case UiLanguage.ChineseTraditional: return ChineseTraditional;
+                case UiLanguage.Italian: return Italian;
+                case UiLanguage.Portuguese: return Portuguese;
+                case UiLanguage.Japanese: return Japanese;
+                case UiLanguage.Polish: return Polish;
                 default: return null;
             }
         }

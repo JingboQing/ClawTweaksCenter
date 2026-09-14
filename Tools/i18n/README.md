@@ -1,50 +1,83 @@
-# Translation tooling
+# Center's translations
 
-`ClawTweaksCenter/Core/Localization.Tables.cs` is the artefact. It is ordinary C# and can be edited
-by hand — **nothing here has to be run to change a translation.** These scripts exist because
-finding out *what still needs translating* is the hard half, and because two of the answers cost a
-build each to discover.
+## Where the data lives
 
-Run them from the **repository root**, with Python 3:
+`strings.tsv` — one row per English string, one column per language. **This is the source.**
+
+`loc_build.py` writes `ClawTweaksCenter/Core/Localization.Tables.cs` from it. Nothing else may
+write that file; an edit made there survives exactly until the next run.
 
 ```
-python Tools/i18n/loc_gen2.py                      # regenerate Localization.Tables.cs
-python Tools/i18n/consistency.py                   # compare the four tables against each other
-python Tools/i18n/survey4.py hit.tsv miss.tsv      # what is on screen and can it be translated
-python Tools/i18n/cover.py hit.tsv                 # of the reachable strings, how many are done
+python Tools/i18n/loc_build.py            regenerate the C#
+python Tools/i18n/loc_build.py --check    fail if the C# is not what the TSV says
 ```
 
-## What each one is for
+An empty cell is a **decision**, not a gap: `Loc.T` returns the English when a key is absent, so
+leaving a cell empty is how a translation that cannot fit its control is deliberately not shipped.
 
-**`loc_gen2.py`** rebuilds the tables from `loc_*.py`, applying the width rule (at most 1.7× the
-English or five characters more, CJK counted double) and writing the entries that fail into the
-comment block at the bottom of the generated file. That list is the record of what is deliberately
-left in English — keep it, do not tidy it away.
+## The languages
 
-The `loc_*.py` files are rounds, in the order the work happened. There is nothing special about the
-split; a new batch is a new file plus two lines in `loc_gen2.py`.
+| column | field | |
+|---|---|---|
+| `de` | German | shipped since the first round |
+| `fr` | French | |
+| `ko` | Korean | |
+| `es` | Spanish | |
+| `ru` | Russian | added in the thirteen-language round |
+| `el` | Greek | |
+| `zh-Hans` | ChineseSimplified | mainland |
+| `zh-Hant` | ChineseTraditional | Taiwan / Hong Kong — MSI is a Taiwanese company |
+| `it` | Italian | |
+| `pt-BR` | Portuguese | Brazilian: ten times the players of pt-PT, and pt-PT reads it |
+| `ja` | Japanese | |
+| `pl` | Polish | |
 
-**`consistency.py`** is the one worth running before every release. It answers the question that
-kept producing defects: *when a German wording was corrected, did the other three get the same
-treatment?* It checks three things, and each has caught a real one:
+## Finding what is missing
 
-- a key one language has and another does not,
-- developer words (`build`, `release`, `nightly`) still sitting inside a translation,
-- vocabulary families side by side, so "Bibliothek" against "Bibliothek Einstellungen" is visible.
+```
+python Tools/i18n/loc_coverage.py                summary
+python Tools/i18n/loc_coverage.py --gaps         every candidate, with its location
+python Tools/i18n/loc_coverage.py --stale        keys no source file mentions any more
+python Tools/i18n/loc_coverage.py --gaps-tsv F   the candidates as TSV rows
+```
 
-**`survey3.py` / `survey4.py`** find the user-facing string literals and split them into *reaches a
-translated builder* and *needs a code change first*.
+**Run this before translating, not after.** The first round was curated by hand for hours because
+the survey then in use walked a list of 26 filenames that somebody had to remember to update.
+Every screen added after it was written was invisible to it, which is why strings kept being found
+on the device instead of in the report. This one walks every `.cs` file and decides by what the
+literal looks like and where it sits.
 
-## Two traps these were written around
+Buckets, and what each one means for the work:
 
-**A regex cannot extract C# literals.** It desynchronises on the first quote inside a `//` comment
-and then reports the CODE between literals as if it were text — the first attempt found 164
-literals in a 145 KB file and none of the ones actually on screen. `survey3.py` walks the file as a
-small state machine instead, and joins adjacent literals, because a sentence split over three source
-lines is one runtime string and the tables are keyed by the runtime string.
+| bucket | what to do |
+|---|---|
+| `wrapped` | inside `Loc.T`/`Loc.F` with no table row. Renders English **today, in every language**. Add the row. |
+| `builder` | reaches a builder that renders it. Needs `Loc.T` at the call site **and** a row. |
+| `loose` | looks like text, no builder nearby. Read it and decide. |
+| `interpolated` | built at runtime. No table can ever match it — the call site has to hand the **format** to `Loc.F`. A code change, not a row. |
+| `log` | diagnostic text. Stays English on purpose: a log translated into a language the reader does not have is a log that cannot be reported. |
 
-**`survey4.py`'s builder list is a heuristic, not an authority.** It decides "reachable" by looking
-for a builder name in the preceding few hundred characters. That misses a literal defined far from
-its call — a table of card titles, for instance — and it once missed `BuildMaintCard(` because the
-list said `MaintCard(`, which hid three cards' descriptions for a whole build. Treat a "needs a code
-change first" verdict as a question, not an answer.
+## The width rule
+
+A translation must render no wider than `max(english + 5, english × 1.7)`, CJK counted double.
+Center's chips, tabs and tiles are sized for the English word and do not grow.
+
+**A translation that fails is shortened until it fits, not dropped.** Dropping was the old rule and
+it was right for four languages that are close to English in length; with Russian, Polish, Greek and
+Portuguese in the set it would leave those screens visibly half-English, which reads as broken
+rather than as unfinished. What genuinely cannot be shortened honestly is left empty and recorded.
+
+## Adding a language
+
+1. A column in `strings.tsv`, and an entry in `LANGS` in `loc_build.py`.
+2. `UiLanguage`, `Detect`, `NameOf`, `Order` and `TableFor` in `Core/Localization.cs`.
+3. `python Tools/i18n/loc_build.py`.
+
+`NameOf` returns the language's name **in that language**: somebody who has landed in a script they
+cannot read has to be able to find their way out, and "Greek" does not help them — "Ελληνικά" does.
+
+## The helper and the widget
+
+The native OSD cards are translated too, and they follow **Center's** choice, not the OS: someone
+who set Center to Italian on a German Windows means it. Center publishes the resolved language and
+the helper falls back to the OS language, then to English.

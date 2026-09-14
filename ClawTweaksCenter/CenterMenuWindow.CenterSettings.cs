@@ -278,6 +278,16 @@ namespace ClawTweaksCenter
                 case UiLanguage.French: return "French";
                 case UiLanguage.Korean: return "Korean";
                 case UiLanguage.Spanish: return "Spanish";
+                case UiLanguage.Russian: return "Russian";
+                case UiLanguage.Greek: return "Greek";
+                // The parenthesis is what makes these sort next to each other in the list, which is
+                // where a reader looking for one of them expects to find the other.
+                case UiLanguage.ChineseSimplified: return "Chinese (Simplified)";
+                case UiLanguage.ChineseTraditional: return "Chinese (Traditional)";
+                case UiLanguage.Italian: return "Italian";
+                case UiLanguage.Portuguese: return "Portuguese (Brazil)";
+                case UiLanguage.Japanese: return "Japanese";
+                case UiLanguage.Polish: return "Polish";
                 case UiLanguage.English: return "English";
                 default: return "System";
             }
