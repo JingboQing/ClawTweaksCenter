@@ -193,11 +193,18 @@ namespace ClawTweaksCenter.Navigation
             var roundClock = System.Diagnostics.Stopwatch.StartNew();
             long lastRoundEnd = 0;
 
+            // This thread's OWN scheduling latency, with the collector accounted for. It is the third
+            // witness: a gap here is not the dispatcher's doing and not a driver's - it is this
+            // thread not being given the CPU, which is either a collection or the machine being busy.
+            PadPollTrace.GcMark gapMark = PadPollTrace.MarkGc();
+
             while (_running)
             {
                 if (_stop.Wait(TickMs)) break;
 
                 long gap = roundClock.ElapsedMilliseconds - lastRoundEnd;
+                PadPollTrace.GcMark gapGc = gapMark;
+                gapMark = PadPollTrace.MarkGc();
                 try
                 {
                     PollOnce();
@@ -212,7 +219,7 @@ namespace ClawTweaksCenter.Navigation
                 lastRoundEnd = roundClock.ElapsedMilliseconds;
 
                 if (gap > TickMs + PadPollTrace.GapWarnMs)
-                    PadPollTrace.Write($"gap {gap}ms between rounds (asked for {TickMs}ms)");
+                    PadPollTrace.Write($"gap {gap}ms between rounds (asked for {TickMs}ms) - {PadPollTrace.SinceGc(gapGc)}");
 
                 MeasureUiResponsiveness();
             }
@@ -332,6 +339,7 @@ namespace ClawTweaksCenter.Navigation
             if (System.Threading.Interlocked.CompareExchange(ref _uiProbeInFlight, 1, 0) != 0) return;
 
             var queuedAt = System.Diagnostics.Stopwatch.StartNew();
+            PadPollTrace.GcMark gc = PadPollTrace.MarkGc();
             try
             {
                 _window.Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
@@ -339,7 +347,7 @@ namespace ClawTweaksCenter.Navigation
                     long waited = queuedAt.ElapsedMilliseconds;
                     System.Threading.Volatile.Write(ref _uiProbeInFlight, 0);
                     if (waited > PadPollTrace.UiWarnMs)
-                        PadPollTrace.Write($"ui thread took {waited}ms to run a no-op at input priority");
+                        PadPollTrace.Write($"ui thread took {waited}ms to run a no-op at input priority - {PadPollTrace.SinceGc(gc)}");
                 }));
             }
             catch
@@ -465,6 +473,7 @@ namespace ClawTweaksCenter.Navigation
             if (sweep) _lastFullScan = now;
 
             var cost = System.Diagnostics.Stopwatch.StartNew();
+            PadPollTrace.GcMark gc = PadPollTrace.MarkGc();
             int asked = 0;
 
             for (uint i = 0; i < 4; i++)
@@ -503,7 +512,8 @@ namespace ClawTweaksCenter.Navigation
             {
                 int connected = 0;
                 foreach (bool c in _slotConnected) if (c) connected++;
-                PadPollTrace.Write($"XInput took {ms}ms for {asked} slot(s){(sweep ? " (sweep)" : "")}, {connected} connected");
+                PadPollTrace.Write($"XInput took {ms}ms for {asked} slot(s){(sweep ? " (sweep)" : "")}, " +
+                                   $"{connected} connected - {PadPollTrace.SinceGc(gc)}");
             }
 
             return any;

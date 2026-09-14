@@ -65,6 +65,48 @@ namespace ClawTweaksCenter.Navigation
             catch { return null; }
         }
 
+        /// <summary>
+        /// What the garbage collector had done at one instant. Taken before a measurement and read
+        /// back after it, the difference says whether the pause we measured WAS a GC pause.
+        ///
+        /// This is the discriminator the first round of measurements asked for. On 2026-09-14 the UI
+        /// thread needed 1204 ms for a no-op while, in the same 200 ms, a single XInputGetState on a
+        /// CONNECTED slot appeared to take 830 ms. A slow driver call cannot explain both - those are
+        /// two different threads - but a stop-the-world collection explains them together: the UI
+        /// thread is suspended outright, and the poll thread, which is in unmanaged code and cannot be
+        /// suspended there, is held at the boundary until the collection finishes and so bills the
+        /// wait to the call it was making.
+        ///
+        /// GetTotalPauseDuration counts only the time execution was actually stopped, so a background
+        /// collection running alongside us does not inflate it.
+        /// </summary>
+        internal struct GcMark
+        {
+            public int Gen0, Gen1, Gen2;
+            public TimeSpan Pause;
+        }
+
+        internal static GcMark MarkGc()
+        {
+            return new GcMark
+            {
+                Gen0 = GC.CollectionCount(0),
+                Gen1 = GC.CollectionCount(1),
+                Gen2 = GC.CollectionCount(2),
+                Pause = GC.GetTotalPauseDuration(),
+            };
+        }
+
+        /// <summary>Reads <see cref="MarkGc"/> again and describes the difference in one clause.</summary>
+        internal static string SinceGc(GcMark before)
+        {
+            GcMark now = MarkGc();
+            long paused = (long)(now.Pause - before.Pause).TotalMilliseconds;
+            int g0 = now.Gen0 - before.Gen0, g1 = now.Gen1 - before.Gen1, g2 = now.Gen2 - before.Gen2;
+            if (paused <= 0 && g0 == 0 && g1 == 0 && g2 == 0) return "no GC";
+            return $"GC stopped the world {paused}ms (gen0 +{g0}, gen1 +{g1}, gen2 +{g2})";
+        }
+
         internal static void Write(string message)
         {
             if (Path_ == null) return;
