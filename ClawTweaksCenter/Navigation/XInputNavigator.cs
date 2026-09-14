@@ -219,7 +219,8 @@ namespace ClawTweaksCenter.Navigation
                 lastRoundEnd = roundClock.ElapsedMilliseconds;
 
                 if (gap > TickMs + Ui.UiStallTrace.GapWarnMs)
-                    Ui.UiStallTrace.Write($"gap {gap}ms between rounds (asked for {TickMs}ms) - {Ui.UiStallTrace.SinceGc(gapGc)}");
+                    Ui.UiStallTrace.Write($"gap {gap}ms between rounds (asked for {TickMs}ms) - " +
+                                          $"{Ui.UiStallTrace.SinceGc(gapGc)} - {Ui.UiStallTrace.Witnesses()}");
 
                 MeasureUiResponsiveness();
             }
@@ -347,7 +348,8 @@ namespace ClawTweaksCenter.Navigation
                     long waited = queuedAt.ElapsedMilliseconds;
                     System.Threading.Volatile.Write(ref _uiProbeInFlight, 0);
                     if (waited > Ui.UiStallTrace.UiWarnMs)
-                        Ui.UiStallTrace.Write($"ui thread took {waited}ms to run a no-op at input priority - {Ui.UiStallTrace.SinceGc(gc)}");
+                        Ui.UiStallTrace.Write($"ui thread took {waited}ms to run a no-op at input priority - " +
+                                              $"{Ui.UiStallTrace.SinceGc(gc)} - {Ui.UiStallTrace.Witnesses()}");
                 }));
             }
             catch

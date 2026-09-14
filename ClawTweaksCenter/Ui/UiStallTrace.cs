@@ -111,6 +111,166 @@ namespace ClawTweaksCenter.Ui
             return $"GC stopped the world {paused}ms (gen0 +{g0}, gen1 +{g1}, gen2 +{g2})";
         }
 
+        // ── WHAT THE UI THREAD WAS DOING ────────────────────────────────────────────────────────
+        //
+        // Five rounds of measurement established THAT the UI thread stops for about 1.2 s and never
+        // WHAT it is stopped on, and three wrong conclusions were drawn from the company it keeps:
+        // the controller poll (a real defect, not this one), the garbage collector (ruled out by the
+        // pause counters), the fullscreen reflow (ruled out by its own guard, which now holds and
+        // logs that it held). Each of those was something that happened NEARBY.
+        //
+        // Two witnesses close that gap, and between them they cover both ways a WPF UI thread can go
+        // dark:
+        //
+        //   the dispatcher operation  - our own code, queued and running. Dispatcher.Hooks reports
+        //                               it, and if one is in flight when the stall is measured, the
+        //                               work is OURS and has a name.
+        //   the window message        - a WndProc that has not returned. If NO dispatcher operation
+        //                               is in flight but a message arrived just before the stall
+        //                               began, the thread is inside Windows' own handling of it -
+        //                               WM_DISPLAYCHANGE and WM_DWMCOMPOSITIONCHANGED both make WPF
+        //                               rebuild its rendering surface, which is what a black window
+        //                               with one painted rectangle looks like.
+        //
+        // Both are written down on the UI thread as they happen and only READ when a stall is
+        // reported, so they cost a field assignment per operation and nothing at all otherwise.
+
+        private static int _attached;
+        private static volatile string _currentOp;
+        private static long _currentOpSince;
+        private static volatile string _lastMessage;
+        private static long _lastMessageAt;
+
+        /// <summary>
+        /// Starts the two witnesses for this window. Call once, from the UI thread, for the window
+        /// the library lives in. Safe to call more than once.
+        /// </summary>
+        internal static void Attach(System.Windows.Window window)
+        {
+            if (window == null) return;
+            if (System.Threading.Interlocked.Exchange(ref _attached, 1) != 0) return;
+
+            try
+            {
+                System.Windows.Threading.Dispatcher d = window.Dispatcher;
+                d.Hooks.OperationStarted += (_, e) =>
+                {
+                    _currentOp = DescribeOperation(e.Operation);
+                    System.Threading.Volatile.Write(ref _currentOpSince, System.Diagnostics.Stopwatch.GetTimestamp());
+                };
+                d.Hooks.OperationCompleted += (_, __) => _currentOp = null;
+                d.Hooks.OperationAborted += (_, __) => _currentOp = null;
+            }
+            catch (Exception ex) { Write("could not hook the dispatcher: " + ex.Message); }
+
+            try
+            {
+                if (System.Windows.PresentationSource.FromVisual(window) is System.Windows.Interop.HwndSource src)
+                    src.AddHook(MessageHook);
+                else
+                    window.SourceInitialized += (_, __) =>
+                    {
+                        try
+                        {
+                            if (System.Windows.PresentationSource.FromVisual(window) is System.Windows.Interop.HwndSource late)
+                                late.AddHook(MessageHook);
+                        }
+                        catch { }
+                    };
+            }
+            catch (Exception ex) { Write("could not hook the window messages: " + ex.Message); }
+
+            try
+            {
+                // Center's OWN clock for the display change. The previous round compared a stall here
+                // against a timestamp from the helper's log and concluded the change came AFTER the
+                // stall - which decided the direction of the whole investigation on two processes'
+                // clocks and two different notification paths. One file, one clock, no inference.
+                Microsoft.Win32.SystemEvents.DisplaySettingsChanged += (_, __) =>
+                    Write("display settings changed (Center's own clock)");
+            }
+            catch { }
+
+            Write("stall witnesses attached (dispatcher operation + window messages)");
+        }
+
+        /// <summary>Records the message and returns without handling it. Never sets handled.</summary>
+        private static IntPtr MessageHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            switch (msg)
+            {
+                // Only the ones that can plausibly cost a second. Logging every WM_MOUSEMOVE would
+                // bury the answer in noise and slow the very thread being measured.
+                case 0x007E: Note("WM_DISPLAYCHANGE"); break;
+                case 0x0219: Note("WM_DEVICECHANGE"); break;
+                case 0x001A: Note("WM_SETTINGCHANGE"); break;
+                case 0x02E0: Note("WM_DPICHANGED"); break;
+                case 0x031E: Note("WM_DWMCOMPOSITIONCHANGED"); break;
+                case 0x031F: Note("WM_DWMNCRENDERINGCHANGED"); break;
+                case 0x0320: Note("WM_DWMCOLORIZATIONCOLORCHANGED"); break;
+                case 0x0018: Note("WM_SHOWWINDOW"); break;
+                case 0x0047: Note("WM_WINDOWPOSCHANGED"); break;
+                case 0x0006: Note("WM_ACTIVATE"); break;
+                case 0x0011: Note("WM_QUERYENDSESSION"); break;
+                case 0x02B1: Note("WM_WTSSESSION_CHANGE"); break;
+                case 0x0218: Note("WM_POWERBROADCAST"); break;
+            }
+            return IntPtr.Zero;
+        }
+
+        private static void Note(string name)
+        {
+            _lastMessage = name;
+            System.Threading.Volatile.Write(ref _lastMessageAt, System.Diagnostics.Stopwatch.GetTimestamp());
+        }
+
+        /// <summary>
+        /// A name for the operation. DispatcherOperation does not expose the delegate it will run, so
+        /// this reaches for the private field and falls back to the priority alone. Reflection into a
+        /// framework internal is not something to ship in a feature; in a diagnostic that exists to
+        /// end a five-round investigation it is worth one guarded try block.
+        /// </summary>
+        private static string DescribeOperation(System.Windows.Threading.DispatcherOperation op)
+        {
+            if (op == null) return null;
+            string priority;
+            try { priority = op.Priority.ToString(); } catch { priority = "?"; }
+
+            try
+            {
+                var field = typeof(System.Windows.Threading.DispatcherOperation).GetField(
+                    "_method", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                if (field?.GetValue(op) is Delegate method)
+                {
+                    string owner = method.Method?.DeclaringType?.Name ?? "?";
+                    return $"{owner}.{method.Method?.Name ?? "?"} at {priority}";
+                }
+            }
+            catch { }
+            return "unnamed at " + priority;
+        }
+
+        /// <summary>Both witnesses, as one clause for a stall line. Read from any thread.</summary>
+        internal static string Witnesses()
+        {
+            long now = System.Diagnostics.Stopwatch.GetTimestamp();
+            double ticksPerMs = System.Diagnostics.Stopwatch.Frequency / 1000.0;
+
+            string op = _currentOp;
+            string opPart = op == null
+                ? "no dispatcher operation in flight"
+                : $"dispatcher op '{op}' running for " +
+                  $"{(long)((now - System.Threading.Volatile.Read(ref _currentOpSince)) / ticksPerMs)}ms";
+
+            string msg = _lastMessage;
+            string msgPart = msg == null
+                ? "no notable window message yet"
+                : $"last window message {msg}, " +
+                  $"{(long)((now - System.Threading.Volatile.Read(ref _lastMessageAt)) / ticksPerMs)}ms ago";
+
+            return opPart + "; " + msgPart;
+        }
+
         internal static void Write(string message)
         {
             if (Path_ == null) return;

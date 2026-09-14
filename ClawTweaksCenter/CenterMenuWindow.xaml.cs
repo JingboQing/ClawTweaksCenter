@@ -286,6 +286,10 @@ namespace ClawTweaksCenter
             _startupWorkStarted = true;
 
             {
+                // Diagnostic, and only that: it records which dispatcher operation or which window
+                // message the UI thread is inside when a stall is measured. See Ui.UiStallTrace.
+                Ui.UiStallTrace.Attach(this);
+
                 _nav = new XInputNavigator(this);
                 _nav.ButtonPressed += b => Dispatcher.Invoke(() => Invoke(b));
                 _nav.RightStickScrollRequested += d => Dispatcher.Invoke(() =>
