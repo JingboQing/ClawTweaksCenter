@@ -1,11 +1,15 @@
 using System;
 using System.IO;
 
-namespace ClawTweaksCenter.Navigation
+namespace ClawTweaksCenter.Ui
 {
     /// <summary>
-    /// Evidence for ONE question: is the controller poll what makes the library stutter and go black
-    /// while the virtual pad is being mounted?
+    /// Evidence for ONE question: what makes the library go black and stand still for about a second
+    /// and a half, right after the virtual controller is mounted?
+    ///
+    /// It started as a controller-poll trace and outgrew the name - the poll was a real defect but not
+    /// the cause, and the same file now carries the window-mode decision that is. One file, one clock,
+    /// so the two can be read against each other and against the helper's log.
     ///
     /// WHY IT EXISTS. Reported 2026-09-14: entering the library, the moment the helper starts mounting
     /// the virtual controller, large parts of the shelf go black and the window stands still for a few
@@ -29,7 +33,7 @@ namespace ClawTweaksCenter.Navigation
     /// NOTHING IS WRITTEN unless a threshold breaks, so a healthy session produces a file with two
     /// lines in it. Timestamps are local wall-clock so they line up with the helper's own log.
     /// </summary>
-    internal static class PadPollTrace
+    internal static class UiStallTrace
     {
         /// <summary>Longer than this in the XInput calls of one round is worth a line (ms).</summary>
         internal const int PollWarnMs = 12;
@@ -53,7 +57,7 @@ namespace ClawTweaksCenter.Navigation
                 string dir = System.IO.Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ClawTweaks");
                 Directory.CreateDirectory(dir);
-                string path = System.IO.Path.Combine(dir, "center_pad_poll.log");
+                string path = System.IO.Path.Combine(dir, "center_ui_stall.log");
 
                 // Start over rather than trim: a stall log is only ever read for the newest session,
                 // and a half-file is harder to explain than a fresh one.
