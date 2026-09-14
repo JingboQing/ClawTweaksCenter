@@ -49,6 +49,14 @@ namespace ClawTweaksCenter
         private const int CenterSettingsWidgetCheckRow = 4;
         private const int CenterSettingsWidgetTestRow = 5;
 
+        // ── Experimentell ───────────────────────────────────────────────────────────────────────
+        //
+        // Its OWN band, under a heading that says what it is, because it is not a preference in the
+        // sense the rows above are: it changes startup orchestration, it is off by default, and the
+        // measurement says it does nothing on the machine it was built for. A row like that sitting
+        // between Language and Fullscreen would read as an ordinary switch.
+        private const int CenterSettingsFseStartRow = 6;
+
         private void OpenCenterSettings()
         {
             LeaveLibrary();
@@ -110,6 +118,33 @@ namespace ClawTweaksCenter
             stack.Children.Add(new TextBlock
             {
                 Text = Loc.T("The widget list is read at every start; this only decides how often Center says so."),
+                FontSize = 12,
+                Foreground = UiHelpers.Subtle,
+                Opacity = 0.8,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(2, 2, 10, 0),
+            });
+
+            stack.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Experimental"),
+                FontSize = 15,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = UiHelpers.Subtle,
+                Margin = new Thickness(2, 18, 0, 8),
+            });
+
+            var experimental = new UniformGrid { Columns = 2 };
+            experimental.Children.Add(BuildCenterSettingRow(CenterSettingsFseStartRow,
+                Loc.T("Center starts the helper"), null, CenterSettings.FseStartsHelper));
+            stack.Children.Add(experimental);
+
+            // Says the measured result, not a promise. The row exists so the experiment can be run on
+            // a machine where Windows is slower with the logon trigger than it is here - anyone
+            // expecting a speed-up on THIS one should read it and leave the switch alone.
+            stack.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Only in the full screen experience. Measured here it changes nothing: Windows starts the helper about five seconds before Center is up."),
                 FontSize = 12,
                 Foreground = UiHelpers.Subtle,
                 Opacity = 0.8,
@@ -402,6 +437,10 @@ namespace ClawTweaksCenter
 
                 case CenterSettingsWidgetTestRow:
                     CenterSettings.WidgetNotifyTestBuilds = !CenterSettings.WidgetNotifyTestBuilds;
+                    break;
+
+                case CenterSettingsFseStartRow:
+                    CenterSettings.FseStartsHelper = !CenterSettings.FseStartsHelper;
                     break;
 
             }

@@ -107,6 +107,12 @@ namespace ClawTweaksCenter.Core
         /// </summary>
         internal static string TryStartHelper()
         {
+            // OFF unless the user turned the experiment on. Measured across four boots on 2026-09-14:
+            // the helper's logon trigger fires at about +16.7s, Center runs at about +21.7s, and the
+            // scheduler refused every request as a duplicate (event 322). See CenterSettings.
+            if (!CenterSettings.FseStartsHelper)
+                return "disabled: experimental setting is off";
+
             if (!IsFseStartApp(out string fseDetail))
                 return $"skipped: not the FSE start app ({fseDetail})";
 

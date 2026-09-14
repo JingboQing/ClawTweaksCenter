@@ -453,6 +453,23 @@ namespace ClawTweaksCenter.Core
             set => WriteInt("WidgetUpdateNotifyIntervalWeeks", ClampInterval(value));
         }
 
+        /// <summary>
+        /// Whether Center asks the helper's scheduled task to run when Windows booted into the
+        /// full-screen experience and Center is the home app. See Core/FseHelperStart.cs.
+        ///
+        /// OFF, and the default is the measurement rather than caution. The idea was that Center,
+        /// which the shell starts as the gaming home app, is on the machine before Windows reaches
+        /// the helper's logon trigger. Measured across four boots on 2026-09-14, it is not: the
+        /// trigger fires at about +16.7s, Center runs at about +21.7s, and the scheduler refused
+        /// every request as a duplicate. Whoever turns this on should expect nothing to get faster
+        /// unless their machine serves the trigger late.
+        /// </summary>
+        public static bool FseStartsHelper
+        {
+            get => ReadBool("FseStartsHelper", false);
+            set => WriteBool("FseStartsHelper", value);
+        }
+
         /// <summary>Whether widget TEST builds count as something worth a notification. Off: a test
         /// build is an invitation to help, not an update somebody is waiting for.</summary>
         public static bool WidgetNotifyTestBuilds
