@@ -242,8 +242,16 @@ namespace ClawTweaksCenter.Ui
                     "_method", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
                 if (field?.GetValue(op) is Delegate method)
                 {
+                    string name = method.Method?.Name ?? "?";
                     string owner = method.Method?.DeclaringType?.Name ?? "?";
-                    return $"{owner}.{method.Method?.Name ?? "?"} at {priority}";
+
+                    // Our own probe, called by its name. It is queued by the very measurement that
+                    // reads this, so seeing it here means nothing was found - and a line that says so
+                    // is worth more than one that looks like a culprit.
+                    if (name.Contains("MeasureUiResponsiveness"))
+                        return "(this trace's own probe - nothing else was running)";
+
+                    return $"{owner}.{name} at {priority}";
                 }
             }
             catch { }

@@ -223,6 +223,7 @@ namespace ClawTweaksCenter.Navigation
                                           $"{Ui.UiStallTrace.SinceGc(gapGc)} - {Ui.UiStallTrace.Witnesses()}");
 
                 MeasureUiResponsiveness();
+                ReportIfUiStillBlocked();
             }
 
             Ui.UiStallTrace.Write("poll loop ended");
@@ -341,6 +342,8 @@ namespace ClawTweaksCenter.Navigation
 
             var queuedAt = System.Diagnostics.Stopwatch.StartNew();
             Ui.UiStallTrace.GcMark gc = Ui.UiStallTrace.MarkGc();
+            System.Threading.Volatile.Write(ref _probeQueuedAt, System.Diagnostics.Stopwatch.GetTimestamp());
+            System.Threading.Volatile.Write(ref _probeReported, 0);
             try
             {
                 _window.Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
@@ -357,6 +360,44 @@ namespace ClawTweaksCenter.Navigation
                 // The dispatcher is shutting down. Release the slot so a restart is not blocked.
                 System.Threading.Volatile.Write(ref _uiProbeInFlight, 0);
             }
+        }
+
+        private long _probeQueuedAt;
+        private int _probeReported;
+
+        /// <summary>
+        /// Asks the witnesses WHILE the UI thread is still stuck, from this thread.
+        ///
+        /// 🔴 THE FIRST VERSION OF THIS ASKED FROM THE WRONG PLACE. It read them inside the probe's
+        /// own callback, which runs on the UI thread - so by then the blocking work had finished and
+        /// the "currently running dispatcher operation" it reported was the probe itself, every time
+        /// ("MeasureUiResponsiveness ... running for 0ms" in the log of 2026-09-14 21:24). And that
+        /// was not a slip in one line: the dispatcher is single-threaded, so an observer that runs ON
+        /// it can never, by construction, catch the operation that is blocking it.
+        ///
+        /// Only another thread can. This one is already awake every 40 ms, so when the probe it
+        /// queued has not run for a while it takes the reading right then - at which point
+        /// <see cref="Ui.UiStallTrace.Witnesses"/> names either the dispatcher operation that is
+        /// actually holding the thread, or no operation at all, which is the answer that matters:
+        /// the thread is then inside a window message rather than inside our code.
+        ///
+        /// Once per stall, not once per round - a 1.2 s stall would otherwise write thirty lines.
+        /// </summary>
+        private void ReportIfUiStillBlocked()
+        {
+            const int OverdueMs = 300;
+
+            if (System.Threading.Volatile.Read(ref _uiProbeInFlight) == 0) return;
+            long queued = System.Threading.Volatile.Read(ref _probeQueuedAt);
+            if (queued == 0) return;
+
+            long waited = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - queued)
+                                 / (System.Diagnostics.Stopwatch.Frequency / 1000.0));
+            if (waited < OverdueMs) return;
+            if (System.Threading.Interlocked.Exchange(ref _probeReported, 1) != 0) return;
+
+            Ui.UiStallTrace.Write($"ui thread STILL BLOCKED after {waited}ms (read from the poll thread, " +
+                                  $"while it is down) - {Ui.UiStallTrace.Witnesses()}");
         }
 
         private int _uiProbeInFlight;
