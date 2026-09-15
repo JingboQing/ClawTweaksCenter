@@ -83,6 +83,42 @@ FOOTER = u'''
 }
 '''
 
+LEFT = os.path.join(HERE, 'left-in-english.tsv')
+
+
+def render_left_in_english():
+    """The trailing block DEV_GUIDELINES points at as the answer to "why is this one word still
+    English".
+
+    It is DATA, in left-in-english.tsv, and not a hand-written block at the bottom of the C#:
+    this generator rewrites that file wholesale, so anything written there by hand survives
+    exactly until the next run. It did not survive the first one."""
+    try:
+        text = io.open(LEFT, encoding='utf-8').read()
+    except IOError:
+        return u''
+
+    rows = [l.split(u'\t') for l in text.splitlines()[1:] if l.strip()]
+    if not rows:
+        return u''
+
+    out = [u'\n/*\n'
+           u' * LEFT IN ENGLISH ON PURPOSE - the honest translation is wider than the control it\n'
+           u' * has to fit in, and could not be shortened without saying something else. This list\n'
+           u' * is the answer to "why is this one word still English", so it is kept rather than\n'
+           u' * tidied away. GENERATED FROM Tools/i18n/left-in-english.tsv.\n'
+           u' *\n']
+    for r in rows:
+        while len(r) < 6:
+            r.append(u'')
+        lang, en, honest, width, budget, note = r[0], r[1], r[2], r[3], r[4], r[5]
+        out.append(u' *   %-8s "%s" -> "%s" (%s wide, budget %s)\n'
+                   % (lang + u':', en, honest, width, budget))
+        if note:
+            out.append(u' *             %s\n' % note)
+    out.append(u' */\n')
+    return u''.join(out)
+
 
 def tsv_unescape(s):
     out, i, n = [], 0, len(s)
@@ -162,6 +198,7 @@ def render(keys, tables):
                 parts.append(u'            ["%s"] = "%s",\n' % (cs_escape(k), cs_escape(table[k])))
         parts.append(u'        };\n')
     parts.append(FOOTER)
+    parts.append(render_left_in_english())
     return ''.join(parts)
 
 

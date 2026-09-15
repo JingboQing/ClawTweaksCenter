@@ -2950,3 +2950,15 @@ namespace ClawTweaksCenter.Core
 
     }
 }
+
+/*
+ * LEFT IN ENGLISH ON PURPOSE - the honest translation is wider than the control it
+ * has to fit in, and could not be shortened without saying something else. This list
+ * is the answer to "why is this one word still English", so it is kept rather than
+ * tidied away. GENERATED FROM Tools/i18n/left-in-english.tsv.
+ *
+ *   fr:      "Save" -> "Enregistrer" (11 wide, budget 9)
+ *             revisit under the shorten rule: "Sauver" fits
+ *   fr:      "Select" -> "Sélectionner" (12 wide, budget 11)
+ *             revisit under the shorten rule: "Choisir" fits
+ */
