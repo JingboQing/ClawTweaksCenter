@@ -525,7 +525,7 @@ namespace ClawTweaksCenter.Core
             ["Steam Xbox filter driver"] = "Steam-Xbox-Filtertreiber",
             ["Steam asks you where to put it."] = "Steam fragt, wohin es soll.",
             ["Steam cover art is found automatically."] = "Steam-Cover werden automatisch gefunden.",
-            ["Steam has taken over. Rescan the library when it is done."] = "Steam hat \u00FCbernommen. Danach die Bibliothek neu einlesen.",
+            ["Steam has taken over. The download shows in Recent."] = "Steam hat \u00FCbernommen. Der Download steht unter Zuletzt.",
             ["SteamGridDB key"] = "SteamGridDB-Key",
             ["Step 1 has not run. After this, nothing on the device can switch the charge limit off or hand the fan back to firmware."] = "Schritt 1 lief noch nicht. Danach kann nichts auf dem Ger\u00E4t das Ladelimit ausschalten oder den L\u00FCfter an die Firmware zur\u00FCckgeben.",
             ["Step 1 puts the charge limit, the fan and the controller back."] = "Schritt 1 setzt Ladelimit, L\u00FCfter und Controller zur\u00FCck.",
@@ -752,6 +752,11 @@ namespace ClawTweaksCenter.Core
             ["Windows Update"] = "Windows Update",
             ["Not checked automatically. You can switch this on in Center settings."] = "Wird nicht automatisch gepr\u00FCft. In den Center-Einstellungen kannst du das einschalten.",
             ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "Wird automatisch gepr\u00FCft: {0}. In den Center-Einstellungen kannst du das \u00E4ndern oder abschalten.",
+            ["Uninstall\u2026"] = "Deinstallieren\u2026",
+            ["Steam removes the game files"] = "Steam entfernt die Spieldateien",
+            ["Uninstall {0}?"] = "{0} deinstallieren?",
+            ["Steam removes the game files and asks once more."] = "Steam entfernt die Spieldateien und fragt noch einmal.",
+            ["Steam could not be reached."] = "Steam ist nicht erreichbar.",
         };
 
         private static readonly Dictionary<string, string> French = new Dictionary<string, string>
@@ -1244,7 +1249,7 @@ namespace ClawTweaksCenter.Core
             ["Steam Xbox filter driver"] = "Pilote de filtre Steam Xbox",
             ["Steam asks you where to put it."] = "Steam demande o\u00F9 l'installer.",
             ["Steam cover art is found automatically."] = "Les jaquettes Steam sont trouv\u00E9es automatiquement.",
-            ["Steam has taken over. Rescan the library when it is done."] = "Steam a pris le relais. Rescanne la biblioth\u00E8que une fois fini.",
+            ["Steam has taken over. The download shows in Recent."] = "Steam a pris le relais. Le t\u00E9l\u00E9chargement appara\u00EEt dans R\u00E9cents.",
             ["SteamGridDB key"] = "Cl\u00E9 SteamGridDB",
             ["Step 1 has not run. After this, nothing on the device can switch the charge limit off or hand the fan back to firmware."] = "L'\u00E9tape 1 n'a pas \u00E9t\u00E9 lanc\u00E9e. Ensuite, plus rien sur l'appareil ne pourra d\u00E9sactiver la limite de charge ni rendre le ventilateur au firmware.",
             ["Step 1 puts the charge limit, the fan and the controller back."] = "L'\u00E9tape 1 restaure la limite de charge, le ventilateur et la manette.",
@@ -1471,6 +1476,11 @@ namespace ClawTweaksCenter.Core
             ["Windows Update"] = "Windows Update",
             ["Not checked automatically. You can switch this on in Center settings."] = "Pas de v\u00E9rification automatique. Tu peux l'activer dans les param\u00E8tres de Center.",
             ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "V\u00E9rification automatique : {0}. Tu peux le modifier ou le d\u00E9sactiver dans les param\u00E8tres de Center.",
+            ["Uninstall\u2026"] = "D\u00E9sinstaller\u2026",
+            ["Steam removes the game files"] = "Steam supprime les fichiers du jeu",
+            ["Uninstall {0}?"] = "D\u00E9sinstaller {0} ?",
+            ["Steam removes the game files and asks once more."] = "Steam supprime les fichiers du jeu et demande une confirmation.",
+            ["Steam could not be reached."] = "Steam est injoignable.",
         };
 
         private static readonly Dictionary<string, string> Korean = new Dictionary<string, string>
@@ -1965,7 +1975,7 @@ namespace ClawTweaksCenter.Core
             ["Steam Xbox filter driver"] = "Steam Xbox \uD544\uD130 \uB4DC\uB77C\uC774\uBC84",
             ["Steam asks you where to put it."] = "Steam\uC774 \uC124\uCE58 \uC704\uCE58\uB97C \uBB3B\uC2B5\uB2C8\uB2E4.",
             ["Steam cover art is found automatically."] = "Steam \uCEE4\uBC84\uB294 \uC790\uB3D9\uC73C\uB85C \uCC3E\uC2B5\uB2C8\uB2E4.",
-            ["Steam has taken over. Rescan the library when it is done."] = "Steam\uC774 \uC774\uC5B4\uC11C \uCC98\uB9AC\uD569\uB2C8\uB2E4. \uB05D\uB098\uBA74 \uB77C\uC774\uBE0C\uB7EC\uB9AC\uB97C \uB2E4\uC2DC \uAC80\uC0C9\uD558\uC138\uC694.",
+            ["Steam has taken over. The download shows in Recent."] = "Steam\uC774 \uC774\uC5B4\uC11C \uCC98\uB9AC\uD569\uB2C8\uB2E4. \uB2E4\uC6B4\uB85C\uB4DC\uB294 \uCD5C\uADFC \uD56D\uBAA9\uC5D0 \uD45C\uC2DC\uB429\uB2C8\uB2E4.",
             ["SteamGridDB key"] = "SteamGridDB \uD0A4",
             ["Step 1 has not run. After this, nothing on the device can switch the charge limit off or hand the fan back to firmware."] = "1\uB2E8\uACC4\uB97C \uC544\uC9C1 \uC2E4\uD589\uD558\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4. \uC774\uD6C4\uC5D0\uB294 \uAE30\uAE30\uC5D0\uC11C \uCDA9\uC804 \uC81C\uD55C\uC744 \uB044\uAC70\uB098 \uD32C\uC744 \uD38C\uC6E8\uC5B4\uC5D0 \uB118\uAE38 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.",
             ["Step 1 puts the charge limit, the fan and the controller back."] = "1\uB2E8\uACC4\uAC00 \uCDA9\uC804 \uC81C\uD55C\uACFC \uD32C, \uCEE8\uD2B8\uB864\uB7EC\uB97C \uB418\uB3CC\uB9BD\uB2C8\uB2E4.",
@@ -2193,6 +2203,11 @@ namespace ClawTweaksCenter.Core
             ["Not checked automatically. You can switch this on in Center settings."] = "\uC790\uB3D9\uC73C\uB85C \uD655\uC778\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. Center \uC124\uC815\uC5D0\uC11C \uCF24 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
             ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "\uC790\uB3D9 \uD655\uC778: {0}. Center \uC124\uC815\uC5D0\uC11C \uBCC0\uACBD\uD558\uAC70\uB098 \uB04C \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
             ["Status"] = "\uC0C1\uD0DC",
+            ["Uninstall\u2026"] = "\uC81C\uAC70\u2026",
+            ["Steam removes the game files"] = "Steam\uC774 \uAC8C\uC784 \uD30C\uC77C\uC744 \uC0AD\uC81C\uD569\uB2C8\uB2E4",
+            ["Uninstall {0}?"] = "{0}\uC744(\uB97C) \uC81C\uAC70\uD560\uAE4C\uC694?",
+            ["Steam removes the game files and asks once more."] = "Steam\uC774 \uAC8C\uC784 \uD30C\uC77C\uC744 \uC0AD\uC81C\uD558\uBA70 \uD55C \uBC88 \uB354 \uBB3B\uC2B5\uB2C8\uB2E4.",
+            ["Steam could not be reached."] = "Steam\uC5D0 \uC5F0\uACB0\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.",
         };
 
         private static readonly Dictionary<string, string> Spanish = new Dictionary<string, string>
@@ -2687,7 +2702,7 @@ namespace ClawTweaksCenter.Core
             ["Steam Xbox filter driver"] = "Filtro Xbox de Steam",
             ["Steam asks you where to put it."] = "Steam te pregunta d\u00F3nde ponerlo.",
             ["Steam cover art is found automatically."] = "Las portadas de Steam se buscan solas.",
-            ["Steam has taken over. Rescan the library when it is done."] = "Steam se encarga. Reescanea la biblioteca al terminar.",
+            ["Steam has taken over. The download shows in Recent."] = "Steam se encarga. La descarga aparece en Recientes.",
             ["SteamGridDB key"] = "Clave de SteamGridDB",
             ["Step 1 has not run. After this, nothing on the device can switch the charge limit off or hand the fan back to firmware."] = "El paso 1 no se ha ejecutado. Despu\u00E9s, nada en el dispositivo podr\u00E1 desactivar el l\u00EDmite de carga ni devolver el ventilador al firmware.",
             ["Step 1 puts the charge limit, the fan and the controller back."] = "El paso 1 restaura el l\u00EDmite de carga, el ventilador y el mando.",
@@ -2914,6 +2929,11 @@ namespace ClawTweaksCenter.Core
             ["Windows Update"] = "Windows Update",
             ["Not checked automatically. You can switch this on in Center settings."] = "No se comprueba autom\u00E1ticamente. Puedes activarlo en los ajustes de Center.",
             ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "Comprobaci\u00F3n autom\u00E1tica: {0}. Puedes cambiarlo o desactivarlo en los ajustes de Center.",
+            ["Uninstall\u2026"] = "Desinstalar\u2026",
+            ["Steam removes the game files"] = "Steam elimina los archivos del juego",
+            ["Uninstall {0}?"] = "\u00BFDesinstalar {0}?",
+            ["Steam removes the game files and asks once more."] = "Steam elimina los archivos del juego y vuelve a preguntar.",
+            ["Steam could not be reached."] = "No se pudo contactar con Steam.",
         };
 
         private static readonly Dictionary<string, string> Russian = new Dictionary<string, string>
