@@ -1501,7 +1501,7 @@ namespace ClawTweaksCenter
             if (pending?.AutoApplyFailed == true)
                 stack.Children.Add(new TextBlock
                 {
-                    Text = "The update could not install itself. Try the button below.",
+                    Text = Core.Loc.T("The update could not install itself. Try the button below."),
                     FontSize = 14, Foreground = UiHelpers.Warn,
                     TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0),
                 });
@@ -1509,7 +1509,7 @@ namespace ClawTweaksCenter
             var button = new Button
             {
                 Content = pending == null ? "Open download page"
-                        : _velopackApplying ? "Installing…" : "Install update now",
+                        : _velopackApplying ? Core.Loc.T("Installing…") : Core.Loc.T("Install update now"),
                 Style = (Style)Application.Current.Resources["SetupButton"],
                 IsEnabled = !_busy && !_velopackApplying,
                 Opacity = !_busy && !_velopackApplying ? 1.0 : 0.4,
@@ -1557,19 +1557,19 @@ namespace ClawTweaksCenter
             var legacyVersion = SelfInstaller.GetLegacyInstalledVersion();
             stack.Children.Add(new TextBlock
             {
-                Text = (legacyVersion != null ? $"Version {legacyVersion} is " : "A previous version is ") +
-                       $"still installed for all users, in {SelfInstaller.LegacyInstallDir}. This version " +
-                       "installs into your own user folder instead, so the old one is no longer used — but " +
-                       "it stays in Settings → Apps and in the Start Menu until it's removed, where it's " +
-                       "easy to launch by mistake.",
+                // Two whole sentences as keys, not "Version {0} is" + a shared tail: a language
+                // may not split the sentence where English does.
+                Text = legacyVersion != null
+                    ? Core.Loc.F("Version {0} is still installed for all users, in {1}. This version installs into your own user folder instead, so the old one is no longer used — but it stays in Settings → Apps and in the Start Menu until it's removed, where it's easy to launch by mistake.",
+                                 legacyVersion, SelfInstaller.LegacyInstallDir)
+                    : Core.Loc.F("A previous version is still installed for all users, in {0}. This version installs into your own user folder instead, so the old one is no longer used — but it stays in Settings → Apps and in the Start Menu until it's removed, where it's easy to launch by mistake.",
+                                 SelfInstaller.LegacyInstallDir),
                 FontSize = 14, Foreground = UiHelpers.Subtle,
                 TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0),
             });
             stack.Children.Add(new TextBlock
             {
-                Text = "Removing it needs administrator rights. ClawTweaks Center never asks for those — " +
-                       "the button below starts the old version's own uninstaller, so the prompt you see " +
-                       "comes from it, about removing itself.",
+                Text = Core.Loc.T("Removing it needs administrator rights. ClawTweaks Center never asks for those — the button below starts the old version's own uninstaller, so the prompt you see comes from it, about removing itself."),
                 FontSize = 14, Foreground = UiHelpers.Subtle,
                 TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0),
             });
@@ -2578,8 +2578,7 @@ namespace ClawTweaksCenter
                 });
                 rebootStack.Children.Add(new TextBlock
                 {
-                    Text = "These install kernel drivers. Without the restart everything looks installed " +
-                           "and the virtual controller still won't start.",
+                    Text = Core.Loc.T("These install kernel drivers. Without the restart everything looks installed and the virtual controller still won't start."),
                     FontSize = 15, Foreground = UiHelpers.Text,
                     TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0),
                 });

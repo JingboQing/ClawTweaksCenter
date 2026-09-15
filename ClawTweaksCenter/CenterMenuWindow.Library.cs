@@ -4190,7 +4190,7 @@ namespace ClawTweaksCenter
             });
             stack.Children.Add(new TextBlock
             {
-                Text = "OptiScaler wiki · " + (info.WikiPage ?? string.Empty).Replace('-', ' '),
+                Text = Core.Loc.F("OptiScaler wiki · {0}", (info.WikiPage ?? string.Empty).Replace('-', ' ')),
                 FontSize = 12,
                 Foreground = UiHelpers.Subtle,
                 Margin = new Thickness(0, 2, 0, 14),
@@ -5652,7 +5652,9 @@ namespace ClawTweaksCenter
 
             var text = new TextBlock
             {
-                Text = row.Heading,
+                // Platform labels are brand names and ROM system names are what the folder is
+                // called, so almost every heading comes back unchanged - but "Other" is a word.
+                Text = Core.Loc.T(row.Heading),
                 FontSize = 13,
                 FontWeight = FontWeights.SemiBold,
                 Foreground = Ui.UiHelpers.Subtle,

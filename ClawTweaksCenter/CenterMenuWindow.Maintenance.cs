@@ -204,12 +204,12 @@ namespace ClawTweaksCenter
                 string when = b.CreatedUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? b.FileTime.ToString("yyyy-MM-dd HH:mm");
                 stack.Children.Add(new TextBlock
                 {
-                    Text = (b.IsPreRestore ? "Auto pre-restore — " : "") + when,
+                    Text = b.IsPreRestore ? Core.Loc.F("Auto pre-restore — {0}", when) : when,
                     FontSize = 16, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Text, TextWrapping = TextWrapping.Wrap,
                 });
 
                 string sub = b.ManifestValid
-                    ? $"ClawTweaks {b.AppVersion ?? "?"} · {b.DeviceModel ?? "?"} · {b.StoreCount} stores · {FormatSize(b.SizeBytes)}"
+                    ? Core.Loc.F("ClawTweaks {0} · {1} · {2} stores · {3}", b.AppVersion ?? "?", b.DeviceModel ?? "?", b.StoreCount, FormatSize(b.SizeBytes))
                     : $"⚠ No valid backup manifest · {FormatSize(b.SizeBytes)}";
                 stack.Children.Add(new TextBlock { Text = Core.Loc.T(sub), FontSize = 13, Foreground = UiHelpers.Subtle, Margin = new Thickness(0, 3, 0, 0), TextWrapping = TextWrapping.Wrap });
                 stack.Children.Add(new TextBlock { Text = b.FileName, FontSize = 12, Foreground = UiHelpers.Subtle, Margin = new Thickness(0, 2, 0, 0), TextWrapping = TextWrapping.Wrap });

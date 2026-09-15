@@ -332,7 +332,27 @@ def main():
             if order[kind] > order[rec['kind']]:
                 rec['kind'] = kind
 
+    # TRIAGED CANDIDATES ARE SUBTRACTED. Tools/i18n/triage.tsv holds one verdict per candidate
+    # that has been looked at (ui / not-ui / proper-noun / log / dead / interpolated / heading).
+    # A string that was read and correctly rejected looks exactly like one nobody has read, so
+    # without this file the count could never fall - see "Keeping progress" in the plan. The
+    # match is on the English text alone: line numbers drift with every edit above them.
+    triaged = set()
+    tri_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'triage.tsv')
+    if os.path.exists(tri_path):
+        with io.open(tri_path, encoding='utf-8') as f:
+            for i, line in enumerate(f):
+                if i == 0:
+                    continue
+                parts = line.rstrip('\n').split('\t')
+                if len(parts) >= 4:
+                    triaged.add(parts[2])
+    skipped = [v for v in candidates if v in triaged]
+    for v in skipped:
+        del candidates[v]
+
     sys.stdout.write('files scanned                     %d\n' % len(files))
+    sys.stdout.write('candidates already triaged        %d   (Tools/i18n/triage.tsv)\n' % len(skipped))
     sys.stdout.write('literals already translated       %d occurrences of %d keys\n'
                      % (translated, len(mentioned)))
     sys.stdout.write('literals ignored as non-UI        %d\n' % ignored)

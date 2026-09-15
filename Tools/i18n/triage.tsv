@@ -1,0 +1,65 @@
+file	line	english	verdict	note
+CenterMenuWindow.Library.cs	2898	Tab visibility & order	ui	row added
+CenterMenuWindow.GameMenu.cs	282	Unfavorite	ui	row added; GameMenuRow title
+CenterMenuWindow.GameMenu.cs	282	Favorite	ui	row added
+CenterMenuWindow.GameMenu.cs	347	Rename…	ui	row added
+CenterMenuWindow.GameMenu.cs	349	Rename	ui	row added; footer chip
+CenterMenuWindow.GameMenu.cs	372	Remove	ui	row added; footer chip
+CenterMenuWindow.Leave.cs	73	Uninstall ClawTweaks	heading	screen title = Home tile title, stays English by rule
+CenterMenuWindow.Library.cs	1931	Other	ui	row added; BuildHeading now Loc.T
+CenterMenuWindow.Library.cs	1956	Steam	proper-noun	
+CenterMenuWindow.Library.cs	1957	Epic	proper-noun	
+CenterMenuWindow.Library.cs	1958	Xbox	proper-noun	
+CenterMenuWindow.Library.cs	1959	ROMs	proper-noun	tab name, stays
+CenterMenuWindow.Library.cs	2031	Z-A	not-ui	symbol
+CenterMenuWindow.Library.cs	2031	A-Z	not-ui	symbol
+CenterMenuWindow.Library.cs	2478	Recent immersive	ui	row added
+CenterMenuWindow.Library.cs	4193	OptiScaler wiki · 	interpolated	now Loc.F, row added
+CenterMenuWindow.Library.cs	4608	Sleep	ui	row added
+CenterMenuWindow.Library.cs	4610	Hibernate	ui	row added
+CenterMenuWindow.Library.cs	5042	Launch	ui	row added; footer chip
+CenterMenuWindow.Library.cs	5143	Edit	ui	row added; footer chip
+CenterMenuWindow.Maintenance.cs	95	Reset · Backup · Restore	heading	screen title, stays English by rule
+CenterMenuWindow.Maintenance.cs	207	Auto pre-restore — 	interpolated	now Loc.F, row added
+CenterMenuWindow.Maintenance.cs	212	ClawTweaks {b.AppVersion ?? 	interpolated	now Loc.F, row added
+CenterMenuWindow.Misc.cs	592	Choose a program	ui	row added; Loc.T at call site (Win32 dialog title)
+CenterMenuWindow.Misc.cs	671	Add	ui	row added
+CenterMenuWindow.Misc.cs	671	Add 	interpolated	now Loc.F("Add {0}"), row added
+CenterMenuWindow.Tray.cs	116	ClawTweaks Center	proper-noun	tray tooltip
+CenterMenuWindow.Tray.cs	129	Open Center	ui	row added; Loc.T at call site (WPF ContextMenu)
+CenterMenuWindow.Tray.cs	133	Open Library	ui	row added; Loc.T at call site
+CenterMenuWindow.Tray.cs	143	Exit Center	ui	row added; Loc.T at call site
+CenterMenuWindow.xaml.cs	210	CTW Center v	not-ui	version label
+CenterMenuWindow.xaml.cs	767	Onboarding	heading	Home tile title
+CenterMenuWindow.xaml.cs	1029	ClawTweaks 	not-ui	product + version
+CenterMenuWindow.xaml.cs	1140	Center Settings	heading	Home tile title
+CenterMenuWindow.xaml.cs	1504	The update could not install itself. Try the button below.	ui	row added; Loc.T at call site (direct Text=)
+CenterMenuWindow.xaml.cs	1512	Installing…	ui	row added; Loc.T at call site
+CenterMenuWindow.xaml.cs	1512	Install update now	ui	row added; Loc.T at call site
+CenterMenuWindow.xaml.cs	1560	A previous version is 	interpolated	two whole-sentence Loc.F keys, rows added
+CenterMenuWindow.xaml.cs	1570	Removing it needs administrator rights…	ui	row added; Loc.T at call site
+CenterMenuWindow.xaml.cs	2348	Scroll	ui	row added; hint label
+CenterMenuWindow.xaml.cs	2581	These install kernel drivers…	ui	row added; Loc.T at call site
+CenterMenuWindow.xaml.cs	3294	center post-install	log	
+Core/CenterM.cs	14	MSI Center M	proper-noun	
+Core/PrerequisiteGuide.cs	60	HidHide	proper-noun	
+Core/PrerequisiteGuide.cs	128	PawnIO	proper-noun	
+InstallCenterWindow.xaml.cs	105	Version 	interpolated	now Loc.F("Version {0}"), row added
+InstallCenterWindow.xaml.cs	193	The new ClawTweaks Center needs no administrator rights…	ui	split in two Loc.T; first sentence row added, second existed
+Library/MiscSource.cs	109	shell:appsFolder\	not-ui	
+Library/SteamGridDb.cs	250	heroes/game/	not-ui	url
+Library/SteamGridDb.cs	251	Bearer	not-ui	http header
+Library/SteamGridDb.cs	319	search/autocomplete/	not-ui	url
+Library/SteamGridDb.cs	372	grids/game/	not-ui	url
+Library/SteamGridDb.cs	533	search/autocomplete/portal	not-ui	url
+Library/SteamPlaytime.cs	75	LastPlayed	not-ui	vdf key
+MainWindow.xaml.cs	175	Finish	dead	MainWindow is never constructed
+Phases/DetectPhase.cs	28	Detect	dead	old wizard
+Phases/DetectPhase.cs	53	Welcome	dead	old wizard
+Phases/InstallPhase.cs	96	Trusted.	dead	old wizard
+Phases/InstallPhase.cs	111	Helper	dead	old wizard
+Phases/InstallPhase.cs	111	Running.	dead	old wizard
+Phases/ToolsPhase.cs	51	Tools	dead	old wizard
+Update/UpdateFlow.cs	87	checked - nothing newer than this build	log	
+Update/UpdateFlow.cs	120	update flow threw: 	log	
+Update/UpdateFlow.cs	132	 because the user asked for it	log	

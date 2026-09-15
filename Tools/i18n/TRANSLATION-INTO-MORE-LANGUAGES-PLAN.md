@@ -10,7 +10,8 @@ Tick the boxes as you go; **the boxes are the only record of progress that survi
 Center ships in five languages (English, German, French, Korean, Spanish). It is being taken to
 **thirteen**: adding Russian, Greek, Chinese simplified, Chinese traditional, Italian, Brazilian
 Portuguese, Japanese, Polish. The OSD notification cards of the helper and the widget get the same
-treatment.
+treatment, **and so does the Inno setup** (P3b) - it is the first screen a user in any of these
+languages sees, and today it speaks the five and falls back to English for the rest.
 
 ### Where the code is — this spans TWO repositories
 
@@ -18,6 +19,7 @@ treatment.
 |---|---|---|
 | **Center** | `C:\Users\AlexB\Documents\Development\ClawTweaksCenter` | everything in P1 and P2 |
 | **Helper + widget** | `C:\Users\AlexB\Documents\Development\ClawTweaks_GoTweaksFork` | everything in P3 |
+| **Inno setup** | same repo, `ClawTweaksInstaller\ClawTweaksInstaller.iss` | everything in P3b |
 
 Read `DEV_GUIDELINES.md` and `CONTRIBUTING.md` in the Center repo before touching anything. The
 translation design is documented there, in the section beginning *"Translation happens at the
@@ -113,13 +115,13 @@ those builders, that is the thing to fix."* So for each candidate, in this order
 the right builder; **(c)** only where neither is possible, `Loc.T` at the call site, and say why in
 the commit.
 
-- [ ] **P1.1 — the 4 `wrapped`.** They already call `Loc.T` and have no row, so they render English
+- [x] **P1.1 — the 4 `wrapped`** (done 2026-09-15; three of the four went stale with the experimental band, the fourth has its row). They already call `Loc.T` and have no row, so they render English
       in *all four* shipped languages today:
       - `CenterMenuWindow.CenterSettings.cs:130` — `Experimental`
       - `CenterMenuWindow.CenterSettings.cs:139` — `Center starts the helper`
       - `CenterMenuWindow.CenterSettings.cs:147` — `Only in the full screen experience. …`
       - `CenterMenuWindow.Library.cs:2895` — `Tab visibility & order`
-- [ ] **P1.2 — the 63 `builder`.** Tray menu, game menu (Favorite / Rename / Remove), Sleep /
+- [x] **P1.2 — the 63 `builder`** (done 2026-09-15: 31 rows added, 33 recorded as proper-noun / heading / not-ui / log / dead in `triage.tsv`; the coverage tool now subtracts what is triaged). Tray menu, game menu (Favorite / Rename / Remove), Sleep /
       Hibernate / Launch / Edit, platform tabs, parts of Maintenance. Proper nouns and symbols
       (`Steam`, `Epic`, `Xbox`, `ROMs`, `A-Z`, `Z-A`) stay English — record that they were seen and
       rejected, or the next run of the survey reports them again as if nobody had looked.
@@ -228,12 +230,97 @@ append-only. The helper is .NET Framework 4.8, not .NET 10. Scope is the notific
 
 ---
 
+## P3b — The Inno setup
+
+**Same repository as P3**, file `ClawTweaksInstaller\ClawTweaksInstaller.iss`. Measured 2026-09-15,
+nothing below is assumed:
+
+| what | today |
+|---|---|
+| `[Languages]` | the five: `en de fr es ko`, all from Inno's own `.isl` files |
+| `[Messages]` | **one** overridden key, `WelcomeLabel2`, in the five languages |
+| `[CustomMessages]` | **55 keys x 5 languages**, read through `M('Key')` / `MF('Key', [...])` - **never** `CustomMessage()` directly, that returns `%n` unresolved |
+| language choice | `ShowLanguageDialog=no`, `UsePreviousLanguage=no` - Inno picks by the Windows UI language, silently, and falls back to the first line (English). See the note in the `.iss` on why `UsePreviousLanguage` has to stay `no` |
+| the two FSE wizard pages | wording is the owner's, near-verbatim, in every language - **do not** expand it into prose in any language |
+| `Log()` lines | English, and stay English - a translated setup log cannot be grepped |
+
+So the job is **55 + 1 keys x 8 new columns = 448 cells**, plus eight `[Languages]` lines. Small
+next to P2, but it has three traps of its own.
+
+### Where Inno's own translations come from
+
+Inno 6.7 installs per-user here (`%LOCALAPPDATA%\Programs\Inno Setup 6\Languages\`), and ships
+official files for **five** of the eight new languages. The other three are on jrsoftware.org as
+*unofficial* translations and are **not** in the install:
+
+| language | `.isl` | where |
+|---|---|---|
+| `it` | `Italian.isl` | shipped |
+| `pt-BR` | `BrazilianPortuguese.isl` | shipped (`Portuguese.isl` is pt-PT - not that one) |
+| `pl` | `Polish.isl` | shipped |
+| `ru` | `Russian.isl` | shipped |
+| `ja` | `Japanese.isl` | shipped |
+| `el` | `Greek.isl` | **unofficial** - download, vendor into `ClawTweaksInstaller\Languages\`, `MessagesFile: "Languages\Greek.isl"` (no `compiler:` prefix) |
+| `zh-Hans` | `ChineseSimplified.isl` | **unofficial** - same |
+| `zh-Hant` | `ChineseTraditional.isl` | **unofficial** - same |
+
+The three vendored files are **repo content** and go through the normal commit; a build on another
+machine must not depend on somebody having downloaded them. Check each one's `LanguageID` line:
+that is what Inno matches the Windows UI language against, and it is the whole mechanism by which
+zh-Hans (`$0804`) and zh-Hant (`$0404`) end up on different files.
+
+### The decision to put to the owner FIRST: where the 56 keys live
+
+Today the translations are **inline in the `.iss`** - a second source of truth next to
+`strings.tsv`, in a different file format, in a different repo. Two ways forward:
+
+- **(a) Keep them in the `.iss`.** Eight more blocks of 55 lines. Simple, no tooling, but the
+  setup's strings are then the one place P1.6's lint does not reach (placeholder parity for
+  `MF('Key', [a, b])` arguments, width, stray whitespace), and a key renamed on one side is found
+  at compile time only for the languages that exist.
+- **(b) Move them to `Tools/i18n/inno.tsv`** in the Center repo, next to `strings.tsv`, and let
+  `loc_build.py` grow a second output: `ClawTweaksInstaller\Languages\CustomMessages.iss`,
+  pulled in with `#include`. One generator, one lint, one width rule. The cost is a cross-repo
+  build step (the generated file is committed in the helper repo, like `Localization.Tables.cs`
+  is in Center) and the same "never edit the generated file" discipline.
+
+**Recommendation: (b)**, for the same reason (1) in section 0 exists - but it is the owner's call,
+and until it is made the eight columns are not to be started in either form.
+
+### The traps
+
+1. **`%n` is Inno's newline and `%1` is Inno's placeholder** - not `\n` and not `{0}`. A lint
+   written for `strings.tsv` has to know the difference, or it flags every line.
+2. **Width has no automatic check here.** Inno wizard pages wrap text but **buttons do not grow**:
+   the "Open Windows Settings" button already measures its own width from its caption
+   (`CalculateButtonWidth`) because French is one and a half times English. Every other fixed
+   `Width` on a custom control is a clipping case waiting for Russian or Greek.
+3. **A missing key in one language is a compile error** in ISCC, which is the check - but only
+   for languages listed in `[Languages]`. Add the `[Languages]` line **before** filling the column,
+   so the compiler reports what is missing instead of the language silently falling back to English.
+4. **Proving a language without switching Windows:** `ClawTweaks_<ver>_Setup.exe /LANG=el`. Korean
+   is still unseen in the wizard font; CJK and Greek need one look each on the device.
+
+- [ ] **P3b.1 — decide (a) or (b)** with the owner.
+- [ ] **P3b.2 — vendor `Greek.isl`, `ChineseSimplified.isl`, `ChineseTraditional.isl`** under
+      `ClawTweaksInstaller\Languages\`, and add the eight `[Languages]` lines. Compile: every new
+      language now fails on 56 missing keys, which is the list to work down.
+- [ ] **P3b.3 — the 56 keys x 8**, in the order of P2.3 (Italian first), using `glossary.tsv` from
+      P2.1 so the setup and Center call the same thing by the same word.
+- [ ] **P3b.4 — one run per language** with `/LANG=xx`, the six wizard pages and the uninstall
+      dialog. Fixed-width controls that clip get `CalculateButtonWidth` treatment, not a shorter
+      translation.
+
+---
+
 ## P4 — Close out
 
 - [ ] Attach a coverage report to the final commit, so the next reader sees what was left English.
 - [ ] **Decide `Loc.Order` / `Loc.Next`.** Dead since the settings screen grew its own
       `LanguageOrder()`. Kept and marked; deleting them is the owner's call.
 - [ ] Update the memory note `clawtweaks-i18n-thirteen-languages` and this file's boxes.
+- [ ] Update `memory/inno-setup-speaks-centers-five-languages.md` in the helper repo - its title
+      is wrong once P3b lands.
 
 ---
 
