@@ -193,17 +193,16 @@ job and it is several working sessions, not one.
       stay English on purpose — translating them makes the screen harder to read, not easier.
 - [x] **P2.2 — fill the four existing columns' gaps** (done 2026-09-15; the cells still empty are identical-to-English on purpose: units, `Release`/`Nightly`, Windows folder names — the lint would flag a copy) (de 717, fr 715, ko 718, es 717 of 718 today,
       plus everything P1 adds).
-- [ ] **P2.3 — the eight new columns**, one language at a time, in batches of ~120 keys:
+- [x] **P2.3 — the eight new columns** (all eight done 2026-09-15), one language at a time, in batches of ~120 keys:
       - [x] `it` Italian — done 2026-09-15, 850 of 858 (the 8 empties are the deliberate ones above); lint clean, 0 over width
       - [x] `pt-BR` Portuguese — done 2026-09-15, 838 of 858 (empties = the deliberate ones plus 20 cells identical to English: Online, Offline, Chat, Anti-cheat, Info, Layout, Macro, Menu, Mouse, Preset, Status, Windows Update, Desktop, Downloads, Release, Nightly, the four `{0} MHz`-style formats); lint clean, 0 over width
       - [x] `pl` Polish — done 2026-09-15, 844 of 858 (empties = the deliberate ones plus Online, Offline, Anti-cheat, Info, Menu, Preset, Start, System, Windows Update, Nightly); lint clean, 0 over width
       - [x] `ru` Russian — done 2026-09-15, 854 of 858 (empties = Windows Update, Nightly, `{0} fps (Intel)`, `{0} fps (RTSS)`); lint clean, 0 over width
       - [x] `el` Greek — done 2026-09-15, 845 of 858 (empties = Windows Update, Release, Nightly, the two `{0} fps` formats, plus Anti-cheat, Gyro, Info, Macro, Nearest Neighbour, `{0} MHz`, `{0} Hz`, Desktop); lint clean, 0 over width — 11 cells kept over budget with a note in `left-in-english.tsv`, `Busy` at +4 the widest
       - [x] `ja` Japanese — done 2026-09-15, 852 of 858 (empties = Windows Update, Nightly, `{0} MHz`, `{0} Hz`, the two `{0} fps` formats); lint clean, 0 over width — only `Uninstall` is kept over budget, with a note
-      - [ ] `zh-Hans` Chinese simplified
-      - [ ] `zh-Hant` Chinese traditional — derived from Hans, then corrected. **Not** a character
-            conversion: the vocabulary differs (软件 / 軟體, 视频 / 影片, 鼠标 / 滑鼠).
-- [ ] **P2.4 — width pass per language.** ✅ de/fr/ko/es/it/pt-BR/pl/ru/el/ja 2026-09-15 (0 over budget); repeats once per new column.
+      - [x] `zh-Hans` Chinese simplified — done 2026-09-15, 850 of 858 (empties = Windows Update, Nightly, `{0} MHz`, `{0} Hz`, the two `{0} fps` formats, and the two `OptiScaler wiki` lines); lint clean, **0 over width on the first pass** — Chinese is short even at two columns per character
+      - [x] `zh-Hant` Chinese traditional — done 2026-09-15, 850 of 858, same empties as Hans; lint clean, 0 over width. Derived from Hans and then corrected — **not** a character conversion: Taiwan vocabulary throughout (控制器 not 手柄, 設定檔 not 配置文件, 資料夾 not 文件夹, 解除安裝 not 卸载, 裝置 not 設備, 憑證 not 證書, 排程工作 not 計劃任務, 小工具 not 小組件, 滑鼠 not 鼠標). A scan against a list of simplified-only characters found none left in the column.
+- [x] **P2.4 — width pass per language.** ✅ all twelve columns 2026-09-15 (0 over budget); repeats once per new column.
       **One addition to the rule:** a cell that is +1/+2 over and has no shorter honest word (`Busy` → `Beschäftigt`, `Today` → `Aujourd'hui`) may stay **in the cell** with a `kept in the cell:` note in `left-in-english.tsv` — the lint exempts by (lang, english), so the record still says why. Emptying the cell was the worse answer for those four. `loc_lint.py` lists every over-budget cell; each is
       shortened until it fits. What cannot be shortened honestly goes in `left-in-english.tsv`
       with its width and budget, and the cell is left empty.
