@@ -63,3 +63,211 @@ Phases/ToolsPhase.cs	51	Tools	dead	old wizard
 Update/UpdateFlow.cs	87	checked - nothing newer than this build	log	
 Update/UpdateFlow.cs	120	update flow threw: 	log	
 Update/UpdateFlow.cs	132	 because the user asked for it	log	
+App.xaml.cs	82	DispatcherUnhandledException	not-ui	identifier
+App.xaml.cs	94	UnobservedTaskException	not-ui	identifier
+App.xaml.cs	362	ClawTweaks	not-ui	identifier
+CenterMenuWindow.Drivers.cs	106	CheckDriverUpdates	not-ui	identifier
+CenterMenuWindow.Drivers.cs	107	ForceRefresh	not-ui	identifier
+CenterMenuWindow.Drivers.cs	148	CheckWindowsUpdates	not-ui	identifier
+CenterMenuWindow.Drivers.cs	662	ms-settings:windowsupdate-action	not-ui	path / uri / registry
+CenterMenuWindow.FooterStatus.cs	155	GetPowerStatus	not-ui	identifier
+CenterMenuWindow.Library.cs	3807	OptiClick	not-ui	identifier
+CenterMenuWindow.Library.cs	3808	OptiScaler	not-ui	identifier
+CenterMenuWindow.Library.cs	4741	PowerAction	not-ui	identifier
+CenterMenuWindow.Misc.cs	556	aumid:	not-ui	path / uri / registry
+CenterMenuWindow.QuickMenu.cs	61	TrayAppList	not-ui	identifier
+CenterMenuWindow.QuickMenu.cs	255	TrayAppOpen	not-ui	identifier
+CenterMenuWindow.QuickMenu.cs	267	TrayAppClose	not-ui	identifier
+CenterMenuWindow.QuickMenu.cs	319	ms-settings:	not-ui	path / uri / registry
+CenterMenuWindow.QuickMenu.cs	321	compmgmt.msc	not-ui	path / uri / registry
+CenterMenuWindow.QuickMenu.cs	322	ms-settings:appsfeatures	not-ui	path / uri / registry
+CenterMenuWindow.UpdateWatch.cs	73	announce:	log	diagnostics only
+CenterMenuWindow.UpdateWatch.cs	125	widget:	log	diagnostics only
+CenterMenuWindow.UpdateWatch.cs	165	driver:	log	diagnostics only
+CenterMenuWindow.UpdateWatch.cs	208	windows:	log	diagnostics only
+CenterMenuWindow.xaml.cs	746	ViewportHeight	not-ui	identifier
+Core/BuildDownloader.cs	59	ClawTweaksCenter	not-ui	identifier
+Core/BuildDownloader.cs	117	AppxMetadata/AppxBundleManifest.xml	not-ui	path / uri / registry
+Core/CenterM.cs	14	MSI_Center_M	not-ui	identifier
+Core/CenterM.cs	14	MSICenterM	not-ui	identifier
+Core/CenterM.cs	14	MSI_Center	not-ui	identifier
+Core/CenterM.cs	80	SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall	not-ui	path / uri / registry
+Core/CenterM.cs	81	SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall	not-ui	path / uri / registry
+Core/CenterSettings.cs	46	BorderlessFullscreen	not-ui	registry value name
+Core/CenterSettings.cs	61	SquareRomArt	not-ui	registry value name
+Core/CenterSettings.cs	75	SteamGridDbApiKey	not-ui	registry value name
+Core/CenterSettings.cs	88	RecentReflections	not-ui	registry value name
+Core/CenterSettings.cs	103	UserImageFolder	not-ui	registry value name
+Core/CenterSettings.cs	117	BackgroundImagePath	not-ui	registry value name
+Core/CenterSettings.cs	133	BackgroundSeedVersion	not-ui	registry value name
+Core/CenterSettings.cs	146	OpenLibraryAtStartup	not-ui	registry value name
+Core/CenterSettings.cs	162	StartCenterWithClawTweaks	not-ui	registry value name
+Core/CenterSettings.cs	193	OnboardingPending	not-ui	registry value name
+Core/CenterSettings.cs	209	LaunchBehavior	not-ui	registry value name
+Core/CenterSettings.cs	245	LibrarySortDescending	not-ui	registry value name
+Core/CenterSettings.cs	254	LibraryGrouped	not-ui	registry value name
+Core/CenterSettings.cs	260	ImmersiveMode	not-ui	registry value name
+Core/CenterSettings.cs	278	DenseLibraryGrid	not-ui	registry value name
+Core/CenterSettings.cs	292	LibraryTabs	not-ui	registry value name
+Core/CenterSettings.cs	313	StartSteamWithLibrary	not-ui	registry value name
+Core/CenterSettings.cs	319	RunInBackground	not-ui	registry value name
+Core/CenterSettings.cs	332	InterfaceSounds	not-ui	registry value name
+Core/CenterSettings.cs	345	NavigateSound	not-ui	registry value name
+Core/CenterSettings.cs	352	BackSound	not-ui	registry value name
+Core/CenterSettings.cs	362	BackgroundMusic	not-ui	registry value name
+Core/CenterSettings.cs	374	EffectsVolume	not-ui	registry value name
+Core/CenterSettings.cs	383	MusicVolume	not-ui	registry value name
+Core/CenterSettings.cs	434	DriverCheckIntervalWeeks	not-ui	registry value name
+Core/CenterSettings.cs	444	WindowsUpdateCheckIntervalWeeks	not-ui	registry value name
+Core/CenterSettings.cs	452	WidgetUpdateNotifyIntervalWeeks	not-ui	registry value name
+Core/CenterSettings.cs	482	WidgetNotifyTestBuilds	not-ui	registry value name
+Core/CenterSettings.cs	491	DriverCheckLastUtc	not-ui	registry value name
+Core/CenterSettings.cs	497	WindowsUpdateCheckLastUtc	not-ui	registry value name
+Core/CenterSettings.cs	503	WidgetNotifyLastUtc	not-ui	registry value name
+Core/ControllerHealth.cs	44	ClawTweaks_Health_	not-ui	identifier
+Core/DeviceDetect.cs	117	SystemSKUNumber	not-ui	identifier
+Core/FseHelperStart.cs	33	MSIClaw.ClawTweaks_7eszav2039cvc	log	diagnostics only
+Core/FseHelperStart.cs	39	MSIClaw.ClawTweaksCenterFSE_	log	diagnostics only
+Core/FseHelperStart.cs	45	helper-start-request.txt	log	diagnostics only
+Core/FseHelperStart.cs	68	GamingConfiguration missing	log	diagnostics only
+Core/FseHelperStart.cs	124	disabled: the FSE helper start was removed on 2026-09-15 (measured: no effect)	log	diagnostics only
+Core/HelperControl.cs	36	XboxGamingBarHelper	not-ui	identifier
+Core/HelperControl.cs	90	WindowsPowerShell	not-ui	identifier
+Core/HelperControl.cs	211	LocalState	not-ui	identifier
+Core/LeaveRunner.cs	194	MsiChargeLimit	not-ui	identifier
+Core/LeaveRunner.cs	194	false:90	not-ui	path / uri / registry
+Core/LeaveRunner.cs	198	MsiFanControl	not-ui	identifier
+Core/MaintenanceRunner.cs	64	FactoryReset	not-ui	identifier
+Core/MaintenanceRunner.cs	73	BackupCreate	not-ui	identifier
+Core/MaintenanceRunner.cs	84	BackupRestore	not-ui	identifier
+Core/Sources/GitHubReleaseSource.cs	46	application/vnd.github+json	not-ui	path / uri / registry
+Core/Sources/GoogleDriveSource.cs	45	AIzaSyCnOwAdpy8Z3CFkCp0nNz2SovHyuBPFD2o	not-ui	identifier
+Core/ToolDetect.cs	78	SOFTWARE\\Nefarius Software Solutions e.U.\\HidHide	not-ui	path / uri / registry
+Core/ToolDetect.cs	182	SOFTWARE\\WOW6432Node\\Unwinder\\RTSS	not-ui	path / uri / registry
+Core/ToolDetect.cs	183	SOFTWARE\\Unwinder\\RTSS	not-ui	path / uri / registry
+Core/ToolDetect.cs	184	SOFTWARE\\WOW6432Node\\Guru3D\\RTSS	not-ui	path / uri / registry
+Core/ToolDetect.cs	185	SOFTWARE\\Guru3D\\RTSS	not-ui	path / uri / registry
+Core/ToolDetect.cs	188	InstallDir	not-ui	identifier
+Core/WindowsChannelDetect.cs	30	SOFTWARE\\Microsoft\\WindowsSelfHost\\Applicability	not-ui	path / uri / registry
+Core/WindowsChannelDetect.cs	39	SOFTWARE\\Microsoft\\WindowsSelfHost\\UI\\Selection	not-ui	path / uri / registry
+Library/ClawProfileDetails.cs	81	TDPBoostEnabled	not-ui	identifier
+Library/ClawProfileDetails.cs	83	TDPBoostFPPTWatts	not-ui	identifier
+Library/ClawProfileDetails.cs	95	CPUMaxFrequencyClass1MHz	not-ui	identifier
+Library/ClawProfileDetails.cs	96	CPUMaxFrequencyMHz	not-ui	identifier
+Library/ClawProfileDetails.cs	100	MaxCPUStateClass1	not-ui	identifier
+Library/ClawProfileDetails.cs	100	MinCPUStateClass1	not-ui	identifier
+Library/ClawProfileDetails.cs	102	MaxCPUState	not-ui	identifier
+Library/ClawProfileDetails.cs	102	MinCPUState	not-ui	identifier
+Library/ClawProfileDetails.cs	105	CPUEPPClass1	not-ui	identifier
+Library/ClawProfileDetails.cs	110	RefreshRate	not-ui	identifier
+Library/ClawProfileDetails.cs	124	HDREnabled	not-ui	identifier
+Library/ClawProfileDetails.cs	140	IntelScalingMode	not-ui	identifier
+Library/ClawProfileDetails.cs	147	IntelScalingMethod	not-ui	identifier
+Library/ClawProfileDetails.cs	164	FpsCapMode	not-ui	identifier
+Library/ClawProfileDetails.cs	167	IntelFpsTier	not-ui	identifier
+Library/ClawProfileDetails.cs	172	FPSLimit	not-ui	identifier
+Library/ClawProfileDetails.cs	201	Aggressive	not-ui	profile XML element name
+Library/ClawProfileDetails.cs	207	CPUBoostMode	not-ui	identifier
+Library/ClawProfileDetails.cs	210	CPUBoost	not-ui	identifier
+Library/ClawProfileDetails.cs	233	ControllerProfileEnabled	not-ui	identifier
+Library/ClawProfileDetails.cs	235	ControllerButtonM1	not-ui	identifier
+Library/ClawProfileDetails.cs	236	ControllerButtonM2	not-ui	identifier
+Library/ClawProfileDetails.cs	240	ControllerGyroTarget	not-ui	identifier
+Library/ClawProfileDetails.cs	243	ControllerLeftStickDeadzone	not-ui	identifier
+Library/ClawProfileDetails.cs	243	ControllerRightStickDeadzone	not-ui	identifier
+Library/ClawProfileDetails.cs	246	ControllerLeftTriggerStart	not-ui	identifier
+Library/ClawProfileDetails.cs	246	ControllerLeftTriggerEnd	not-ui	identifier
+Library/ClawProfileDetails.cs	248	ControllerRightTriggerStart	not-ui	identifier
+Library/ClawProfileDetails.cs	248	ControllerRightTriggerEnd	not-ui	identifier
+Library/ClawProfileDetails.cs	251	ControllerHairTriggers	not-ui	identifier
+Library/ClawProfileDetails.cs	252	ControllerNintendoLayout	not-ui	identifier
+Library/ClawProfileDetails.cs	252	Nintendo	not-ui	profile XML element name
+Library/ClawProfileDetails.cs	254	ControllerVibration	not-ui	identifier
+Library/ClawProfileDetails.cs	258	ControllerVibrationIntensity	not-ui	identifier
+Library/ClawProfileDetails.cs	290	Type	not-ui	profile XML element name
+Library/ClawProfileDetails.cs	302	GamepadAction	not-ui	identifier
+Library/ClawProfileDetails.cs	361	PowerSourceSplit	not-ui	identifier
+Library/ClawProfiles.cs	183	GameId	not-ui	identifier
+Library/EpicSource.cs	24	EpicGamesLauncher	not-ui	identifier
+Library/EpicSource.cs	56	AppName	not-ui	identifier
+Library/EpicSource.cs	57	MainGameAppName	not-ui	identifier
+Library/EpicSource.cs	58	DisplayName	not-ui	identifier
+Library/EpicSource.cs	59	InstallLocation	not-ui	identifier
+Library/EpicSource.cs	60	CatalogNamespace	not-ui	identifier
+Library/EpicSource.cs	61	CatalogItemId	not-ui	identifier
+Library/EpicSource.cs	62	LaunchExecutable	not-ui	identifier
+Library/OptiClick.cs	36	OptiClickApp	not-ui	identifier
+Library/OtherStores.cs	126	UninstallString	not-ui	identifier
+Library/OtherStores.cs	151	SOFTWARE\\Ubisoft\\Launcher\\Installs	not-ui	path / uri / registry
+Library/OtherStores.cs	214	SOFTWARE\\Origin Games	not-ui	path / uri / registry
+Library/OtherStores.cs	482	SOFTWARE\\GOG.com\\Games	not-ui	path / uri / registry
+Library/PlayHistory.cs	49	LocalCache	not-ui	identifier
+Library/PlayniteEmulators.cs	71	BuiltInConfigId	not-ui	identifier
+Library/PlayniteEmulators.cs	74	BuiltinProfiles	not-ui	identifier
+Library/PlayniteEmulators.cs	80	BuiltInProfileName	not-ui	identifier
+Library/PlayniteEmulators.cs	158	StartupExecutable	not-ui	identifier
+Library/PlayniteEmulators.cs	159	StartupArguments	not-ui	identifier
+Library/PlayniteSource.cs	95	AfterLaunch	not-ui	identifier
+Library/PlayniteSource.cs	135	IsInstalled	not-ui	identifier
+Library/PlayniteSource.cs	140	CoverImage	not-ui	identifier
+Library/PlayniteSource.cs	148	InstallDirectory	not-ui	identifier
+Library/PlayniteSource.cs	160	SourceId	not-ui	identifier
+Library/PlayniteSource.cs	162	PlatformIds	not-ui	identifier
+Library/PlayniteSource.cs	188	LastActivity	not-ui	identifier
+Library/PlayniteSource.cs	231	GameActions	not-ui	identifier
+Library/PlayniteSource.cs	238	IsPlayAction	not-ui	identifier
+Library/PlayniteSource.cs	247	OverrideDefaultArgs	not-ui	identifier
+Library/PlayniteSource.cs	249	EmulatorId	not-ui	identifier
+Library/PlayniteSource.cs	251	EmulatorProfileId	not-ui	identifier
+Library/SteamAchievements.cs	312	UserGameStatsSchema_	not-ui	identifier
+Library/SteamAchievements.cs	331	UserGameStats_	not-ui	identifier
+Library/SteamFriends.cs	98	SteamClient020	not-ui	identifier
+Library/SteamFriends.cs	99	SteamFriends017	not-ui	identifier
+Library/SteamFriends.cs	500	SteamAppId	not-ui	identifier
+Library/SteamFriends.cs	501	SteamGameId	not-ui	identifier
+Library/SteamFriends.cs	506	CreateInterface	not-ui	identifier
+Library/SteamOwned.cs	61	packageinfo.vdf	not-ui	path / uri / registry
+Library/SteamOwned.cs	64	appinfo.vdf	not-ui	path / uri / registry
+Library/SteamPlaytime.cs	62	Software	not-ui	path / uri / registry
+Library/SteamPlaytime.cs	187	localconfig.vdf	not-ui	path / uri / registry
+Library/SteamSource.cs	106	appmanifest_*.acf	not-ui	path / uri / registry
+Library/SteamSource.cs	177	libraryfolders.vdf	not-ui	path / uri / registry
+Library/SteamSource.cs	217	StateFlags	not-ui	identifier
+Library/SteamSource.cs	263	BytesDownloaded	not-ui	identifier
+Library/SteamSource.cs	264	BytesToDownload	not-ui	identifier
+Library/SteamSource.cs	271	SizeOnDisk	not-ui	identifier
+Library/XboxSource.cs	141	GameSave	not-ui	identifier
+MainWindow.xaml.cs	175	Continue	dead	old wizard, MainWindow is never constructed
+Navigation/XInputNavigator.cs	163	CenterPadPoll	not-ui	identifier
+Phases/FinalizePhase.cs	92	Controller looks clean.	dead	old wizard, MainWindow is never constructed
+Phases/FinalizePhase.cs	94	See the Controller step for details.	dead	old wizard, MainWindow is never constructed
+Phases/InstallPhase.cs	196	Helper is up.	dead	old wizard, MainWindow is never constructed
+Phases/InstallPhase.cs	196	Helper did not appear in time — open the Game Bar (Win+G) manually.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	25	Hides the physical controller so games only see the virtual one — prevents double input.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	26	Kernel driver behind the VIIPER virtual controller. Mandatory for virtual mode.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	27	RivaTuner Statistics Server — powers the FPS limiter and the on-screen overlay.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	28	Kernel driver used for TDP control.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	131	Install them, then press Ⓨ to re-check.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	145	Installed — 	dead	old wizard, MainWindow is never constructed
+Shared/Data/ClawHardwareId.cs	136	N/A	not-ui	path / uri / registry
+Shared/IPC/HelperHandover.cs	144	HelperPid	not-ui	identifier
+Ui/UiStallTrace.cs	110	no GC	log	diagnostics only
+Ui/UiStallTrace.cs	164	could not hook the dispatcher: 	log	diagnostics only
+Ui/UiStallTrace.cs	181	could not hook the window messages: 	log	diagnostics only
+Ui/UiStallTrace.cs	190	display settings changed (Center's own clock)	log	diagnostics only
+Ui/UiStallTrace.cs	194	stall witnesses attached (dispatcher operation + window messages)	log	diagnostics only
+Ui/UiStallTrace.cs	258	unnamed at 	log	diagnostics only
+Ui/UiStallTrace.cs	269	no dispatcher operation in flight	log	diagnostics only
+Ui/UiStallTrace.cs	275	no notable window message yet	log	diagnostics only
+Ui/UiStallTrace.cs	330	cpu: no interval	log	diagnostics only
+Ui/UiStallTrace.cs	341	machine {100.0 * (total - idle) / total:F0}% busy	log	diagnostics only
+Ui/UiStallTrace.cs	342	machine load unreadable	log	diagnostics only
+Ui/UiStallTrace.cs	347	cpu: unreadable (	log	diagnostics only
+Ui/WindowMode.cs	163	no window handle yet	log	diagnostics only
+Ui/WindowMode.cs	169	GetWindowRect failed	log	diagnostics only
+Ui/WindowMode.cs	175	GetMonitorInfo failed	log	diagnostics only
+Ui/WindowMode.cs	193	guard threw: 	log	diagnostics only
+Update/VelopackUpdates.cs	58	VelopackUpdates	not-ui	identifier
+Update/VelopackUpdates.cs	80	VelopackSilentUpdates	not-ui	identifier
+Update/VelopackUpdates.cs	100	VelopackFeedOverride	not-ui	identifier
+Update/VelopackUpdates.cs	108	VelopackManifestOverride	not-ui	identifier
