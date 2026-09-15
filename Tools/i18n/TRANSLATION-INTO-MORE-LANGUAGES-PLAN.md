@@ -126,6 +126,14 @@ the commit.
       (`Steam`, `Epic`, `Xbox`, `ROMs`, `A-Z`, `Z-A`) stay English — record that they were seen and
       rejected, or the next run of the survey reports them again as if nobody had looked.
 - [ ] **P1.3 — the 494 `loose`**, in batches of ~60, **recording the verdict for every one**
+      **Progress 2026-09-15: 506 → 127.** Two batches in `triage.tsv`: by shape (identifiers,
+      paths, registry names, the log-only files) and by hand (endonyms, the deliberately English
+      half of the language picker, WMI queries, Playnite/Steam file names, parser errors, install
+      log lines). **The 127 left are the real UI strings** — status texts in Maintenance, the
+      certificate and prerequisite cards, ControllerHealth, BuildDownloader errors, PrerequisiteGuide,
+      ToolDetect detail lines, the profile-details panel (`ClawProfileDetails`), OnboardingRunner
+      step texts, LeaveRunner/MaintenanceRunner replies. Each needs a row AND, for most, a call-site
+      change: they are built outside the builders. Next batch starts there; `--gaps` lists them.
       (see "Keeping progress" below). The bucket is deliberately generous; expect roughly 150–250
       real UI strings. The certificate instructions, controller diagnostics, download errors, device
       detection and parts of Maintenance are in here.

@@ -271,3 +271,195 @@ Update/VelopackUpdates.cs	58	VelopackUpdates	not-ui	identifier
 Update/VelopackUpdates.cs	80	VelopackSilentUpdates	not-ui	identifier
 Update/VelopackUpdates.cs	100	VelopackFeedOverride	not-ui	identifier
 Update/VelopackUpdates.cs	108	VelopackManifestOverride	not-ui	identifier
+App.xaml.cs	67	uninstall window	log	crash log site name
+App.xaml.cs	378	device=	log	
+Audio/UiSounds.cs	164	Center	not-ui	folder name
+CenterMenuWindow.CenterSettings.cs	273	German	not-ui	language picker: English half is deliberately English
+CenterMenuWindow.CenterSettings.cs	274	French	not-ui	same
+CenterMenuWindow.CenterSettings.cs	275	Korean	not-ui	same
+CenterMenuWindow.CenterSettings.cs	276	Spanish	not-ui	same
+CenterMenuWindow.CenterSettings.cs	277	Russian	not-ui	same
+CenterMenuWindow.CenterSettings.cs	278	Greek	not-ui	same
+CenterMenuWindow.CenterSettings.cs	281	Chinese (Simplified)	not-ui	same
+CenterMenuWindow.CenterSettings.cs	282	Chinese (Traditional)	not-ui	same
+CenterMenuWindow.CenterSettings.cs	283	Italian	not-ui	same
+CenterMenuWindow.CenterSettings.cs	284	Portuguese (Brazil)	not-ui	same
+CenterMenuWindow.CenterSettings.cs	285	Japanese	not-ui	same
+CenterMenuWindow.CenterSettings.cs	286	Polish	not-ui	same
+CenterMenuWindow.CenterSettings.cs	287	English	not-ui	same
+CenterMenuWindow.Library.cs	4722	no pipe client	log	
+CenterMenuWindow.Library.cs	4736	could not reach the helper	log	
+CenterMenuWindow.Library.cs	4743	the pipe rejected the write	log	
+CenterMenuWindow.Maintenance.cs	150	• The widget's stored profile containers	log	appears in the maintenance log box only
+CenterMenuWindow.Tray.cs	65	Closing: staying resident (hiding to tray).	log	
+CenterMenuWindow.xaml.cs	3124	center-post-deploy	log	handover reason
+Core/BuildDownloader.cs	85	package.msix	not-ui	
+Core/BuildDownloader.cs	117	AppxManifest.xml	not-ui	
+Core/BuildDownloader.cs	137	User-Agent	not-ui	
+Core/CenterInstanceSignal.cs	27	Local\ClawTweaksCenter.SingleInstance	not-ui	pipe / mutex names - a contract with the helper, never rename
+Core/CenterInstanceSignal.cs	28	ClawTweaksCenter.Wake	not-ui	pipe / mutex names - a contract with the helper, never rename
+Core/CenterInstanceSignal.cs	40	toggle-library	not-ui	pipe / mutex names - a contract with the helper, never rename
+Core/CenterM.cs	14	MSI Center	proper-noun	
+Core/CenterM.cs	80	SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall	not-ui	registry
+Core/CenterM.cs	81	SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall	not-ui	registry
+Core/CertInstaller.cs	73	Package	not-ui	
+Core/DeviceDetect.cs	61	MSI Claw (A2VM)	proper-noun	device name
+Core/DeviceDetect.cs	62	MSI Claw 8 EX AI+ CG3EM	proper-noun	device name
+Core/DeviceDetect.cs	66	MSI Claw A1M	proper-noun	device name
+Core/DeviceDetect.cs	100	SELECT Vendor, Name FROM Win32_ComputerSystemProduct	not-ui	WMI query
+Core/DeviceDetect.cs	105	Vendor	not-ui	WMI column
+Core/DeviceDetect.cs	106	Name	not-ui	WMI column
+Core/DeviceDetect.cs	112	SELECT SystemSKUNumber FROM Win32_ComputerSystem	not-ui	WMI query
+Core/DeviceDetect.cs	123	SELECT Product FROM Win32_BaseBoard	not-ui	WMI query
+Core/DeviceDetect.cs	128	Product	not-ui	WMI column
+Core/DeviceDetect.cs	134	SELECT Name, Caption FROM Win32_Processor	not-ui	WMI query
+Core/DeviceDetect.cs	140	Caption	not-ui	WMI column
+Core/ElevationGate.cs	70	No running shell to de-elevate through — starting with this process's token.	log	
+Core/HelperControl.cs	35	ClawTweaks\ClawTweaksHelper	not-ui	task name
+Core/HelperControl.cs	90	v1.0	not-ui	path
+Core/HelperControl.cs	211	Packages	not-ui	path
+Core/HelperControl.cs	213	no heartbeat file	log	
+Core/HelperControl.cs	221	heartbeat has no pid	log	
+Core/HelperControl.cs	223	heartbeat has no timestamp	log	
+Core/HelperControl.cs	367	schtasks did not start	log	
+Core/HelperPipeClient.cs	97	Timed out waiting for a LIVE helper on the ClawTweaksCenter pipe.	log	
+Core/HelperPipeClient.cs	180	Helper pipe dropped — reconnecting (helper may have been swapped by an update).	log	
+Core/HelperPipeClient.cs	195	Reconnected to helper after drop.	log	
+Core/HelperPipeClient.cs	200	Reconnect window elapsed without a live helper.	log	
+Core/Localization.cs	152	Hant	not-ui	script tag
+Core/Localization.cs	154	Hans	not-ui	script tag
+Core/Localization.cs	208	Deutsch	proper-noun	endonym
+Core/Localization.cs	209	Français	proper-noun	endonym
+Core/Localization.cs	210	한국어	proper-noun	endonym
+Core/Localization.cs	211	Español	proper-noun	endonym
+Core/Localization.cs	212	Русский	proper-noun	endonym
+Core/Localization.cs	213	Ελληνικά	proper-noun	endonym
+Core/Localization.cs	216	简体中文	proper-noun	endonym
+Core/Localization.cs	217	繁體中文	proper-noun	endonym
+Core/Localization.cs	218	Italiano	proper-noun	endonym
+Core/Localization.cs	219	Português (BR)	proper-noun	endonym
+Core/Localization.cs	220	日本語	proper-noun	endonym
+Core/Localization.cs	221	Polski	proper-noun	endonym
+Core/MaintenanceRunner.cs	36	Backups	not-ui	folder name
+Core/PackageInstaller.cs	42	Dependencies	not-ui	folder
+Core/PackageInstaller.cs	123	registration(s) could not be removed.	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	133	Ok	not-ui	
+Core/PackageInstaller.cs	173	appdata-backup	not-ui	folder
+Core/PackageInstaller.cs	212	Backed up app data: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	212	file(s)	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	213	could not be read	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	218	Could not back up app data: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	252	Restored app data: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	253	failed (backup kept at 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	257	Could not restore app data: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	267	Removing conflicting registration 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	274	Could not remove 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	309	No existing ClawTweaks registration — clean install.	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	310	Existing registration(s): 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	326	Found a 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	326	non-bundle	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	326	registration while installing a 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	328	Found a registration in state '	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	342	Package family check skipped: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	498	Install error: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	507	Install exception: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/SelfInstaller.cs	59	ClawTweaks Center (Manage Updates and Library)	not-ui	shortcut description / folder / COM progid
+Core/SelfInstaller.cs	71	Programs	not-ui	shortcut description / folder / COM progid
+Core/SelfInstaller.cs	704	WScript.Shell	not-ui	shortcut description / folder / COM progid
+Core/SetupVersionCheck.cs	253	github.com	not-ui	host
+Core/SetupVersionCheck.cs	254	objects.githubusercontent.com	not-ui	host
+Core/SetupVersionCheck.cs	255	release-assets.githubusercontent.com	not-ui	host
+Core/Sources/GitHubReleaseSource.cs	39	widget-test-	not-ui	tag prefix
+Core/Sources/GitHubReleaseSource.cs	40	widget-	not-ui	tag prefix
+Core/Sources/GitHubReleaseSource.cs	46	Accept	not-ui	http header
+Core/Sources/GoogleDriveSource.cs	55	modifiedTime desc	not-ui	query
+Core/Sources/GoogleDriveSource.cs	57	files(id,name,modifiedTime,size)	not-ui	query
+Core/ToolDetect.cs	78	SOFTWARE\Nefarius Software Solutions e.U.\HidHide	not-ui	registry
+Core/ToolDetect.cs	79	HidHide.sys	not-ui	
+Core/ToolDetect.cs	182	SOFTWARE\WOW6432Node\Unwinder\RTSS	not-ui	registry
+Core/ToolDetect.cs	183	SOFTWARE\Unwinder\RTSS	not-ui	registry
+Core/ToolDetect.cs	184	SOFTWARE\WOW6432Node\Guru3D\RTSS	not-ui	registry
+Core/ToolDetect.cs	185	SOFTWARE\Guru3D\RTSS	not-ui	registry
+Core/ToolDetect.cs	199	RivaTuner Statistics Server	proper-noun	
+Core/WindowsChannelDetect.cs	30	SOFTWARE\Microsoft\WindowsSelfHost\Applicability	not-ui	registry
+Core/WindowsChannelDetect.cs	39	SOFTWARE\Microsoft\WindowsSelfHost\UI\Selection	not-ui	registry
+Library/AppInventory.cs	219	if($k.TargetPath){ 'L'+$s+$dirs[$p]+$s+$_.BaseName+$s+$k.TargetPath+$s+$k.Arguments } } } }	not-ui	PowerShell fragment
+Library/ClawProfiles.cs	71	PlayandBuildCustom.10365195AA1EC_8edemd50ez3gg	not-ui	package family / tsv columns / file name
+Library/ClawProfiles.cs	180	Use	not-ui	package family / tsv columns / file name
+Library/ClawProfiles.cs	183	Path	not-ui	package family / tsv columns / file name
+Library/ClawProfiles.cs	208	controller-profiles.tsv	not-ui	package family / tsv columns / file name
+Library/EpicSource.cs	24	Data	not-ui	path
+Library/EpicSource.cs	24	Manifests	not-ui	path
+Library/GameArt.cs	231	remote|	not-ui	cache key
+Library/GameEntry.cs	165	Ubisoft	proper-noun	
+Library/GameEntry.cs	167	Battle.net	proper-noun	
+Library/GameEntry.cs	170	Playnite	proper-noun	
+Library/OptiWiki.cs	39	Upscaler Inputs	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	39	FG Inputs	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	39	Filename	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	39	Last Tested Version	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	40	FG-Settings	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	40	Known Issues	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	40	Notes	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	159	a|	not-ui	wiki table column names - data, matched against the page
+Library/OtherStores.cs	151	SOFTWARE\Ubisoft\Launcher\Installs	not-ui	registry / manifest keys
+Library/OtherStores.cs	165	Uplay Install 	not-ui	registry / manifest keys
+Library/OtherStores.cs	214	SOFTWARE\Origin Games	not-ui	registry / manifest keys
+Library/OtherStores.cs	235	Install Dir	not-ui	registry / manifest keys
+Library/OtherStores.cs	269	offerIds=	not-ui	registry / manifest keys
+Library/OtherStores.cs	270	offerId=	not-ui	registry / manifest keys
+Library/OtherStores.cs	302	Agent	not-ui	registry / manifest keys
+Library/OtherStores.cs	482	SOFTWARE\GOG.com\Games	not-ui	registry / manifest keys
+Library/PlayHistory.cs	49	Local	not-ui	file format
+Library/PlayHistory.cs	230	Latched	not-ui	file format
+Library/PlayHistory.cs	243	yyyy-MM-dd HH:mm:ss	not-ui	file format
+Library/PlayniteEmulators.cs	59	emulators.db	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	64	Filename=	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	99	Emulation	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	99	Emulators	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	119	emulator.yaml	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	147	Id	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	151	Profiles	not-ui	Playnite db names
+Library/PlayniteSource.cs	35	games.db	not-ui	Playnite db names
+Library/PlayniteSource.cs	124	platforms.db	not-ui	Playnite db names
+Library/PlayniteSource.cs	125	sources.db	not-ui	Playnite db names
+Library/PlayniteSource.cs	131	Game	not-ui	Playnite db names
+Library/PlayniteSource.cs	239	Emulator	not-ui	Playnite db names
+Library/PlayniteSource.cs	262	Roms	not-ui	Playnite db names
+Library/PlayniteSource.cs	286	playnite-	not-ui	Playnite db names
+Library/SteamAchievements.cs	645	nesting too deep	log	parser errors
+Library/SteamAchievements.cs	679	unknown type 	log	parser errors
+Library/SteamAchievements.cs	687	truncated at 	log	parser errors
+Library/SteamAchievements.cs	704	unterminated string at 	log	parser errors
+Library/SteamFriendActivity.cs	275	varint too long	log	parser error
+Library/SteamFriends.cs	495	Steam is not installed	log	child-process failure reasons, logged
+Library/SteamFriends.cs	509	is not exported	log	child-process failure reasons, logged
+Library/SteamFriends.cs	512	no pipe to the Steam client	log	child-process failure reasons, logged
+Library/SteamFriends.cs	518	no signed-in Steam user	log	child-process failure reasons, logged
+Library/SteamFriends.cs	521	is not available	log	child-process failure reasons, logged
+Library/SteamOwned.cs	258	string index out of range	log	parser error
+Library/SteamPlaytime.cs	62	Valve	not-ui	vdf keys
+Library/SteamPlaytime.cs	72	Playtime	not-ui	vdf keys
+Library/StoreIcons.cs	152	bcc18b79-ba16-442f-80c4-8a59c30c463b	not-ui	guid / svg path
+Library/StoreIcons.cs	235	M45.9,41H31.67l-1.1-1H17.43l-1.1,1H2.1A1.05,1.05,0,0,1,1,40V8A1.05,1.05,0,0,1,2.1,7H16.33l1.1,1H30.57l1.1-1H45.9A1.05,1.05,0,0,1,47,8V40A1.05,1.05,0,0	not-ui	guid / svg path
+Shared/Data/ClawHardwareId.cs	98	Micro-Star	proper-noun	
+Shared/Data/ClawHardwareId.cs	127	Please change product name	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	128	To be filled by O.E.M.	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	129	To Be Filled By OEM	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	130	System Product Name	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	131	Default string	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	132	Not Applicable	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	133	Not Specified	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	134	Unknown	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	177	Claw 8 EX	proper-noun	
+Shared/Data/ClawHardwareId.cs	210	no identity data	log	
+Shared/Data/ClawHardwareId.cs	323	Ultra	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	335	Family\s+(\d+)\s+Model\s+(\d+)	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	349	VID_0DB0&PID_1901	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	372	SYSTEM\CurrentControlSet\Enum\USB\	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	381	SYSTEM\CurrentControlSet\Enum\HID	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	46	NLog.config	not-ui	
+Shared/Deployment/HelperFileDeployment.cs	183	Helper executable was not copied — version not committed.	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	197	Deployment failed: 	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	143	Token	not-ui	mirrored from the helper
+Update/VelopackUpdates.cs	298	not essential	log	
