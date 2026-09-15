@@ -66,6 +66,17 @@ namespace ClawTweaksCenter
         private View _view = View.Home;
 
         private DeviceDetect.Model _deviceModel = DeviceDetect.Model.Unknown;
+
+        /// <summary>
+        /// The last detection result, kept so the banner can be drawn again without detecting again.
+        ///
+        /// It exists for ONE reason: the banner's second line ("Supported.", "Recognized, but not
+        /// supported yet.", …) is translated when it is built, and the banner is built once at
+        /// startup. Change the language afterwards and everything else redraws while the banner
+        /// keeps the old language — reported 2026-09-15. Detection is a hardware probe on a
+        /// background thread; re-running it to re-translate a line would be the wrong fix.
+        /// </summary>
+        private DeviceDetect.Result? _lastDeviceDetect;
         private Version _installedVersion;
         private bool _installedVersionChecked;
         private SetupVersionCheck.Result _setupVersionCheck;
@@ -498,6 +509,7 @@ namespace ClawTweaksCenter
             }
 
             var d = device.Value;
+            _lastDeviceDetect = device;
             _deviceModel = d.Model;
             RenderCurrentView(); // the build list's per-device gating tags depend on this
 

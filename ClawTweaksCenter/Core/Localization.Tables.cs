@@ -903,6 +903,8 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "Ladelimit: Aus",
             ["FPS Limit: {0} FPS"] = "FPS-Limit: {0} FPS",
             ["FPS Limit: Off"] = "FPS-Limit: Aus",
+            ["Center Settings"] = "Center-Einstellungen",
+            ["Uninstall ClawTweaks"] = "ClawTweaks deinstallieren",
         };
 
         private static readonly Dictionary<string, string> French = new Dictionary<string, string>
@@ -1777,6 +1779,8 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "Limite de charge : d\u00E9sactiv\u00E9e",
             ["FPS Limit: {0} FPS"] = "Limite de FPS : {0} FPS",
             ["FPS Limit: Off"] = "Limite de FPS : d\u00E9sactiv\u00E9e",
+            ["Center Settings"] = "Param\u00E8tres Center",
+            ["Uninstall ClawTweaks"] = "D\u00E9sinstaller ClawTweaks",
         };
 
         private static readonly Dictionary<string, string> Korean = new Dictionary<string, string>
@@ -2655,6 +2659,9 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "\uCDA9\uC804 \uC81C\uD55C: \uAEBC\uC9D0",
             ["FPS Limit: {0} FPS"] = "FPS \uC81C\uD55C: {0} FPS",
             ["FPS Limit: Off"] = "FPS \uC81C\uD55C: \uAEBC\uC9D0",
+            ["Center Settings"] = "Center \uC124\uC815",
+            ["Uninstall ClawTweaks"] = "ClawTweaks \uC81C\uAC70",
+            ["Onboarding"] = "\uC628\uBCF4\uB529",
         };
 
         private static readonly Dictionary<string, string> Spanish = new Dictionary<string, string>
@@ -3531,6 +3538,8 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "L\u00EDmite de carga: desactivado",
             ["FPS Limit: {0} FPS"] = "L\u00EDmite de FPS: {0} FPS",
             ["FPS Limit: Off"] = "L\u00EDmite de FPS: desactivado",
+            ["Center Settings"] = "Ajustes de Center",
+            ["Uninstall ClawTweaks"] = "Desinstalar ClawTweaks",
         };
 
         private static readonly Dictionary<string, string> Russian = new Dictionary<string, string>
@@ -4409,6 +4418,10 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "\u041B\u0438\u043C\u0438\u0442 \u0437\u0430\u0440\u044F\u0434\u0430: \u0432\u044B\u043A\u043B.",
             ["FPS Limit: {0} FPS"] = "\u041B\u0438\u043C\u0438\u0442 FPS: {0} FPS",
             ["FPS Limit: Off"] = "\u041B\u0438\u043C\u0438\u0442 FPS: \u0432\u044B\u043A\u043B.",
+            ["Center Settings"] = "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 Center",
+            ["Uninstall ClawTweaks"] = "\u0423\u0434\u0430\u043B\u0438\u0442\u044C ClawTweaks",
+            ["Onboarding"] = "\u041F\u0435\u0440\u0432\u0438\u0447\u043D\u0430\u044F \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430",
+            ["FAQ"] = "\u0427\u0430\u0441\u0442\u044B\u0435 \u0432\u043E\u043F\u0440\u043E\u0441\u044B",
         };
 
         private static readonly Dictionary<string, string> Greek = new Dictionary<string, string>
@@ -5278,6 +5291,10 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "\u038C\u03C1\u03B9\u03BF \u03C6\u03CC\u03C1\u03C4\u03B9\u03C3\u03B7\u03C2: \u03B1\u03BD\u03B5\u03BD\u03B5\u03C1\u03B3\u03CC",
             ["FPS Limit: {0} FPS"] = "\u038C\u03C1\u03B9\u03BF FPS: {0} FPS",
             ["FPS Limit: Off"] = "\u038C\u03C1\u03B9\u03BF FPS: \u03B1\u03BD\u03B5\u03BD\u03B5\u03C1\u03B3\u03CC",
+            ["Center Settings"] = "\u03A1\u03C5\u03B8\u03BC\u03AF\u03C3\u03B5\u03B9\u03C2 Center",
+            ["Uninstall ClawTweaks"] = "\u0391\u03C0\u03B5\u03B3\u03BA\u03B1\u03C4\u03AC\u03C3\u03C4\u03B1\u03C3\u03B7 ClawTweaks",
+            ["Onboarding"] = "\u0391\u03C1\u03C7\u03B9\u03BA\u03AE \u03C1\u03CD\u03B8\u03BC\u03B9\u03C3\u03B7",
+            ["FAQ"] = "\u03A3\u03C5\u03C7\u03BD\u03AD\u03C2 \u03B5\u03C1\u03C9\u03C4\u03AE\u03C3\u03B5\u03B9\u03C2",
         };
 
         private static readonly Dictionary<string, string> ChineseSimplified = new Dictionary<string, string>
@@ -6152,6 +6169,10 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "\u5145\u7535\u9650\u5236\uFF1A\u5173\u95ED",
             ["FPS Limit: {0} FPS"] = "\u5E27\u7387\u9650\u5236\uFF1A{0} FPS",
             ["FPS Limit: Off"] = "\u5E27\u7387\u9650\u5236\uFF1A\u5173\u95ED",
+            ["Center Settings"] = "Center \u8BBE\u7F6E",
+            ["Uninstall ClawTweaks"] = "\u5378\u8F7D ClawTweaks",
+            ["Onboarding"] = "\u521D\u59CB\u8BBE\u7F6E",
+            ["FAQ"] = "\u5E38\u89C1\u95EE\u9898",
         };
 
         private static readonly Dictionary<string, string> ChineseTraditional = new Dictionary<string, string>
@@ -7026,6 +7047,10 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "\u5145\u96FB\u9650\u5236\uFF1A\u95DC\u9589",
             ["FPS Limit: {0} FPS"] = "\u5E40\u7387\u9650\u5236\uFF1A{0} FPS",
             ["FPS Limit: Off"] = "\u5E40\u7387\u9650\u5236\uFF1A\u95DC\u9589",
+            ["Center Settings"] = "Center \u8A2D\u5B9A",
+            ["Uninstall ClawTweaks"] = "\u89E3\u9664\u5B89\u88DD ClawTweaks",
+            ["Onboarding"] = "\u521D\u59CB\u8A2D\u5B9A",
+            ["FAQ"] = "\u5E38\u898B\u554F\u984C",
         };
 
         private static readonly Dictionary<string, string> Italian = new Dictionary<string, string>
@@ -7900,6 +7925,8 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "Limite di carica: disattivo",
             ["FPS Limit: {0} FPS"] = "Limite FPS: {0} FPS",
             ["FPS Limit: Off"] = "Limite FPS: disattivo",
+            ["Center Settings"] = "Impostazioni Center",
+            ["Uninstall ClawTweaks"] = "Disinstalla ClawTweaks",
         };
 
         private static readonly Dictionary<string, string> Portuguese = new Dictionary<string, string>
@@ -8762,6 +8789,8 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "Limite de carga: desligado",
             ["FPS Limit: {0} FPS"] = "Limite de FPS: {0} FPS",
             ["FPS Limit: Off"] = "Limite de FPS: desligado",
+            ["Center Settings"] = "Configura\u00E7\u00F5es do Center",
+            ["Uninstall ClawTweaks"] = "Desinstalar o ClawTweaks",
         };
 
         private static readonly Dictionary<string, string> Japanese = new Dictionary<string, string>
@@ -9638,6 +9667,10 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "\u5145\u96FB\u5236\u9650: \u30AA\u30D5",
             ["FPS Limit: {0} FPS"] = "FPS\u4E0A\u9650: {0} FPS",
             ["FPS Limit: Off"] = "FPS\u4E0A\u9650: \u30AA\u30D5",
+            ["Center Settings"] = "Center \u8A2D\u5B9A",
+            ["Uninstall ClawTweaks"] = "ClawTweaks \u3092\u30A2\u30F3\u30A4\u30F3\u30B9\u30C8\u30FC\u30EB",
+            ["Onboarding"] = "\u521D\u671F\u8A2D\u5B9A",
+            ["FAQ"] = "\u3088\u304F\u3042\u308B\u8CEA\u554F",
         };
 
         private static readonly Dictionary<string, string> Polish = new Dictionary<string, string>
@@ -10506,6 +10539,9 @@ namespace ClawTweaksCenter.Core
             ["Charge Limit: Off"] = "Limit \u0142adowania: wy\u0142.",
             ["FPS Limit: {0} FPS"] = "Limit FPS: {0} FPS",
             ["FPS Limit: Off"] = "Limit FPS: wy\u0142.",
+            ["Center Settings"] = "Ustawienia Center",
+            ["Uninstall ClawTweaks"] = "Odinstaluj ClawTweaks",
+            ["Onboarding"] = "Wdro\u017Cenie",
         };
 
     }
@@ -10565,4 +10601,12 @@ namespace ClawTweaksCenter.Core
  *             kept in the cell: an OSD CARD line, not a Center chip - the card is a Direct2D panel drawn at 1.5x and wraps; the width budget here is Center's control sizing and does not apply
  *   fr:      "Charge Limit: Off" -> "Limite de charge : désactivée" (29 wide, budget 28)
  *             kept in the cell: an OSD CARD line, not a Center chip - the card is a Direct2D panel drawn at 1.5x and wraps; the width budget here is Center's control sizing and does not apply
+ *   el:      "FAQ" -> "Συχνές ερωτήσεις" (16 wide, budget 8)
+ *             kept in the cell: a HOME TILE title. The budget is derived from a three-letter abbreviation, not from the control - the same tile row carries "Reset · Backup · Restore" at 24 characters
+ *   ru:      "FAQ" -> "Частые вопросы" (14 wide, budget 8)
+ *             kept in the cell: a HOME TILE title. The budget is derived from a three-letter abbreviation, not from the control - the same tile row carries "Reset · Backup · Restore" at 24 characters
+ *   ja:      "FAQ" -> "よくある質問" (12 wide, budget 8)
+ *             kept in the cell: a HOME TILE title. The budget is derived from a three-letter abbreviation, not from the control - the same tile row carries "Reset · Backup · Restore" at 24 characters
+ *   ru:      "Onboarding" -> "Первичная настройка" (19 wide, budget 17)
+ *             kept in the cell: a HOME TILE title, +2 - the tile row holds 24 characters ("Reset · Backup · Restore")
  */

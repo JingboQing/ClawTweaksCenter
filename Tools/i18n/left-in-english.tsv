@@ -23,3 +23,7 @@ es	FPS Limit: Off	Límite de FPS: desactivado	26	23	kept in the cell: an OSD CAR
 el	Mouse mode	Λειτουργία ποντικιού	20	17	kept in the cell: an OSD CARD line, not a Center chip - the card is a Direct2D panel drawn at 1.5x and wraps; the width budget here is Center's control sizing and does not apply
 pt-BR	FPS Limit: Off	Limite de FPS: desligado	24	23	kept in the cell: an OSD CARD line, not a Center chip - the card is a Direct2D panel drawn at 1.5x and wraps; the width budget here is Center's control sizing and does not apply
 fr	Charge Limit: Off	Limite de charge : désactivée	29	28	kept in the cell: an OSD CARD line, not a Center chip - the card is a Direct2D panel drawn at 1.5x and wraps; the width budget here is Center's control sizing and does not apply
+el	FAQ	Συχνές ερωτήσεις	16	8	kept in the cell: a HOME TILE title. The budget is derived from a three-letter abbreviation, not from the control - the same tile row carries "Reset · Backup · Restore" at 24 characters
+ru	FAQ	Частые вопросы	14	8	kept in the cell: a HOME TILE title. The budget is derived from a three-letter abbreviation, not from the control - the same tile row carries "Reset · Backup · Restore" at 24 characters
+ja	FAQ	よくある質問	12	8	kept in the cell: a HOME TILE title. The budget is derived from a three-letter abbreviation, not from the control - the same tile row carries "Reset · Backup · Restore" at 24 characters
+ru	Onboarding	Первичная настройка	19	17	kept in the cell: a HOME TILE title, +2 - the tile row holds 24 characters ("Reset · Backup · Restore")

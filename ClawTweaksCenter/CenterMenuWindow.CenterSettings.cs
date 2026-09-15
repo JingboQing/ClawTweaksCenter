@@ -300,6 +300,14 @@ namespace ClawTweaksCenter
             // The whole window, not just this screen: the footer chips, the tab strip and the header
             // chip are all drawn in the old language and none of them redraw on their own. Half a
             // translated window reads as a broken translation.
+            //
+            // The device banner belongs to that list and was missing from it (reported 2026-09-15):
+            // its second line is translated when the banner is built, and it is built once at
+            // startup, so it kept the old language until Center was restarted. Drawn from the cached
+            // detection result — this must not re-probe the hardware to re-translate a line, and it
+            // goes BEFORE RenderCenterSettings so this screen is the last thing rendered.
+            if (_lastDeviceDetect != null) RenderDeviceBanner(_lastDeviceDetect);
+
             RenderCenterSettings();
             RefreshTabStrip();
             RefreshActionBar();
