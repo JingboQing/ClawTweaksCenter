@@ -136,6 +136,20 @@ the commit.
       rather than as an error, and only P1.6's placeholder check catches it.
 - [ ] **P1.5 — the 48 stale keys** (`loc_coverage.py --stale`). Delete what is genuinely gone, keep
       what is built at runtime. A stale key costs twelve translations for nothing.
+
+      ⚠️ **Three more went stale on 2026-09-15** and are deliberately still in the TSV, because
+      removing them means regenerating `Localization.Tables.cs` and that belongs in this task rather
+      than in an unrelated commit. The experimental settings band was removed from
+      `CenterMenuWindow.CenterSettings.cs`, so these no longer reach any builder:
+
+      - `Experimental`
+      - `Center starts the helper`
+      - `Only in the full screen experience. Measured here it changes nothing: Windows starts the
+        helper about five seconds before Center is up.`
+
+      They are harmless where they are — an unused key is never looked up — but they must not be
+      translated. `loc_coverage.py --stale` will list them; this is only a note so nobody spends
+      twelve translations on a row that has no screen.
 - [ ] **P1.6 — write `loc_lint.py`**: placeholder parity (`{0}` in a translation iff in the English),
       stray leading/trailing whitespace, duplicate keys, and the width budget as a report. Needed
       **before** P2.
