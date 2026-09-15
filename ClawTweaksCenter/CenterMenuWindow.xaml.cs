@@ -1081,7 +1081,7 @@ namespace ClawTweaksCenter
 
             if (_windowsChannel?.IsInsider == true)
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Windows Insider Preview detected",
-                    $"You're on the \"{_windowsChannel.ChannelName}\" channel — the install routine is currently known not to work correctly on Insider builds."));
+                    Core.Loc.F("You're on the \"{0}\" channel — the install routine is currently known not to work correctly on Insider builds.", _windowsChannel.ChannelName)));
 
             if (SelfInstaller.LegacyInstallPresent() && !_legacyNoticeDismissed)
                 ContentHost.Children.Add(BuildLegacyInstallCard());
@@ -1092,7 +1092,7 @@ namespace ClawTweaksCenter
             if (update != null)
                 ContentHost.Children.Add(new TextBlock
                 {
-                    Text = $"▲ Update available on GitHub: {update.Version} ({update.Origin})",
+                    Text = Core.Loc.F("▲ Update available on GitHub: {0} ({1})", update.Version, Core.Loc.T(update.Origin)),
                     FontSize = 15, Foreground = UiHelpers.Ok, Margin = new Thickness(0, 0, 0, 16),
                 });
 
@@ -1483,15 +1483,14 @@ namespace ClawTweaksCenter
             var stack = new StackPanel();
             stack.Children.Add(new TextBlock
             {
-                Text = $"ClawTweaks Center update available: {offered}",
+                Text = Core.Loc.F("ClawTweaks Center update available: {0}", offered),
                 FontSize = 19, FontWeight = FontWeights.Bold, Foreground = UiHelpers.Text,
             });
             stack.Children.Add(new TextBlock
             {
                 Text = pending != null
-                    ? $"You're running {running}. Install it here — Center restarts when it's done."
-                    : $"You're running {running}. Download the new Setup file and run it — " +
-                      "it installs over this one, and no administrator rights are needed.",
+                    ? Core.Loc.F("You're running {0}. Install it here — Center restarts when it's done.", running)
+                    : Core.Loc.F("You're running {0}. Download the new Setup file and run it — it installs over this one, and no administrator rights are needed.", running),
                 FontSize = 14, Foreground = UiHelpers.Subtle,
                 TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0),
             });
@@ -2409,7 +2408,7 @@ namespace ClawTweaksCenter
             {
                 _buildBlocked = true;
                 ContentHost.Children.Add(UiHelpers.Title("This version can't be installed"));
-                ContentHost.Children.Add(UiHelpers.Body($"{build.Version} — {build.Origin} — {build.Title}"));
+                ContentHost.Children.Add(UiHelpers.Body($"{build.Version} — {Core.Loc.T(build.Origin)} — {build.Title}"));
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Error, "Blocked", blockReason));
                 RefreshActionBar();
                 return;
@@ -2418,7 +2417,7 @@ namespace ClawTweaksCenter
 
             ContentHost.Children.Add(UiHelpers.Title(Core.Loc.T("Install this version?")));
             ContentHost.Children.Add(UiHelpers.Body(build.Version));
-            ContentHost.Children.Add(UiHelpers.Body($"{build.Origin} — {build.Title}"));
+            ContentHost.Children.Add(UiHelpers.Body($"{Core.Loc.T(build.Origin)} — {build.Title}"));
 
             if (_installedVersion != null && TryParseVersion(build.Version, out var selVer) && selVer < _installedVersion)
             {
@@ -2873,8 +2872,8 @@ namespace ClawTweaksCenter
             BeginContent(centred: false);
             ContentHost.Children.Add(layout);
 
-            left.Children.Add(UiHelpers.Title($"Installing {build.Version}"));
-            left.Children.Add(UiHelpers.Body($"{build.Origin} — {build.Title}"));
+            left.Children.Add(UiHelpers.Title(Core.Loc.F("Installing {0}", build.Version)));
+            left.Children.Add(UiHelpers.Body($"{Core.Loc.T(build.Origin)} — {build.Title}"));
 
             var progressBar = new ProgressBar
             {
@@ -2963,7 +2962,11 @@ namespace ClawTweaksCenter
             // Dispatcher.Invoke matters here: PackageInstaller.Install runs inside Task.Run further
             // down and calls this synchronously from a thread-pool thread, not just via awaited
             // continuations — same guard InstallPhase.Log already uses for the same reason.
-            void Log(string s)
+            void Log(string s) => LogShown(s, null);
+
+            // A line whose on-screen form is already composed (a Loc.F over a translated part) - the
+            // file still gets the English; Log alone cannot take a composed line apart.
+            void LogShown(string s, string shown)
             {
                 // Mirrored to file before touching the UI: these rows scroll away and are finally replaced
                 // when onboarding takes over, so the panel alone cannot answer "what happened during that
@@ -2975,7 +2978,7 @@ namespace ClawTweaksCenter
                     // ENGLISH to the file, translated to the screen. The file is read by whoever is
                     // diagnosing an install and has to line up with the helper's log, which is
                     // English; the panel is read by the user while it happens.
-                    logPanel.Children.Add(BuildLogRow(Core.Loc.T(s), out currentLogBadge, out currentLogDetail));
+                    logPanel.Children.Add(BuildLogRow(shown ?? Core.Loc.T(s), out currentLogBadge, out currentLogDetail));
                     logScroller.ScrollToBottom();
                 });
             }
@@ -3158,9 +3161,13 @@ namespace ClawTweaksCenter
                         priorHelperPids, previousVersion != null, sameVersionReinstall, helperProgress, statusPanel, historyPanel);
                     progressBar.Value = 100;
 
-                    Log(up
-                        ? $"{DescribeTransition(previousVersion, build.Version)} — helper is up and running."
-                        : "Installed, but the helper did not appear in time — open the Game Bar (Win+G) manually.");
+                    if (up)
+                        // English to the file, translated to the panel - the same split Log makes for
+                        // fixed lines, done by hand here because the transition is composed.
+                        LogShown($"{DescribeTransition(previousVersion, build.Version)} — helper is up and running.",
+                                 Core.Loc.F("{0} — helper is up and running.", DescribeTransition(previousVersion, build.Version, forScreen: true)));
+                    else
+                        Log("Installed, but the helper did not appear in time — open the Game Bar (Win+G) manually.");
                 }
 
                 FinishLogRow(currentLogBadge, ok);
@@ -3188,13 +3195,17 @@ namespace ClawTweaksCenter
         }
 
         /// <summary>Human-readable version transition for the final status ("Updated X → Y", not just "Installed Y").</summary>
-        private static string DescribeTransition(Version previous, string selectedVersion)
+        private static string DescribeTransition(Version previous, string selectedVersion, bool forScreen = false)
         {
-            if (previous == null) return $"Installed {selectedVersion}";
-            if (!TryParseVersion(selectedVersion, out var selected)) return $"Installed {selectedVersion}";
-            if (selected > previous) return $"Updated {previous} → {selected}";
-            if (selected < previous) return $"Downgraded {previous} → {selected}";
-            return $"Reinstalled {selected}";
+            string format; object[] args;
+            if (previous == null || !TryParseVersion(selectedVersion, out var selected))
+            {
+                format = "Installed {0}"; args = new object[] { selectedVersion };
+            }
+            else if (selected > previous) { format = "Updated {0} → {1}"; args = new object[] { previous, selected }; }
+            else if (selected < previous) { format = "Downgraded {0} → {1}"; args = new object[] { previous, selected }; }
+            else { format = "Reinstalled {0}"; args = new object[] { selected }; }
+            return forScreen ? Core.Loc.F(format, args) : string.Format(format, args);
         }
 
         /// <summary>
@@ -3295,7 +3306,7 @@ namespace ClawTweaksCenter
                 AddHistory(true, "No duplicate helper detected",
                     handedOver + killed == 0
                         ? "The old helper exited on its own."
-                        : $"Unexpected survivor: {handedOver} handed over, {killed} terminated.");
+                        : Core.Loc.F("Unexpected survivor: {0} handed over, {1} terminated.", handedOver, killed));
             }
             progress?.Report(82);
 

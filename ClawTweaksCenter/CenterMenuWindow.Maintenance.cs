@@ -187,7 +187,7 @@ namespace ClawTweaksCenter
             if (_maintBackups.Count == 0)
             {
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Info, "No backups found",
-                    $"Backups live in {MaintenanceRunner.BackupsFolder}. Create one first."));
+                    Loc.F("Backups live in {0}. Create one first.", MaintenanceRunner.BackupsFolder)));
                 return;
             }
 
@@ -404,9 +404,9 @@ namespace ClawTweaksCenter
             var r = await _maintenance.ResetAsync();
             if (r.Ok)
             {
-                string pre = string.IsNullOrEmpty(r.Path) ? "" : $"\nSafety copy of the previous state: {r.Path}";
+                string pre = string.IsNullOrEmpty(r.Path) ? "" : "\n" + Loc.F("Safety copy of the previous state: {0}", r.Path);
                 ShowResult(StatusKind.Ok, "Reset complete",
-                    $"All ClawTweaks settings were reset to a clean state. Reopen the Game Bar (Win+G) to continue.{pre}");
+                    Loc.T("All ClawTweaks settings were reset to a clean state. Reopen the Game Bar (Win+G) to continue.") + pre);
             }
             else
                 ShowResult(StatusKind.Error, "Reset failed", r.Error ?? "Unknown error.");
@@ -419,7 +419,7 @@ namespace ClawTweaksCenter
             var r = await _maintenance.BackupAsync(target);
             if (r.Ok)
                 ShowResult(StatusKind.Ok, "Backup created",
-                    $"Saved {r.Count} stores to:\n{r.Path ?? target}");
+                    Loc.F("Saved {0} stores to:\n{1}", r.Count, r.Path ?? target));
             else
                 ShowResult(StatusKind.Error, "Backup failed", r.Error ?? "Unknown error.");
         }
@@ -433,9 +433,9 @@ namespace ClawTweaksCenter
             var r = await _maintenance.RestoreAsync(b.FilePath);
             if (r.Ok)
             {
-                string pre = string.IsNullOrEmpty(r.Path) ? "" : $"\nSafety copy of the previous state: {r.Path}";
+                string pre = string.IsNullOrEmpty(r.Path) ? "" : "\n" + Loc.F("Safety copy of the previous state: {0}", r.Path);
                 ShowResult(StatusKind.Ok, "Restore complete",
-                    $"Restored {r.Count} files. The helper is restarting — reopen the Game Bar (Win+G) to continue.{pre}");
+                    Loc.F("Restored {0} files. The helper is restarting — reopen the Game Bar (Win+G) to continue.", r.Count) + pre);
             }
             else if (r.TimedOut)
             {
@@ -482,7 +482,7 @@ namespace ClawTweaksCenter
                 && b.DeviceModel.IndexOf(localToken, StringComparison.OrdinalIgnoreCase) < 0)
             {
                 warnings.Add(Tuple.Create("Different device",
-                    $"This backup is from '{b.DeviceModel}', but this device looks like {localToken}. Device-specific values (TDP limits, fan scale) will be restored as-is."));
+                    Loc.F("This backup is from '{0}', but this device looks like {1}. Device-specific values (TDP limits, fan scale) will be restored as-is.", b.DeviceModel, localToken)));
             }
 
             // App-version mismatch (best-effort — only when the installed version is known).
@@ -490,7 +490,7 @@ namespace ClawTweaksCenter
                 && Version.TryParse(b.AppVersion, out var backupVer) && backupVer != _installedVersion)
             {
                 warnings.Add(Tuple.Create("Different ClawTweaks version",
-                    $"Backup is from {backupVer}; you have {_installedVersion} installed. Restoring across versions usually works, but isn't guaranteed."));
+                    Loc.F("Backup is from {0}; you have {1} installed. Restoring across versions usually works, but isn't guaranteed.", backupVer, _installedVersion)));
             }
 
             return warnings;

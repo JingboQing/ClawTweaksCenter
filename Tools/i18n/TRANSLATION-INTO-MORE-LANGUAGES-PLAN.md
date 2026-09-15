@@ -145,13 +145,18 @@ the commit.
       instead of relying on a 150-char truncated triage row that could never match either.
       Left English on purpose: `Deploying helper files failed: <exception>` (install log),
       ToolDetect's healthy-state details (install log only), the `— DEBUG` device names.
-- [ ] **P1.4 — the 105 `interpolated` → `Loc.F`.** (111 at the start; six fell in P1.3.) Decided by the owner, 2026-09-15, and
-      DEV_GUIDELINES now says so. `$"Settings loaded for {gameName}"` becomes
-      `Loc.F("Settings loaded for {0}", gameName)`; the **format** is the key, so a language may put
-      the value somewhere other than where English puts it. Not "translate the fixed part and
-      concatenate" — that bakes English word order in.
-      Build after every file: `Loc.F` never throws, so a mistake here shows as a *wrong* screen
-      rather than as an error, and only P1.6's placeholder check catches it.
+- [x] **P1.4 — the `interpolated` → `Loc.F`** (done 2026-09-15, `interpolated 0`). Of the 105,
+      **30 reach a screen** and are now `Loc.F` with the format as the key (33 rows): the Maintenance
+      results (reset/backup/restore, the two restore warnings), the Insider-channel note, the
+      Center-update card, `Installing {0}`, the install-transition line (`DescribeTransition` builds
+      an English line for the file and a `Loc.F` one for the panel; `LogShown` carries both), the
+      download progress lines, `Outdated version — install {0} or newer`, the auto-jump step
+      texts, and the self-installer's status lines (they reach `InstallCenterWindow` through
+      `Loc.T` on the finished string, which passes a translated line through unchanged). The other
+      **75 are log lines** and were recorded as such in `triage.tsv`: HelperControl/HelperPipeClient/
+      FseHelperStart/HelperHandover diagnostics, the mirrored `Shared/` files (never edited here),
+      UiStallTrace/WindowMode, the dead `Phases/` wizard, registry paths and cmd lines.
+      The rule from the decision holds: the **format** is the key; a language may move the value.
 - [x] **P1.5 — the stale keys** (done 2026-09-15). 47 rows deleted: the experimental band, the
       wishlist line, the widget-interval hint, the old Home tiles and leave-screen texts, and four
       keys whose English had been edited in the code after the row was written (the current text
@@ -171,6 +176,8 @@ the commit.
 
 **Gate out of P1:** coverage reports `wrapped 0` and `builder 0`; `loc_build.py --check` passes;
 `dotnet publish -c Release` succeeds.
+✅ **Passed 2026-09-15:** `wrapped 0 · builder 0 · loose 0 · interpolated 0 · stale 0`, `--check`
+passes, `dotnet build -c Release` clean, `loc_lint.py --strict` 0 errors (42 over width = the P2.4 list).
 
 ---
 

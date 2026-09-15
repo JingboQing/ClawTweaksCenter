@@ -85,7 +85,7 @@ namespace ClawTweaksCenter.Core
             if (Directory.Exists(dir)) Directory.Delete(dir, true);
             Directory.CreateDirectory(dir);
 
-            log?.Invoke($"Downloading the package ({source.Version})…");
+            log?.Invoke(Loc.F("Downloading the package ({0})…", source.Version));
             string msixPath = Path.Combine(dir, "package.msix");
             await DownloadFileAsync(source.MsixUrl, msixPath, progress);
             log?.Invoke("Download complete.");
@@ -132,7 +132,7 @@ namespace ClawTweaksCenter.Core
                 throw new IOException(Loc.T("The downloaded package is not readable.") + " " + Loc.T(IncompleteDownloadHint));
             }
 
-            log?.Invoke($"Package verified: {Path.GetFileName(pkg)}, {bytes / (1024.0 * 1024.0):F1} MB.");
+            log?.Invoke(Loc.F("Package verified: {0}, {1:F1} MB.", Path.GetFileName(pkg), bytes / (1024.0 * 1024.0)));
         }
 
         private static async Task DownloadFileAsync(string url, string destPath, IProgress<int> progress)

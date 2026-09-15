@@ -474,3 +474,78 @@ Core/ToolDetect.cs		driver service + HidHide.sys present	log	same
 Core/ToolDetect.cs		device opened	log	same
 Core/ToolDetect.cs		device present (access denied — unelevated)	log	same
 Core/ToolDetect.cs		not found	log	same
+App.xaml.cs	91	AppDomain.UnhandledException (terminating={ea.IsTerminating})	log	crash log
+CenterMenuWindow.Tray.cs	66	Closing: really closing (reallyExiting={_reallyExiting}, runInBackground={Core.CenterSettings.RunInBackground}).	log	
+Core/CenterM.cs	31	Closed {p.ProcessName}.	dead	CloseNow is only called by the old FinalizePhase wizard
+Core/CenterM.cs	32	Could not close {n}: {ex.Message}	dead	CloseNow is only called by the old FinalizePhase wizard
+Core/CertInstaller.cs	208	Could not open the folder: {ex.Message}	log	ShowInExplorer is called without a log callback
+Core/ControllerHealth.cs	115	MSI Claw controller detected ({r.ClawNodes} interface node(s), mode: {r.ClawMode}).	log	Info list, read only by the old ControllerPhase
+Core/ElevationGate.cs	78	De-elevating through the shell, so the arguments '{args}' are dropped.	log	
+Core/FseHelperStart.cs	79	GamingHomeApp='{homeApp}' ours={isOurs}, StartupToGamingHome={startup}	log	diagnostics only
+Core/FseHelperStart.cs	85	read threw: {ex.Message}	log	diagnostics only
+Core/FseHelperStart.cs	131	skipped: not the FSE start app ({fseDetail})	log	diagnostics only
+Core/FseHelperStart.cs	134	skipped: helper already alive ({aliveDetail})	log	diagnostics only
+Core/FseHelperStart.cs	140	skipped: a start was already requested {age.TotalSeconds:F0}s ago	log	diagnostics only
+Core/FseHelperStart.cs	148	skipped: no scheduled task yet, the helper registers it itself ({taskDetail})	log	diagnostics only
+Core/FseHelperStart.cs	157	requested: scheduled task run ({runDetail}){qualifier}	log	diagnostics only
+Core/FseHelperStart.cs	158	FAILED: {runDetail}{qualifier}	log	diagnostics only
+Core/HelperControl.cs	145	Helper PID={p.Id} did not hand over - stopping it directly.	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	148	Helper PID={p.Id} did not exit within 5s.	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	153	Helper PID={p.Id}: {ex.Message}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	163	Helpers stopped: {handedOver} handed over, {killed} terminated.	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	229	heartbeat of PID={pid} is {age}s old (limit {HeartbeatAliveWindowSeconds}s)	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	236	heartbeat of PID={pid} is {age}s old but that process is gone	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	238	PID={pid}, heartbeat {age}s old	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	243	heartbeat read threw: {ex.Message}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	373	schtasks /Query did not answer within {SchtasksTimeoutMs}ms	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	378	schtasks /Query exit {code}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	383	schtasks /Query threw: {ex.Message}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	434	schtasks /Run did not answer within {SchtasksTimeoutMs}ms	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	439	schtasks /Run exit {code}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	444	schtasks /Run threw: {ex.Message}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperPipeClient.cs	90	Connect requested (timeout {timeout.TotalSeconds:0}s).	log	
+Core/HelperPipeClient.cs	123	Pipe bound (attempt {attempt}, server PID {serverPid}). Verifying live helper…	log	
+Core/HelperPipeClient.cs	129	Connected to LIVE helper (server PID {serverPid}).	log	
+Core/HelperPipeClient.cs	133	Bound but server PID {serverPid} sent no status in 4s — treating as not-live (dying/swapped instance), retrying.	log	
+Core/HelperPipeClient.cs	139	Connect attempt {attempt} failed: {ex.GetType().Name} ({ex.Message}).	log	
+Core/PackageInstaller.cs	457	Could not stage the package for a retry: {ex.Message}	log	install log line
+Core/PrerequisiteGuide.cs	159	Could not open {url}: {ex.Message}	log	OpenPage is called without a log callback
+Core/SelfInstaller.cs	136	SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{UninstallKeyName}	not-ui	registry path / cmd line
+Core/SelfInstaller.cs	463	rmdir /S /Q "{dir}"	not-ui	registry path / cmd line
+Core/SelfInstaller.cs	468	timeout /t 3 /nobreak >nul & {once} &	not-ui	registry path / cmd line
+Core/SelfInstaller.cs	469	timeout /t 5 /nobreak >nul & {once}"	not-ui	registry path / cmd line
+Core/ToolDetect.cs	138	UDE driver service '{svc}' registered	log	install log only / registry path
+Core/ToolDetect.cs	390	SYSTEM\CurrentControlSet\Services\{serviceName}	log	install log only / registry path
+Phases/ControllerPhase.cs	63	Last checked {DateTime.Now:HH:mm:ss}	dead	old wizard
+Phases/ControllerPhase.cs	68	Detected — {r.ClawNodes} interface node(s), mode: {r.ClawMode}.	dead	old wizard
+Phases/ControllerPhase.cs	76	Active: {r.VirtualPadName}	dead	old wizard
+Phases/DetectPhase.cs	71	Detected {DateTime.Now:HH:mm:ss}	dead	old wizard
+Phases/ToolsPhase.cs	91	Last checked {DateTime.Now:HH:mm:ss}   ·   Scroll with the D-Pad or left stick	dead	old wizard
+Shared/Data/ClawHardwareId.cs	57	Unknown ({MatchedOn})	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	221	product name '{sources.ProductName}'	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	231	board '{sources.BaseBoardProduct}'	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	235	system SKU '{sources.SystemSku}'	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	250	CPU '{cpu}' + Claw controller present	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	254	Claw controller present but CPU '{sources.ProcessorName}' / '{sources.ProcessorCaption}' matches no known platform	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	259	vendor '{sources.Manufacturer}', product '{sources.ProductName}',	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	260	board '{sources.BaseBoardProduct}', SKU '{sources.SystemSku}' matched nothing	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	123	Source folder not found: {sourceDir}	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	148	Failed to copy {fileName}: {ex.Message}	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	190	Deployed helper {version}: {result.Copied} file(s) copied	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	217	Swept {swept} stale .old.* file(s) from the deployment folder.	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	254	Copy verification failed for '{Path.GetFileName(targetPath)}':	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	266	Failed to copy {sourcePath}	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	87	Handover: asked PID={targetPid} to shut down (reason '{reason}', token={Shorten(token)})	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	91	Handover: could not place request for PID={targetPid}: {ex.Message}	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	99	Handover: no ack from PID={targetPid} within {ackTimeoutMs}ms - caller should fall back	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	107	Handover: could not wait for PID={targetPid}: {ex.Message}	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	114	Handover: PID={targetPid} acknowledged and exited - no kill needed	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	115	Handover: PID={targetPid} acknowledged but was alive after {exitTimeoutMs}ms - caller should fall back	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	206	Handover: could not delete {Path.GetFileName(path)}: {ex.Message}	log	mirrored from the helper, never edit here
+Ui/UiStallTrace.cs	111	GC stopped the world {paused}ms (gen0 +{g0}, gen1 +{g1}, gen2 +{g2})	log	diagnostics only
+Ui/UiStallTrace.cs	270	dispatcher op '{op}' running for	log	diagnostics only
+Ui/UiStallTrace.cs	276	last window message {msg},	log	diagnostics only
+Ui/UiStallTrace.cs	345	cpu: this process used {procMs:F0}ms over {wallMs:F0}ms wall ({procMs / wallMs:F2} cores), {system}	log	diagnostics only
+Ui/WindowMode.cs	185	window {wWidth}x{wHeight} at {w.Left},{w.Top} vs monitor {mWidth}x{mHeight}	log	diagnostics only
+Ui/WindowMode.cs	186	at {mi.rcMonitor.Left},{mi.rcMonitor.Top}	log	diagnostics only
+Update/UpdateFlow.cs	113	auto-apply of essential {version} returned instead of restarting - falling back to the card	log	
