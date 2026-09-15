@@ -419,7 +419,7 @@ namespace ClawTweaksCenter.Core
             {
                 _verifiedThisSession = true;
                 step.State = OnboardingStepState.Ok;
-                step.Detail = $"Enabled and verified ({health.VirtualPadName ?? "virtual pad"}).";
+                step.Detail = Loc.F("Enabled and verified ({0}).", health.VirtualPadName ?? Loc.T("virtual pad"));
                 step.Actionable = false;
             }
             else

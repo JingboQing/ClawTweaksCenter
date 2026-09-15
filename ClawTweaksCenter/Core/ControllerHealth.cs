@@ -70,7 +70,7 @@ namespace ClawTweaksCenter.Core
             }
             catch (Exception ex)
             {
-                result.Problems.Add("Controller probe failed: " + ex.Message);
+                result.Problems.Add(Loc.F("Controller probe failed: {0}", ex.Message));
                 result.Verdict = HealthVerdict.Warning;
             }
             finally
@@ -129,7 +129,7 @@ namespace ClawTweaksCenter.Core
 
             if (r.XInputConnected >= 2)
             {
-                r.Warnings.Add($"{r.XInputConnected} XInput controllers are currently visible. Two or more while playing = double input.");
+                r.Warnings.Add(Loc.F("{0} XInput controllers are currently visible. Two or more while playing = double input.", r.XInputConnected));
             }
 
             if (r.Problems.Count > 0) r.Verdict = HealthVerdict.Problem;

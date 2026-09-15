@@ -1234,7 +1234,7 @@ namespace ClawTweaksCenter
                 case LibraryGroup.Roms:
                     if (!Library.PlayniteSource.IsPresent) return "Playnite is not installed.";
                     if (_romSystem == GameLibrary.RomRecentSystem) return "No ROM has been played yet.";
-                    return _romSystem == null ? "No ROMs in your Playnite library." : "No ROMs for " + _romSystem + ".";
+                    return _romSystem == null ? "No ROMs in your Playnite library." : Core.Loc.F("No ROMs for {0}.", _romSystem);
                 default: return "No games found.";
             }
         }

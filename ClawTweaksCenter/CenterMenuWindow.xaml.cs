@@ -528,7 +528,7 @@ namespace ClawTweaksCenter
             var textStack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
             textStack.Children.Add(new TextBlock
             {
-                Text = d.DisplayName, FontSize = 21, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Text,
+                Text = Core.Loc.T(d.DisplayName), FontSize = 21, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Text,
                 TextWrapping = TextWrapping.Wrap,
             });
             textStack.Children.Add(new TextBlock
@@ -1076,7 +1076,8 @@ namespace ClawTweaksCenter
 
             if (_setupVersionCheck?.Outdated == true)
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "This Setup build is outdated",
-                    $"{_setupVersionCheck.Message} (running {_setupVersionCheck.RunningVersion}, needs {_setupVersionCheck.MinimumVersion}+)"));
+                    Core.Loc.F("{0} (running {1}, needs {2}+)", Core.Loc.T(_setupVersionCheck.Message),
+                               _setupVersionCheck.RunningVersion, _setupVersionCheck.MinimumVersion)));
 
             if (_windowsChannel?.IsInsider == true)
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Windows Insider Preview detected",
@@ -2506,7 +2507,7 @@ namespace ClawTweaksCenter
         {
             var button = new Button
             {
-                Content = "Ⓨ  " + label,
+                Content = "Ⓨ  " + Core.Loc.T(label),
                 Style = (Style)Application.Current.Resources["SetupButton"],
                 MinWidth = 220,
                 HorizontalAlignment = HorizontalAlignment.Left,
@@ -2613,7 +2614,7 @@ namespace ClawTweaksCenter
                 if (broken)
                     stack.Children.Add(new TextBlock
                     {
-                        Text = tool.Detail, FontSize = 14, FontWeight = FontWeights.SemiBold,
+                        Text = Core.Loc.T(tool.Detail), FontSize = 14, FontWeight = FontWeights.SemiBold,
                         Foreground = UiHelpers.Warn, TextWrapping = TextWrapping.Wrap,
                         Margin = new Thickness(0, 6, 0, 0),
                     });
@@ -2622,7 +2623,7 @@ namespace ClawTweaksCenter
                 {
                     stack.Children.Add(new TextBlock
                     {
-                        Text = info.Why + "  " + info.WhatToGet,
+                        Text = Core.Loc.T(info.Why) + "  " + Core.Loc.T(info.WhatToGet),
                         FontSize = 14, Foreground = UiHelpers.Subtle,
                         TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0),
                     });
@@ -2641,7 +2642,7 @@ namespace ClawTweaksCenter
                             HorizontalAlignment = HorizontalAlignment.Left,
                             Child = new TextBlock
                             {
-                                Text = info.Warning,
+                                Text = Core.Loc.T(info.Warning),
                                 FontSize = 16, FontWeight = FontWeights.Bold, Foreground = UiHelpers.Error,
                                 TextWrapping = TextWrapping.Wrap,
                             },
@@ -2767,7 +2768,7 @@ namespace ClawTweaksCenter
             {
                 stack.Children.Add(new TextBlock
                 {
-                    Text = $"{step++}.  {line}",
+                    Text = $"{step++}.  {Core.Loc.T(line)}",
                     FontSize = 15, Foreground = UiHelpers.Text,
                     TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10),
                 });
@@ -3332,8 +3333,8 @@ namespace ClawTweaksCenter
                 {
                     if (result.VirtualPadCount > 0)
                     {
-                        string name = result.VirtualPadName ?? "Virtual pad";
-                        return (true, "Virtual controller mode detected", $"{name} active and running.", null);
+                        string name = result.VirtualPadName ?? Core.Loc.T("Virtual pad");
+                        return (true, "Virtual controller mode detected", Core.Loc.F("{0} active and running.", name), null);
                     }
                     return (true, "HW controller mode detected", "MSI HW Controller active and running.", null);
                 }

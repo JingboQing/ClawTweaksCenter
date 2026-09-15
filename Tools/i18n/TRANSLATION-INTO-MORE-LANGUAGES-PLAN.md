@@ -125,19 +125,27 @@ the commit.
       Hibernate / Launch / Edit, platform tabs, parts of Maintenance. Proper nouns and symbols
       (`Steam`, `Epic`, `Xbox`, `ROMs`, `A-Z`, `Z-A`) stay English — record that they were seen and
       rejected, or the next run of the survey reports them again as if nobody had looked.
-- [ ] **P1.3 — the 494 `loose`**, in batches of ~60, **recording the verdict for every one**
-      **Progress 2026-09-15: 506 → 127.** Two batches in `triage.tsv`: by shape (identifiers,
-      paths, registry names, the log-only files) and by hand (endonyms, the deliberately English
-      half of the language picker, WMI queries, Playnite/Steam file names, parser errors, install
-      log lines). **The 127 left are the real UI strings** — status texts in Maintenance, the
-      certificate and prerequisite cards, ControllerHealth, BuildDownloader errors, PrerequisiteGuide,
-      ToolDetect detail lines, the profile-details panel (`ClawProfileDetails`), OnboardingRunner
-      step texts, LeaveRunner/MaintenanceRunner replies. Each needs a row AND, for most, a call-site
-      change: they are built outside the builders. Next batch starts there; `--gaps` lists them.
-      (see "Keeping progress" below). The bucket is deliberately generous; expect roughly 150–250
-      real UI strings. The certificate instructions, controller diagnostics, download errors, device
-      detection and parts of Maintenance are in here.
-- [ ] **P1.4 — the 111 `interpolated` → `Loc.F`.** Decided by the owner, 2026-09-15, and
+- [x] **P1.3 — the 494 `loose`** (done 2026-09-15, `loose 0`). Three passes, all recorded in
+      `triage.tsv`: by shape (identifiers, paths, registry names, the log-only files), by hand
+      (endonyms, the deliberately English half of the language picker, WMI queries, Playnite/Steam
+      file names, parser errors, install log lines), and then the 118 real UI strings — 120 rows in
+      de/fr/ko/es plus call-site changes where the text is built from parts: `Loc.F` in
+      `ClawProfileDetails` (units, boost/action fallbacks), `LeaveRunner` (the joined summary was
+      never a key — translated part by part), `ControllerHealth`, `OnboardingRunner`, `ToolDetect`
+      (the two usbip UNSUPPORTED formats), `BuildDownloader` (translated where thrown, sentence by
+      sentence - the install log file gets the translated line for those, the only place that is
+      so); `Loc.T` on the prerequisite card (`Why`/`WhatToGet`/`Warning`, BROKEN detail), the
+      certificate steps, the hand-off Ⓨ button, the device banner name, the build origin
+      (`Test build`/`Release`/`Nightly`), release notes. Three Maintenance/setup-check sentences
+      that were interpolated were rewritten to `Loc.F` on the way (they are P1.4 items, but they
+      were on the same line).
+      Two tool fixes came out of it: `loc_coverage.py` matches triage rows on **stripped** text
+      (the scanner keeps a literal's leading space, `--gaps` and the person copying it do not,
+      so `' is not exported'` never matched), and it rejects SVG path data (`M45.9,41H…`) outright
+      instead of relying on a 150-char truncated triage row that could never match either.
+      Left English on purpose: `Deploying helper files failed: <exception>` (install log),
+      ToolDetect's healthy-state details (install log only), the `— DEBUG` device names.
+- [ ] **P1.4 — the 105 `interpolated` → `Loc.F`.** (111 at the start; six fell in P1.3.) Decided by the owner, 2026-09-15, and
       DEV_GUIDELINES now says so. `$"Settings loaded for {gameName}"` becomes
       `Loc.F("Settings loaded for {0}", gameName)`; the **format** is the key, so a language may put
       the value somewhere other than where English puts it. Not "translate the fixed part and

@@ -165,6 +165,8 @@ NOT_UI_EXACT = {
 INTERPOLATED = re.compile(r'\{[A-Za-z_][^}]*\}')
 IDENTIFIERISH = re.compile(r'^[A-Za-z][A-Za-z0-9_]*$')
 CONSTANTISH = re.compile(r'^[A-Z0-9_]{2,}$')
+# SVG path data: a command letter followed straight by coordinates (StoreIcons).
+SVG_PATH = re.compile(r'^[MmLlHhVvCcSsQqTtAaZz]-?\d')
 
 
 def looks_ui(v):
@@ -177,6 +179,8 @@ def looks_ui(v):
         if bad in v:
             return False
     if not (v[0].isalpha() or v[0] in u'•→…¿¡'):
+        return False
+    if SVG_PATH.match(v):
         return False
     if CONSTANTISH.match(v):
         return False
@@ -349,7 +353,10 @@ def main():
                 parts = line.rstrip('\n').split('\t')
                 if len(parts) >= 4:
                     triaged.add(parts[2])
-    skipped = [v for v in candidates if v in triaged]
+    # Stripped on both sides: the --gaps listing trims a candidate, and so does anyone copying
+    # it into triage.tsv, while the scanner keeps the literal's leading space (' is not exported').
+    triaged = set(t.strip() for t in triaged)
+    skipped = [v for v in candidates if v.strip() in triaged]
     for v in skipped:
         del candidates[v]
 

@@ -94,8 +94,8 @@ namespace ClawTweaksCenter.Library
             // because the field predates the unset convention.
             int fP = p.Int("CPUMaxFrequencyClass1MHz");
             int fE = p.Int("CPUMaxFrequencyMHz");
-            if (fP > 0) Add(lines, "P-core max", fP + " MHz");
-            if (fE > 0) Add(lines, "E-core max", fE + " MHz");
+            if (fP > 0) Add(lines, "P-core max", Core.Loc.F("{0} MHz", fP));
+            if (fE > 0) Add(lines, "E-core max", Core.Loc.F("{0} MHz", fE));
 
             string states = Pair(p.Int("MaxCPUStateClass1"), p.Int("MinCPUStateClass1"), "%");
             if (states != null) Add(lines, "P-core state", states);
@@ -108,7 +108,7 @@ namespace ClawTweaksCenter.Library
             if (epp >= 0) Add(lines, "E-core EPP", epp.ToString(CultureInfo.InvariantCulture));
 
             int rr = p.Int("RefreshRate");
-            if (rr > 0) Add(lines, "Refresh rate", rr + " Hz");
+            if (rr > 0) Add(lines, "Refresh rate", Core.Loc.F("{0} Hz", rr));
 
             // Resolution and scaling. Both are plain elements in this file and always have been -
             // they were simply never read here, which is why a profile that drops the game to 720p
@@ -166,11 +166,11 @@ namespace ClawTweaksCenter.Library
             {
                 int tier = p.Int("IntelFpsTier");
                 if (tier <= 0) return null;
-                return MigrateTier(tier) + " fps (Intel)";
+                return Core.Loc.F("{0} fps (Intel)", MigrateTier(tier));
             }
 
             int limit = p.Int("FPSLimit");
-            return limit > 0 ? limit + " fps (RTSS)" : null;
+            return limit > 0 ? Core.Loc.F("{0} fps (RTSS)", limit) : null;
         }
 
         /// <summary>Legacy 1/2/3 tiers became real frame rates; the helper migrates them on apply and
@@ -213,7 +213,7 @@ namespace ClawTweaksCenter.Library
             }
             return mode >= 0 && mode < BoostModeNames.Length
                 ? BoostModeNames[mode]
-                : "Mode " + mode.ToString(CultureInfo.InvariantCulture);
+                : Core.Loc.F("Mode {0}", mode);
         }
 
         /// <summary>"100 / 30 %" when either half is set, with the unset half named rather than
@@ -303,7 +303,7 @@ namespace ClawTweaksCenter.Library
             if (action <= 0) return null;   // 0 is Disabled, which is not a remap worth a line
             return action < GamepadActionNames.Length
                 ? GamepadActionNames[action]
-                : "Action " + action.ToString(CultureInfo.InvariantCulture);
+                : Core.Loc.F("Action {0}", action);
         }
 
         /// <summary>A single integer out of the mapping blob. Deliberately not a JSON parser: the

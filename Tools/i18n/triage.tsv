@@ -441,7 +441,6 @@ Library/SteamOwned.cs	258	string index out of range	log	parser error
 Library/SteamPlaytime.cs	62	Valve	not-ui	vdf keys
 Library/SteamPlaytime.cs	72	Playtime	not-ui	vdf keys
 Library/StoreIcons.cs	152	bcc18b79-ba16-442f-80c4-8a59c30c463b	not-ui	guid / svg path
-Library/StoreIcons.cs	235	M45.9,41H31.67l-1.1-1H17.43l-1.1,1H2.1A1.05,1.05,0,0,1,1,40V8A1.05,1.05,0,0,1,2.1,7H16.33l1.1,1H30.57l1.1-1H45.9A1.05,1.05,0,0,1,47,8V40A1.05,1.05,0,0	not-ui	guid / svg path
 Shared/Data/ClawHardwareId.cs	98	Micro-Star	proper-noun	
 Shared/Data/ClawHardwareId.cs	127	Please change product name	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
 Shared/Data/ClawHardwareId.cs	128	To be filled by O.E.M.	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
@@ -463,3 +462,15 @@ Shared/Deployment/HelperFileDeployment.cs	183	Helper executable was not copied �
 Shared/Deployment/HelperFileDeployment.cs	197	Deployment failed: 	log	mirrored from the helper, never edit here
 Shared/IPC/HelperHandover.cs	143	Token	not-ui	mirrored from the helper
 Update/VelopackUpdates.cs	298	not essential	log	
+CenterMenuWindow.Library.cs		Sweep	not-ui	attached property name
+Core/CenterM.cs		MSI Center M was not running.	dead	CloseNow is only called by the old FinalizePhase wizard
+Core/DeviceDetect.cs		MSI Claw (A2VM) — DEBUG	not-ui	debug override only
+Core/DeviceDetect.cs		MSI Claw 8 EX AI+ CG3EM — DEBUG	not-ui	debug override only
+Core/DeviceDetect.cs		MSI Claw A1M — DEBUG	not-ui	debug override only
+Core/DeviceDetect.cs		Unknown device — DEBUG	not-ui	debug override only
+Core/HelperControl.cs		Deploying helper files failed: 	log	carries the exception text; the install log file stays English
+Core/ToolDetect.cs		driver control device present	log	Detail reaches the screen only when it starts with BROKEN or UNSUPPORTED; otherwise the install log
+Core/ToolDetect.cs		driver service + HidHide.sys present	log	same
+Core/ToolDetect.cs		device opened	log	same
+Core/ToolDetect.cs		device present (access denied — unelevated)	log	same
+Core/ToolDetect.cs		not found	log	same

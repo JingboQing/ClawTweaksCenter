@@ -348,7 +348,7 @@ namespace ClawTweaksCenter
 
             var origin = new TextBlock
             {
-                Text = candidate.Origin,
+                Text = Core.Loc.T(candidate.Origin),
                 FontSize = 12,
                 Foreground = UiHelpers.Subtle,
                 VerticalAlignment = VerticalAlignment.Center,

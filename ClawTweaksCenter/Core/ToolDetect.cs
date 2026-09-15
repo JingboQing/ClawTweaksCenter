@@ -129,14 +129,10 @@ namespace ClawTweaksCenter.Core
                         // Two sides, two consequences, and they must not be described with one
                         // sentence: too old CRASHES the machine, too new is merely unverified.
                         Detail = UsbipIsTooOld(wrong)
-                            ? $"UNSUPPORTED VERSION: usbip {wrong} is installed, ClawTweaks needs " +
-                              $"{SupportedUsbipVersion}. Older versions crash the device with a blue " +
-                              "screen while the virtual controller is running, so ClawTweaks will not " +
-                              "start it. Run the ClawTweaks setup, or install " +
-                              $"{SupportedUsbipVersion} from the link on this page, and reboot."
-                            : $"UNSUPPORTED VERSION: usbip {wrong} is installed, ClawTweaks needs " +
-                              $"{SupportedUsbipVersion}. Uninstall usbip, install " +
-                              $"{SupportedUsbipVersion} from the link on this page, and reboot.",
+                            ? Loc.F("UNSUPPORTED VERSION: usbip {0} is installed, ClawTweaks needs {1}. Older versions crash the device with a blue screen while the virtual controller is running, so ClawTweaks will not start it. Run the ClawTweaks setup, or install {1} from the link on this page, and reboot.",
+                                    wrong, SupportedUsbipVersion)
+                            : Loc.F("UNSUPPORTED VERSION: usbip {0} is installed, ClawTweaks needs {1}. Uninstall usbip, install {1} from the link on this page, and reboot.",
+                                    wrong, SupportedUsbipVersion),
                     };
 
                 return Ok("usbip", $"UDE driver service '{svc}' registered");

@@ -101,12 +101,12 @@ namespace ClawTweaksCenter
             {
                 // Locked on older ClawTweaks: name the required version and point at the update path.
                 string have = !_installedVersionChecked
-                    ? "checking the installed version…"
-                    : (_installedVersion != null ? $"you have {_installedVersion}." : "ClawTweaks is not installed.");
+                    ? Loc.T("checking the installed version…")
+                    : (_installedVersion != null ? Loc.F("you have {0}.", _installedVersion) : Loc.T("ClawTweaks is not installed."));
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Warning,
-                    $"Requires ClawTweaks {MaintenanceMinVersion} or newer",
-                    $"Reset, Backup and Restore need ClawTweaks {MaintenanceMinVersion} (or 0.1.8+) — {have} " +
-                    "Update ClawTweaks from \"Update & Release\" first."));
+                    Loc.F("Requires ClawTweaks {0} or newer", MaintenanceMinVersion),
+                    Loc.F("Reset, Backup and Restore need ClawTweaks {0} (or 0.1.8+) — {1} Update ClawTweaks from \"Update & Release\" first.",
+                          MaintenanceMinVersion, have)));
             }
 
             var items = new (string title, string detail)[]
