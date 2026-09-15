@@ -3,3 +3,17 @@ de	Busy	Beschäftigt	11	9	kept in the cell: a status pill, +2 fits; no shorter h
 fr	Hibernate	Veille prolongée	16	15	kept in the cell: the Windows term; "Hibernation" would break the glossary
 fr	Today	Aujourd'hui	11	10	kept in the cell: the only word
 es	Reset	Restablecer	11	10	kept in the cell: "Restaurar" is restore, "Reiniciar" is restart
+el	Desktop	Επιφάνεια εργασίας	18	12	cell left empty: the Windows folder name; no shorter honest Greek, and the path shows "Desktop" anyway
+el	Info	Πληροφορίες	11	9	cell left empty: a tab chip; "Info" is read as-is in Greek
+el	Macro	Μακροεντολή	11	10	cell left empty: a chip; the English term is what Greek gamers use
+el	Busy	Απασχολημένος	13	9	kept in the cell: the Steam status word in Greek, no shorter honest one; the friends row is wide (+4, above the usual +1/+2 - deliberate)
+el	virtual pad	εικονικό χειριστήριο	20	18	kept in the cell: the glossary term; "pad" has no Greek short form
+el	Virtual pad	Εικονικό χειριστήριο	20	18	kept in the cell: same as the lower-case row
+el	Edit	Επεξεργασία	11	9	kept in the cell: "Αλλαγή" is already the key "Change" in the same menu
+el	Offline	Εκτός σύνδεσης	14	12	kept in the cell: the standard Greek status; a shorter word would mean something else
+el	Mode {0}	Λειτουργία {0}	14	13	kept in the cell: the glossary word for mode
+el	Save	Αποθήκευση	10	9	kept in the cell: the Windows button word
+el	Mode: Update	Λειτουργία: Ενημέρωση	21	20	kept in the cell: has to match "Mode: Fresh install" on the same page
+el	Minimize	Ελαχιστοποίηση	14	13	kept in the cell: the Windows word, no shorter one
+el	Installed apps	Εγκατεστημένες εφαρμογές	24	23	kept in the cell: the name of the Windows page it opens
+el	Reset cover	Επαναφορά εξωφύλλου	19	18	kept in the cell: both words are the glossary terms
