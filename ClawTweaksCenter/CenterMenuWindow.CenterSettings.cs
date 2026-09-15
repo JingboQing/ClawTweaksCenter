@@ -149,22 +149,15 @@ namespace ClawTweaksCenter
                 IntervalLabel(CenterSettings.WindowsUpdateCheckIntervalWeeks)));
             checks.Children.Add(BuildCenterSettingRow(CenterSettingsWidgetCheckRow, Loc.T("Gamebar Widget Releases"),
                 IntervalLabel(CenterSettings.WidgetUpdateNotifyIntervalWeeks)));
+            // "Include test versions" belongs UNDER the widget row, not beside it (user, 2026-09-15):
+            // it is a sub-setting of that one check, and in the cell to the right it read as a
+            // fourth, unrelated check. The empty cell is what pushes it down a row.
+            checks.Children.Add(new Border());
             checks.Children.Add(BuildCenterSettingRow(CenterSettingsWidgetTestRow, Loc.T("Include test versions"),
                 null, CenterSettings.WidgetNotifyTestBuilds));
             stack.Children.Add(checks);
 
-            // The widget list is fetched at every start anyway, so ITS interval throttles the
-            // message and not the search. Saying so under the row is cheaper than a setting that
-            // will be blamed for the next surprise.
-            stack.Children.Add(new TextBlock
-            {
-                Text = Loc.T("The widget list is read at every start; this only decides how often Center says so."),
-                FontSize = 12,
-                Foreground = UiHelpers.Subtle,
-                Opacity = 0.8,
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(2, 2, 10, 0),
-            });
+            // The "read at every start" hint that stood here is gone (user, 2026-09-15).
 
             // "Experimental" was a band of its own here. REMOVED 2026-09-15 - see the note where
             // CenterSettingsFseStartRow used to be declared. It held one switch, it measured as
@@ -421,11 +414,17 @@ namespace ClawTweaksCenter
             // covers them - if a third grid ever arrives with a different width, this is the line
             // that has to know.
             const int stride = 2;
-            if (dir == PadButton.Left) next--;
-            else if (dir == PadButton.Right) next++;
-            else if (dir == PadButton.Up) next -= stride;
-            else if (dir == PadButton.Down) next += stride;
+            // The tail from the widget row down is ONE column (the test toggle sits under the widget
+            // row, its right-hand cell is empty), so there Up/Down step one and Left/Right nothing.
+            bool inTail = _centerSettingsIndex >= CenterSettingsWidgetCheckRow;
+            if (dir == PadButton.Left) { if (inTail) return; next--; }
+            else if (dir == PadButton.Right) { if (inTail) return; next++; }
+            else if (dir == PadButton.Up) next -= (_centerSettingsIndex > CenterSettingsWidgetCheckRow) ? 1 : stride;
+            else if (dir == PadButton.Down) next += inTail ? 1 : stride;
             else return;
+
+            // Down from the right-hand cell above the tail lands on the widget row, not past it.
+            if (dir == PadButton.Down && !inTail && next > CenterSettingsWidgetCheckRow) next = CenterSettingsWidgetCheckRow;
 
             // Down from the last row lands on the last cell rather than nowhere: with an odd number
             // of rows the cell below is missing, and refusing the press reads as a dead d-pad.

@@ -147,6 +147,13 @@ the commit.
       - `Only in the full screen experience. Measured here it changes nothing: Windows starts the
         helper about five seconds before Center is up.`
 
+      And a fourth, same day: wishlist events are no longer decoded from Steam's feed
+      (`SteamFriendActivity`), so `Added {0} to the wishlist` reaches no builder either.
+
+      And a fifth: the hint under the widget-release interval was removed from the Center settings,
+      so `The widget list is read at every start; this only decides how often Center says so.` is
+      unused as well.
+
       They are harmless where they are — an unused key is never looked up — but they must not be
       translated. `loc_coverage.py --stale` will list them; this is only a note so nobody spends
       twelve translations on a row that has no screen.
