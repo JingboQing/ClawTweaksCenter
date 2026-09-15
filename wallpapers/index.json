@@ -3,6 +3,9 @@
   "wallpapers": [
     { "id": "redyellow",  "name": "Red / Yellow",       "file": "redyellow.png" },
     { "id": "purpleblue", "name": "Purple / Blue",      "file": "purpleblue.png" },
-    { "id": "intelcore",  "name": "Intel Core",         "file": "intel-core.png" }
+    { "id": "intelcore",  "name": "Intel Core",         "file": "intel-core.png" },
+    { "id": "msiclaw8ai",   "name": "MSI Claw 8 AI CPU",      "file": "msi-claw-8-ai-cpu.png" },
+    { "id": "msiclaw8ex",   "name": "MSI Claw 8 EX CPU",      "file": "msi-claw-8-ex-cpu.png" },
+    { "id": "msidragonred", "name": "MSI Dragon Red",         "file": "msi-dragon-red.png" }
   ]
 }
