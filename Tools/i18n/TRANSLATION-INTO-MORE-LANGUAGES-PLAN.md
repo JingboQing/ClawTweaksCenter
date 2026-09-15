@@ -361,9 +361,36 @@ Today the translations are **inline in the `.iss`** - a second source of truth n
       space in every language. Commits `ab5b4c9` (Center), `ceaf2392` (helper).
 - [ ] **P3b.4 — one run per language** with `/LANG=xx`, the six wizard pages and the uninstall
       dialog. Fixed-width controls that clip get `CalculateButtonWidth` treatment, not a shorter
-      translation. **Nothing has been run yet** - all thirteen compile into
-      `ClawTweaks_0.3.1.192_Setup.exe` (SHA256 `9107081...`), and none of them has been seen.
-      Korean has never been seen in the wizard font either, and that is older than this work.
+      translation. **Four of thirteen run and judged on 2026-09-15**, from
+      `ClawTweaks_0.3.1.192_Setup.exe` (SHA256 `9107081...`):
+
+      | `/LANG=` | seen | verdict |
+      |---|---|---|
+      | `ru` | title, FSE page, both buttons | clean - and **reviewed by a Russian speaker**, the only one of the four with a native check |
+      | `zhHans` | title, FSE page | clean (this run was carried through to a real install - that is how the dev device got 0.3.1.192 / Center 0.2.73) |
+      | `zhHant` | title | clean; proves the vendored `ChineseTraditional.isl` loads |
+      | `el` | title, FSE page, both buttons | clean |
+
+      Still unseen: `de`, `fr`, `es`, `ko`, `it`, `ptBR`, `ja`, `pl`. Korean was unseen before
+      this work too.
+
+      Two things the runs settled that no lint could:
+      * **Inno grows its own buttons.** Greek "&Επόμενο" got 96 px where Russian got 86. So
+        the wizard chrome is not a clipping risk; only OUR fixed-width controls are, and the
+        one that already measures itself (`CalculateButtonWidth`) is the Windows-settings
+        button on the second FSE page - **still unseen, it sits past the install step**.
+      * **An upstream typo, not ours:** the Greek Cancel button reads `Ακυρο`, missing the
+        tonos of `Άκυρο`. It comes from the vendored `Greek.isl`. Left alone for the same
+        reason as the eight English sentences in zh-Hant: it is someone else's text with a
+        named maintainer. A `[Messages]` override on our side is the fix if a tester minds.
+
+      ⛔ **Do not try to check widths by reading the wizard's controls from a script.** It was
+      tried and the numbers were wrong twice over: `WM_GETFONT` to an elevated window is
+      blocked by UIPI, so the text gets measured in the system font instead of the wizard's,
+      and `EnumChildWindows` also returns the hidden controls of every other page, whose
+      sizes have not been laid out yet. It reported two "clipping" cases that were neither.
+      Reading the control TEXT that way is fine and useful - it is how the table above was
+      filled - but the only verdict on width is a pair of eyes on the screen.
 
 ---
 
