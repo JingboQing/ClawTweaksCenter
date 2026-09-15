@@ -211,7 +211,11 @@ job and it is several working sessions, not one.
 device — Onboarding, Library, Settings, Maintenance.
 
 Device-test builds so far: setup `0.3.1.190` (Center 0.2.71: en/de/fr/ko/es/it), setup `0.3.1.191`
-(Center 0.2.72: plus pt-BR/pl/ru). Nothing has been opened on the device yet — the gate is open.
+(Center 0.2.72: plus pt-BR/pl/ru), setup `0.3.1.192` (Center 0.2.73: **all thirteen** — plus
+el/ja/zh-Hans/zh-Hant), SHA256 `8E9B4449BE89AE5EC591654F634160B953055DF2B20531D9F56514CACE59C2F2`,
+109,3 MB, `[VELOPACK]`, FSE package included, nothing published.
+**Nothing has been opened on the device yet — the gate is still open.** Greek and both Chinese
+scripts have never been seen in Center's font at all; Korean and Japanese only in passing.
 
 ---
 
