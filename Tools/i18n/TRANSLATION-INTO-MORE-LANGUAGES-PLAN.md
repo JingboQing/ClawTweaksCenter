@@ -197,13 +197,13 @@ job and it is several working sessions, not one.
       - [x] `it` Italian — done 2026-09-15, 850 of 858 (the 8 empties are the deliberate ones above); lint clean, 0 over width
       - [x] `pt-BR` Portuguese — done 2026-09-15, 838 of 858 (empties = the deliberate ones plus 20 cells identical to English: Online, Offline, Chat, Anti-cheat, Info, Layout, Macro, Menu, Mouse, Preset, Status, Windows Update, Desktop, Downloads, Release, Nightly, the four `{0} MHz`-style formats); lint clean, 0 over width
       - [x] `pl` Polish — done 2026-09-15, 844 of 858 (empties = the deliberate ones plus Online, Offline, Anti-cheat, Info, Menu, Preset, Start, System, Windows Update, Nightly); lint clean, 0 over width
-      - [ ] `ru` Russian
+      - [x] `ru` Russian — done 2026-09-15, 854 of 858 (empties = Windows Update, Nightly, `{0} fps (Intel)`, `{0} fps (RTSS)`); lint clean, 0 over width
       - [ ] `el` Greek
       - [ ] `ja` Japanese
       - [ ] `zh-Hans` Chinese simplified
       - [ ] `zh-Hant` Chinese traditional — derived from Hans, then corrected. **Not** a character
             conversion: the vocabulary differs (软件 / 軟體, 视频 / 影片, 鼠标 / 滑鼠).
-- [ ] **P2.4 — width pass per language.** ✅ de/fr/ko/es/it/pt-BR/pl 2026-09-15 (0 over budget); repeats once per new column.
+- [ ] **P2.4 — width pass per language.** ✅ de/fr/ko/es/it/pt-BR/pl/ru 2026-09-15 (0 over budget); repeats once per new column.
       **One addition to the rule:** a cell that is +1/+2 over and has no shorter honest word (`Busy` → `Beschäftigt`, `Today` → `Aujourd'hui`) may stay **in the cell** with a `kept in the cell:` note in `left-in-english.tsv` — the lint exempts by (lang, english), so the record still says why. Emptying the cell was the worse answer for those four. `loc_lint.py` lists every over-budget cell; each is
       shortened until it fits. What cannot be shortened honestly goes in `left-in-english.tsv`
       with its width and budget, and the cell is left empty.
