@@ -49,16 +49,16 @@ INNO_NAME = collections.OrderedDict([
     ('pt-BR', 'ptBR'), ('ja', 'ja'), ('pl', 'pl'),
 ])
 
-# WHAT THE SETUP CAN COMPILE TODAY. ISCC rejects a CustomMessages entry whose language prefix is
-# not declared in [Languages], and three languages cannot be declared yet: Inno 6.7 ships no .isl
-# for Greek or for either Chinese script, and the unofficial ones from jrsoftware.org have to be
-# vendored into ClawTweaksInstaller/Languages/ first.
+# WHAT THE SETUP DECLARES. ISCC rejects a CustomMessages entry whose language prefix is not in
+# [Languages], so this list and that section have to agree. All thirteen are in as of 2026-09-15:
+# ten from Inno's own .isl files, and el / zh-Hans / zh-Hant from the three vendored into
+# ClawTweaksInstaller/Languages/ (see the README there).
 #
-# Their columns in inno.tsv are filled anyway. The translation is the expensive part and it is
-# done; this list is the cheap part, and the day the three .isl files land it grows by three
-# entries and one regeneration. A column that is translated but not listed here is silently not
-# written - which is why the run prints both counts.
-INNO_SHIPPED = ['en', 'de', 'fr', 'ko', 'es', 'ru', 'it', 'pt-BR', 'ja', 'pl']
+# Keep it as a list rather than "everything in the TSV": a translated column that the setup cannot
+# declare yet is a real situation - it was the situation for half a day - and the run prints which
+# columns are being held back so the omission cannot go quiet.
+INNO_SHIPPED = ['en', 'de', 'fr', 'ko', 'es', 'ru', 'it', 'pt-BR', 'ja', 'pl',
+                'el', 'zh-Hans', 'zh-Hant']
 
 # TSV column -> the C# field name for that language's dictionary. The order here is the order the
 # blocks appear in the generated file.
