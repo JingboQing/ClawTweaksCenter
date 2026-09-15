@@ -1,5 +1,8 @@
 # Center's translations
 
+The running job — what is done, what is next, in order:
+**[TRANSLATION-INTO-MORE-LANGUAGES-PLAN.md](TRANSLATION-INTO-MORE-LANGUAGES-PLAN.md)**.
+
 ## Where the data lives
 
 `strings.tsv` — one row per English string, one column per language. **This is the source.**
