@@ -8,8 +8,17 @@ and a wording corrected in one language had no mechanical way of reaching the ot
 now lives in ONE tab-separated file - one row per English string, one column per language - and
 this script is the only thing that writes the C#. Adding a language is a column.
 
-    python Tools/i18n/loc_build.py            regenerate the C#
-    python Tools/i18n/loc_build.py --check    fail if the C# is not what the TSV says
+    python Tools/i18n/loc_build.py            regenerate both outputs
+    python Tools/i18n/loc_build.py --check    fail if either output is not what its TSV says
+
+TWO OUTPUTS, TWO SOURCES. strings.tsv -> Core/Localization.Tables.cs is Center. inno.tsv ->
+ClawTweaksInstaller/Languages/CustomMessages.iss is the SETUP, which lives in the other repo
+(ClawTweaks_GoTweaksFork, found as a sibling of this one). The setup's strings used to sit inline
+in the .iss - a second source of truth, in a second format, that no lint could reach. They are
+data now, so placeholder parity and whitespace are checked for the setup too.
+
+If the sibling repo is not there, the Inno half is skipped with a note and the Center half still
+runs: a checkout of Center alone has to keep building.
 
 THE TSV IS THE SOURCE. Editing Localization.Tables.cs by hand is a mistake the next run silently
 undoes, which is why the generated file says so at the top.
@@ -24,6 +33,21 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))          # the ClawTweaksCenter repo root
 TSV = os.path.join(HERE, 'strings.tsv')
 OUT = os.path.join(ROOT, 'ClawTweaksCenter', 'Core', 'Localization.Tables.cs')
+
+# The setup half. The helper repo is a SIBLING of this one, not a submodule and not a fixed path:
+# resolve it from here so the script works on any machine that has both checkouts next to each
+# other, and say so plainly when it does not.
+INNO_TSV = os.path.join(HERE, 'inno.tsv')
+INNO_REPO = os.path.join(os.path.dirname(ROOT), 'ClawTweaks_GoTweaksFork')
+INNO_OUT = os.path.join(INNO_REPO, 'ClawTweaksInstaller', 'Languages', 'CustomMessages.iss')
+
+# TSV column -> the name the language carries in the setup's [Languages] section. Inno language
+# names are identifiers, so the BCP-47 tags with a hyphen cannot be used as they stand.
+INNO_NAME = collections.OrderedDict([
+    ('en', 'en'), ('de', 'de'), ('fr', 'fr'), ('ko', 'ko'), ('es', 'es'), ('ru', 'ru'),
+    ('el', 'el'), ('zh-Hans', 'zhHans'), ('zh-Hant', 'zhHant'), ('it', 'it'),
+    ('pt-BR', 'ptBR'), ('ja', 'ja'), ('pl', 'pl'),
+])
 
 # TSV column -> the C# field name for that language's dictionary. The order here is the order the
 # blocks appear in the generated file.
@@ -202,6 +226,130 @@ def render(keys, tables):
     return ''.join(parts)
 
 
+# ---------------------------------------------------------------------------------------------
+# The setup half: inno.tsv -> ClawTweaksInstaller/Languages/CustomMessages.iss
+# ---------------------------------------------------------------------------------------------
+
+INNO_HEADER = u"""; GENERATED FROM ClawTweaksCenter/Tools/i18n/inno.tsv BY Tools/i18n/loc_build.py
+; DO NOT EDIT BY HAND - an edit here survives exactly until the next run of that script.
+; Change the TSV in the Center repo, regenerate, and commit both files.
+;
+; This file is pulled into ClawTweaksInstaller.iss with #include. It opens its own sections, so
+; the include has to sit where a section may start.
+;
+; WHY THE TEXT MOVED OUT OF THE .iss. It used to be a second source of truth next to strings.tsv,
+; in a different format, in a different repository. Nothing checked it: a %1 dropped from one
+; language, a stray trailing space, a key renamed on one side - all of it compiled. It is data
+; now, and loc_lint.py --inno reads it.
+;
+; %1 / %2 are FmtMessage slots and %n is a line break - Inno's grammar, not C#'s braces. They are
+; resolved in M() / MF() at the bottom of the .iss, because CustomMessage() hands the text back
+; raw.
+;
+; Log() lines are NOT here and must not be: the setup log is read in English by whoever debugs
+; it, and a translated log is a log nobody can grep.
+;
+; Product names (ClawTweaks, Center, CTW Library, FSE, Game Bar, MSI Center M, winget) stay as
+; they are in every language.
+;
+; The two FSE wizard pages carry the user's own wording (2026-09-10) - the translations keep its
+; length and register. Do not expand them into prose in any language.
+;
+; WelcomeLabel2 is said, not hidden: the certificate import happens without a wizard page, so the
+; one place a user can read that it happens at all is the welcome text. Not a question - the
+; install needs it - but an answer.
+"""
+
+
+def read_inno_tsv(path=INNO_TSV):
+    """-> (ordered [(section, key)], {lang: {key: value}})"""
+    with io.open(path, encoding='utf-8') as f:
+        rows = [line.rstrip('\n').rstrip('\r').split('\t') for line in f]
+    rows = [r for r in rows if r and r[0].strip()]
+    head = rows[0]
+    if head[:2] != ['section', 'key']:
+        raise SystemExit('inno.tsv: first two columns must be "section" and "key"')
+    for col in head[2:]:
+        if col not in INNO_NAME:
+            raise SystemExit('inno.tsv: unknown language column %r' % col)
+
+    order, tables, seen = [], {c: {} for c in head[2:]}, set()
+    for n, row in enumerate(rows[1:], start=2):
+        row += [''] * (len(head) - len(row))
+        section, key = row[0], row[1]
+        if key in seen:
+            raise SystemExit('inno.tsv line %d: duplicate key %r' % (n, key))
+        seen.add(key)
+        order.append((section, key))
+        for col, cell in zip(head[2:], row[2:]):
+            if cell.strip():
+                tables[col][key] = cell
+    return order, tables
+
+
+def render_inno(order, tables):
+    """One block per key, languages in TSV column order, grouped by the section headings the .iss
+    carried. A key with no value in a language simply has no line - Inno then falls back to the
+    first language in [Languages], which is English. That is the same "an empty cell is a
+    decision" rule the C# half runs on."""
+    parts = [INNO_HEADER]
+    langs = [c for c in INNO_NAME if c in tables]
+
+    # [Messages] first: it overrides one of Inno's own keys and cannot sit in [CustomMessages].
+    msg = [(s, k) for s, k in order if s == 'Messages']
+    if msg:
+        parts.append(u'\n[Messages]\n')
+        for _, key in msg:
+            for lg in langs:
+                if key in tables[lg]:
+                    parts.append(u'%s.%s=%s\n' % (INNO_NAME[lg], key, tables[lg][key]))
+
+    parts.append(u'\n[CustomMessages]\n')
+    section = None
+    for s, key in order:
+        if s == 'Messages':
+            continue
+        if s != section:
+            section = s
+            rule = u'; --- %s ' % s
+            parts.append(u'\n%s%s\n' % (rule, u'-' * max(0, 99 - len(rule))))
+        for lg in langs:
+            if key in tables[lg]:
+                parts.append(u'%s.%s=%s\n' % (INNO_NAME[lg], key, tables[lg][key]))
+        parts.append(u'\n')
+    return ''.join(parts)
+
+
+def build_inno(check):
+    """-> (exit code, message). Skips cleanly when the sibling repo is not checked out."""
+    if not os.path.isdir(INNO_REPO):
+        return 0, 'Inno: sibling repo not found at %s - skipped.' % INNO_REPO
+    if not os.path.isfile(INNO_TSV):
+        return 0, 'Inno: %s not found - skipped.' % INNO_TSV
+
+    order, tables = read_inno_tsv()
+    text = render_inno(order, tables)
+    counts = ', '.join('%s %d' % (c, len(tables.get(c) or {})) for c in INNO_NAME if c in tables)
+    head = '%d setup keys; %s' % (len(order), counts)
+
+    if check:
+        try:
+            current = io.open(INNO_OUT, encoding='utf-8-sig').read()
+        except IOError:
+            return 1, head + '\nCustomMessages.iss is missing - run loc_build.py.'
+        if current.lstrip(u'\ufeff') == text.lstrip(u'\ufeff'):
+            return 0, head + '\nCustomMessages.iss is up to date.'
+        return 1, head + '\nCustomMessages.iss does NOT match inno.tsv - run loc_build.py.'
+
+    folder = os.path.dirname(INNO_OUT)
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
+    # utf-8-SIG: an #include'd file without a BOM is read as ANSI by Inno, and this one carries
+    # Korean, Greek and both Chinese scripts.
+    io.open(INNO_OUT, 'w', encoding='utf-8-sig', newline='\r\n').write(text)
+    return 0, head + '\nwrote %s' % INNO_OUT
+
+
 def main():
     keys, tables = read_tsv()
     text = render(keys, tables)
@@ -209,17 +357,25 @@ def main():
     counts = ', '.join('%s %d' % (c, len(tables.get(c) or {})) for c in LANGS)
     sys.stdout.write('%d English keys; %s\n' % (len(keys), counts))
 
-    if '--check' in sys.argv:
+    check = '--check' in sys.argv
+    rc = 0
+
+    if check:
         current = io.open(OUT, encoding='utf-8-sig').read()
         if current.lstrip('\ufeff') == text.lstrip('\ufeff'):
             sys.stdout.write('Localization.Tables.cs is up to date.\n')
-            return 0
-        sys.stdout.write('Localization.Tables.cs does NOT match strings.tsv - run loc_build.py.\n')
-        return 1
+        else:
+            sys.stdout.write('Localization.Tables.cs does NOT match strings.tsv - run loc_build.py.\n')
+            rc = 1
+    else:
+        io.open(OUT, 'w', encoding='utf-8', newline='\n').write(text)
+        sys.stdout.write('wrote %s\n' % OUT)
 
-    io.open(OUT, 'w', encoding='utf-8', newline='\n').write(text)
-    sys.stdout.write('wrote %s\n' % OUT)
-    return 0
+    # The setup half. Its failure is reported next to the C# one rather than instead of it, so a
+    # stale CustomMessages.iss cannot hide behind an up-to-date Localization.Tables.cs.
+    inno_rc, inno_msg = build_inno(check)
+    sys.stdout.write(inno_msg + '\n')
+    return rc or inno_rc
 
 
 if __name__ == '__main__':
