@@ -336,10 +336,20 @@ Today the translations are **inline in the `.iss`** - a second source of truth n
       can be the string's whole job (`PayloadAnd` is `" and"`), and `WelcomeLabel2` indents
       its bullets with several spaces in every language. Commits `24ef404` (Center),
       `174b2b80` (helper).
-- [ ] **P3b.2 — vendor `Greek.isl`, `ChineseSimplified.isl`, `ChineseTraditional.isl`** under
-      `ClawTweaksInstaller\Languages\`. **This is the only thing still missing**, and it is a
-      download from jrsoftware.org, so it waits for the owner. The other five `[Languages]`
-      lines (ru, it, ptBR, ja, pl) are in, because Inno 6.7 ships those `.isl` files.
+- [x] **P3b.2 — done 2026-09-15.** All three vendored under `ClawTweaksInstaller\Languages\`
+      and all thirteen `[Languages]` lines are in; ISCC compiles clean.
+      **Correction to what this plan assumed:** they are taken from **jrsoftware/issrc at tag
+      `is-6_7_3`**, not from the website and not from `main`. On `main` all three have been
+      promoted to the official `Files/Languages/` for Inno 7, and a newer `.isl` can carry
+      message keys a 6.7 compiler does not know - so the tag has to match the installed
+      compiler. `Languages/README.md` records source, tag, size, sha256 and the maintainers
+      the files name. `.gitattributes` marks `*.isl -text`, or git's eol normalisation
+      rewrites them and those checksums stop matching a fresh clone - which it had already
+      done to `ChineseTraditional.isl` before it was caught.
+      ⚠️ **Known gap:** `ChineseTraditional.isl` is a 6.1.0+ translation and leaves eight of
+      Inno's own newer messages in English (`StopExtraction`, the seven `Verification*`).
+      All eight are failure paths and none of them is ClawTweaks text. Left as it is on
+      purpose; a newer upstream file is the fix.
       ⚠️ The order the plan assumed is reversed in practice: the keys were filled FIRST, so
       nothing fails on missing keys. What enforces the pairing instead is the generator - it
       writes only languages that `[Languages]` declares (`INNO_SHIPPED` in `loc_build.py`)
@@ -351,8 +361,9 @@ Today the translations are **inline in the `.iss`** - a second source of truth n
       space in every language. Commits `ab5b4c9` (Center), `ceaf2392` (helper).
 - [ ] **P3b.4 — one run per language** with `/LANG=xx`, the six wizard pages and the uninstall
       dialog. Fixed-width controls that clip get `CalculateButtonWidth` treatment, not a shorter
-      translation. **Nothing has been run yet** - ten languages compile into
-      `ClawTweaks_0.3.1.192_Setup.exe`, and none of them has been seen.
+      translation. **Nothing has been run yet** - all thirteen compile into
+      `ClawTweaks_0.3.1.192_Setup.exe` (SHA256 `9107081...`), and none of them has been seen.
+      Korean has never been seen in the wizard font either, and that is older than this work.
 
 ---
 
