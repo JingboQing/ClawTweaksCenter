@@ -211,6 +211,9 @@ job and it is several working sessions, not one.
 **Gate out of P2:** lint clean, `--check` passes, publishes, and each language opened once on the
 device — Onboarding, Library, Settings, Maintenance.
 
+Device-test builds so far: setup `0.3.1.190` (Center 0.2.71: en/de/fr/ko/es/it), setup `0.3.1.191`
+(Center 0.2.72: plus pt-BR/pl/ru). Nothing has been opened on the device yet — the gate is open.
+
 ---
 
 ## P3 — The helper and the widget OSD
