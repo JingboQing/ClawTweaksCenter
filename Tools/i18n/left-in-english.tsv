@@ -1,3 +1,5 @@
 lang	english	honest	width	budget	note
-fr	Save	Enregistrer	11	9	revisit under the shorten rule: "Sauver" fits
-fr	Select	Sélectionner	12	11	revisit under the shorten rule: "Choisir" fits
+de	Busy	Beschäftigt	11	9	kept in the cell: a status pill, +2 fits; no shorter honest word
+fr	Hibernate	Veille prolongée	16	15	kept in the cell: the Windows term; "Hibernation" would break the glossary
+fr	Today	Aujourd'hui	11	10	kept in the cell: the only word
+es	Reset	Restablecer	11	10	kept in the cell: "Restaurar" is restore, "Reiniciar" is restart

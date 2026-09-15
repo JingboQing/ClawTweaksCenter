@@ -186,15 +186,15 @@ passes, `dotnet build -c Release` clean, `loc_lint.py --strict` 0 errors (42 ove
 Expect 1000–1100 keys after P1, times twelve columns: roughly 13,000 cells. This is the bulk of the
 job and it is several working sessions, not one.
 
-- [ ] **P2.1 — `glossary.tsv` first**, ~40 recurring terms per language: TDP, Fan Curve, Profile,
+- [x] **P2.1 — `glossary.tsv` first** (done 2026-09-15: 51 terms × 12 languages, with a `note` column that says what stays English and why — TDP, FPS, DInput/XInput, Game Bar, Center, helper), ~40 recurring terms per language: TDP, Fan Curve, Profile,
       Handheld, Overlay, Helper, Center, Controller, DInput / XInput, Charge Limit, Sleep, Hibernate,
       Library, Onboarding, Backup, Restore. Fixed **before** any screen is translated, or the same
       word arrives three ways on three screens. Terms gamers use untranslated (TDP, FPS, DInput)
       stay English on purpose — translating them makes the screen harder to read, not easier.
-- [ ] **P2.2 — fill the four existing columns' gaps** (de 717, fr 715, ko 718, es 717 of 718 today,
+- [x] **P2.2 — fill the four existing columns' gaps** (done 2026-09-15; the cells still empty are identical-to-English on purpose: units, `Release`/`Nightly`, Windows folder names — the lint would flag a copy) (de 717, fr 715, ko 718, es 717 of 718 today,
       plus everything P1 adds).
 - [ ] **P2.3 — the eight new columns**, one language at a time, in batches of ~120 keys:
-      - [ ] `it` Italian — closest to the existing set; a good first pass to shake out the process
+      - [x] `it` Italian — done 2026-09-15, 850 of 858 (the 8 empties are the deliberate ones above); lint clean, 0 over width
       - [ ] `pt-BR` Portuguese
       - [ ] `pl` Polish
       - [ ] `ru` Russian
@@ -203,7 +203,8 @@ job and it is several working sessions, not one.
       - [ ] `zh-Hans` Chinese simplified
       - [ ] `zh-Hant` Chinese traditional — derived from Hans, then corrected. **Not** a character
             conversion: the vocabulary differs (软件 / 軟體, 视频 / 影片, 鼠标 / 滑鼠).
-- [ ] **P2.4 — width pass per language.** `loc_lint.py` lists every over-budget cell; each is
+- [ ] **P2.4 — width pass per language.** ✅ de/fr/ko/es/it 2026-09-15 (0 over budget); repeats once per new column.
+      **One addition to the rule:** a cell that is +1/+2 over and has no shorter honest word (`Busy` → `Beschäftigt`, `Today` → `Aujourd'hui`) may stay **in the cell** with a `kept in the cell:` note in `left-in-english.tsv` — the lint exempts by (lang, english), so the record still says why. Emptying the cell was the worse answer for those four. `loc_lint.py` lists every over-budget cell; each is
       shortened until it fits. What cannot be shortened honestly goes in `left-in-english.tsv`
       with its width and budget, and the cell is left empty.
 
