@@ -13,7 +13,13 @@ write that file; an edit made there survives exactly until the next run.
 ```
 python Tools/i18n/loc_build.py            regenerate the C#
 python Tools/i18n/loc_build.py --check    fail if the C# is not what the TSV says
+python Tools/i18n/loc_lint.py             placeholder parity, stray whitespace, duplicates, width
+python Tools/i18n/loc_lint.py --strict    exit 1 on an ERROR - run it before every regeneration
 ```
+
+`loc_lint.py` is the only thing that catches a `{0}` that went missing in one language: `Loc.T`
+and `Loc.F` never throw, so that mistake shows as a slightly wrong screen and nowhere else. Its
+width report is the P2.4 worklist; a cell recorded in `left-in-english.tsv` is exempt.
 
 An empty cell is a **decision**, not a gap: `Loc.T` returns the English when a key is absent, so
 leaving a cell empty is how a translation that cannot fit its control is deliberately not shipped.

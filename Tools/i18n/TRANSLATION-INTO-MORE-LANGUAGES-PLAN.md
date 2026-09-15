@@ -67,7 +67,7 @@ Tools/i18n/
   left-in-english.tsv          SOURCE. What stays English on purpose, and why.
   loc_build.py                 generates the C#.  --check fails if it is stale.
   loc_coverage.py              finds strings the tables do not cover.
-  loc_lint.py                  DOES NOT EXIST YET - task P1.6.
+  loc_lint.py                  placeholder parity, whitespace, duplicates, width report.
   glossary.tsv                 DOES NOT EXIST YET - task P2.1.
   README.md                    how the mechanism works.
   TRANSLATION-INTO-MORE-LANGUAGES-PLAN.md   this file.
@@ -151,9 +151,11 @@ the commit.
       uninstaller notice, now with "(press Ⓨ to refresh)") and that call site wrapped in `Loc.T`.
       `loc_coverage.py` now scans `Localization.cs` itself, so `System language` is no longer a
       false stale. **Stale is 0.**
-- [ ] **P1.6 — write `loc_lint.py`**: placeholder parity (`{0}` in a translation iff in the English),
-      stray leading/trailing whitespace, duplicate keys, and the width budget as a report. Needed
-      **before** P2.
+- [x] **P1.6 — `loc_lint.py`** (done 2026-09-15): placeholder parity as ERROR, stray whitespace and
+      duplicate keys and shifted rows as ERROR, identical-to-English and double spaces as WARN, the
+      width budget as a report (`--width-only`, worst first; `left-in-english.tsv` exempts). First
+      run on the shipped four: **0 errors**, 34 warnings, 45 over width - the P2.4 worklist. `%1`/`%n`
+      for the setup come with `inno.tsv` (P3b), behind a flag, not as a relaxation.
 - [x] **P1.7 — DEV_GUIDELINES brought in line** (done 2026-09-15): `Loc.F` for interpolated strings,
       shorten-don't-drop, the left-in-English list generated from `left-in-english.tsv`, the tables
       generated from `strings.tsv`, `Loc.Order` named as dead, and the language list corrected to
