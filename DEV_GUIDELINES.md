@@ -147,7 +147,10 @@ Two consequences that are easy to get wrong:
 
 ## Translations
 
-Center ships English, German, French, Korean and Spanish. On a fresh installation it follows the
+Center ships English, German, French, Korean, Spanish, Russian, Greek, both Chinese scripts,
+Italian, Brazilian Portuguese, Japanese and Polish — the last eight are wired up but their tables
+are still being filled, which renders as English and is a working state by design. On a fresh
+installation it follows the
 Windows **display** language (`CultureInfo.CurrentUICulture`, not `CurrentCulture` — that one follows
 the region and would put a German keyboard on an English Windows into German). The user can pin a
 language on **Home → Center Settings**; the choice is stored in `HKCU\Software\ClawTweaks\Center`
@@ -172,31 +175,66 @@ through one of them:
 Do not sprinkle `Loc.T` through new code. If a new string does not reach the screen through one of
 those, that is the thing to fix.
 
-**Two shapes CANNOT be translated by this mechanism, and neither is an oversight:**
+**Interpolated strings need `Loc.F`, and the FORMAT is the key.** `$"Last checked {time}"` is built
+at runtime, so it can never match a table entry. Hand the format to `Loc.F` instead:
 
-- **Interpolated strings.** `$"Last checked {time}"` is built at runtime, so it can never match a
-  key. Where such a line matters, split it: translate the fixed part and concatenate the value, the
-  way `UpdateSelectedTitle` does with "Last played".
-- **Date and number formats.** `"d MMM yyyy"` reaches a builder like any other string; translating
-  one would corrupt the output. They are simply absent from the tables, and formatting is left to
-  `CultureInfo.CurrentCulture`, which already reads correctly for the user.
+```csharp
+Loc.F("Last checked {0}", time)          // key: "Last checked {0}"
+```
+
+Not "translate the fixed part and concatenate the value". Gluing a value onto one end of an English
+sentence bakes English word order into it, and a language that puts the value somewhere else then
+cannot be translated at all from that shape — `"{0} is running"` can, `"… is running"` cannot. The
+tables already hold `{0}` keys for exactly this.
+
+`Loc.F` never throws at render time: a translation whose placeholders were mistyped falls back to
+the English format, and a broken English format returns the string unformatted. That is deliberate —
+a screen that reads slightly wrong beats a screen that does not come up — but it also means a broken
+translation shows up as a wrong screen rather than an error, so `Tools/i18n/loc_lint.py` checking
+placeholder parity is the only thing that catches it.
+
+**Date and number formats CANNOT be translated, and that is not an oversight.** `"d MMM yyyy"`
+reaches a builder like any other string; translating one would corrupt the output. They are simply
+absent from the tables, and formatting is left to `CultureInfo.CurrentCulture`, which already reads
+correctly for the user.
 
 ### The two rules a new translation has to pass
 
 1. **It has to FIT.** Center's chips, tabs and tiles are sized for the English word and do not grow.
    The budget is at most **1.7× the English, or five characters more, whichever is larger**, counting
-   CJK characters as two because they render about twice as wide. A translation over budget is left
-   out and the English stays — the alternative is a clipped label, which is worse than an English one.
-   The entries that failed this check are listed at the **bottom of `Localization.Tables.cs`**; that
-   list is the answer to "why is this one word still English", so keep it up to date rather than
-   tidying it away.
+   CJK characters as two because they render about twice as wide.
+
+   **A translation over budget is SHORTENED until it fits.** This reverses the earlier rule, which
+   was to leave it out and keep the English. Dropping was right while the set was four languages
+   close to English in length; with Russian, Polish, Greek and Portuguese in it, dropping leaves
+   those screens visibly half-English, which reads as broken rather than as unfinished. A clipped
+   label is still worse than either, so the budget itself does not move.
+
+   Only what cannot be shortened without saying something else stays English. Those go in
+   **`Tools/i18n/left-in-english.tsv`**, with the honest translation, its width and the budget; the
+   generator renders them as a comment at the bottom of `Localization.Tables.cs`. That list is the
+   answer to "why is this one word still English". Edit the TSV — a comment written into the
+   generated file by hand survives exactly until the next `loc_build.py` run.
 2. **Menu headings stay English.** The Home tiles keep their English titles and only their one-line
    descriptions are translated. "Library" is the deliberate exception and is translated everywhere it
    appears.
 
-Adding a language means: a member on `UiLanguage`, a case in `Loc.Detect`, a name in `Loc.NameOf`
-(**in that language** — somebody who has landed in a script they cannot read has to find their way
-out), an entry in `Loc.Order`, a table, and a case in `TableFor`.
+**The tables are GENERATED.** `Tools/i18n/strings.tsv` is the source — one row per English string,
+one column per language — and `Tools/i18n/loc_build.py` writes `Core/Localization.Tables.cs` from
+it. Never edit that file; `loc_build.py --check` fails the moment it disagrees with the TSV.
+
+`Tools/i18n/loc_coverage.py` reports what is on screen but has no key. Run it **before** translating,
+not after: the survey it replaced walked a hand-maintained list of 26 filenames, so every screen
+added after it was written was invisible to it, which is why the first round had to be curated by
+hand on the device. `Tools/i18n/TRANSLATION-INTO-MORE-LANGUAGES-PLAN.md` is the running plan.
+
+Adding a language means: a column in `strings.tsv` and an entry in `LANGS` in `loc_build.py`; a
+member on `UiLanguage`, a case in `Loc.Detect`, a name in `Loc.NameOf` (**in that language** —
+somebody who has landed in a script they cannot read has to find their way out), a case in
+`TableFor`; then `python Tools/i18n/loc_build.py`.
+
+Not `Loc.Order`: it and `Loc.Next` are dead, and have been since the settings screen grew a list
+that opens instead of a value that steps. That list sorts with its own `LanguageOrder()`.
 
 ## Commits
 

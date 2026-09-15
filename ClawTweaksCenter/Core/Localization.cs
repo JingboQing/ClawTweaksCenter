@@ -6,10 +6,14 @@ namespace ClawTweaksCenter.Core
 {
     /// <summary>The thirteen languages Center ships, plus "follow the OS".
     ///
-    /// APPEND ONLY, and for the usual reason: the chosen language is stored as this enum's NUMBER,
-    /// so inserting a value in the middle silently moves every setting that was saved before it.
-    /// New languages go at the end, however untidy that leaves the order. <see cref="Loc.Order"/>
-    /// decides what the settings row shows, and it is free to sort them properly.</summary>
+    /// The order here is arrival order, and it does not matter: the choice is persisted BY NAME,
+    /// not by ordinal (see CenterSettings.Language), so a value inserted in the middle cannot turn
+    /// somebody's German into French. What the settings screen shows is sorted separately, by
+    /// LanguageOrder() there.
+    ///
+    /// RENAMING a member is the move that breaks a stored setting, and it fails softly: an
+    /// unparseable name falls back to System, so the user's pinned language quietly becomes
+    /// "follow the OS" instead of staying wrong.</summary>
     public enum UiLanguage
     {
         /// <summary>Whatever Windows is set to, if we have it. The default, and what a fresh

@@ -39,10 +39,11 @@ These are settled. Do not relitigate them, and do not quietly do something else.
    Greek and Portuguese in the set, dropping would leave those screens visibly half-English, which
    reads as broken rather than as unfinished. Only what cannot be shortened honestly stays English,
    and that goes in `left-in-english.tsv`.
-   ⚠️ **DEV_GUIDELINES still states the old "leave it out" rule.** Updating it is task P1.7.
-3. **Both Chinese scripts**, zh-Hans and zh-Hant. MSI is a Taiwanese company.
-4. **OSD scope: the notification cards only.** The native Quick Panel's ~60 labels are out of scope.
-5. **The helper follows CENTER's language, not the OS.** Somebody who set Center to Italian on a
+3. **Interpolated strings go through `Loc.F`, with the format as the key** — not "translate the
+   fixed part and concatenate the value", which bakes English word order in.
+4. **Both Chinese scripts**, zh-Hans and zh-Hant. MSI is a Taiwanese company.
+5. **OSD scope: the notification cards only.** The native Quick Panel's ~60 labels are out of scope.
+6. **The helper follows CENTER's language, not the OS.** Somebody who set Center to Italian on a
    German Windows meant it. Fallback: Center's choice → OS language → English.
 
 ### The rules the translations have to pass
@@ -86,7 +87,7 @@ reason the German round cost hours of manual curation on the device.
 
 - [x] TSV + generator; round trip proven identical for all four shipped languages
 - [x] `loc_coverage.py` walks all 113 `.cs` files, classifying by shape and position
-- [x] Thirteen languages wired: enum (append-only), `Detect`, `DetectChinese`, `NameOf`, `TableFor`,
+- [x] Thirteen languages wired: `UiLanguage`, `Detect`, `DetectChinese`, `NameOf`, `TableFor`,
       the settings picker
 - [x] The eight new tables are empty, which renders correct English by design
 - [x] `left-in-english.tsv` + generator footer — **this was a regression**: the first regeneration
@@ -126,21 +127,22 @@ the commit.
       (see "Keeping progress" below). The bucket is deliberately generous; expect roughly 150–250
       real UI strings. The certificate instructions, controller diagnostics, download errors, device
       detection and parts of Maintenance are in here.
-- [ ] **P1.4 — the 111 `interpolated`.** ⚠️ **Open contradiction, decide before starting:**
-      DEV_GUIDELINES says to *split* the string (translate the fixed part, concatenate the value);
-      `Localization.cs` documents `Loc.F` and argues the **format** should be the key, because
-      `"{0} is running"` lets a language put the name somewhere else and `"… is running"` does not.
-      `Loc.F` is the better mechanism and the tables already hold a handful of `{0}` keys. Confirm
-      with the owner, then make DEV_GUIDELINES and the code agree. Build after every file — this is
-      the one bucket where a mistake shows as a *wrong* screen rather than an English one.
+- [ ] **P1.4 — the 111 `interpolated` → `Loc.F`.** Decided by the owner, 2026-09-15, and
+      DEV_GUIDELINES now says so. `$"Settings loaded for {gameName}"` becomes
+      `Loc.F("Settings loaded for {0}", gameName)`; the **format** is the key, so a language may put
+      the value somewhere other than where English puts it. Not "translate the fixed part and
+      concatenate" — that bakes English word order in.
+      Build after every file: `Loc.F` never throws, so a mistake here shows as a *wrong* screen
+      rather than as an error, and only P1.6's placeholder check catches it.
 - [ ] **P1.5 — the 48 stale keys** (`loc_coverage.py --stale`). Delete what is genuinely gone, keep
       what is built at runtime. A stale key costs twelve translations for nothing.
 - [ ] **P1.6 — write `loc_lint.py`**: placeholder parity (`{0}` in a translation iff in the English),
       stray leading/trailing whitespace, duplicate keys, and the width budget as a report. Needed
       **before** P2.
-- [ ] **P1.7 — update DEV_GUIDELINES**: the width rule now says shorten-don't-drop; the left-in-
-      English list is generated from `left-in-english.tsv`; adding a language no longer means editing
-      `Loc.Order` (it is dead — see P4).
+- [x] **P1.7 — DEV_GUIDELINES brought in line** (done 2026-09-15): `Loc.F` for interpolated strings,
+      shorten-don't-drop, the left-in-English list generated from `left-in-english.tsv`, the tables
+      generated from `strings.tsv`, `Loc.Order` named as dead, and the language list corrected to
+      thirteen.
 
 **Gate out of P1:** coverage reports `wrapped 0` and `builder 0`; `loc_build.py --check` passes;
 `dotnet publish -c Release` succeeds.
@@ -240,8 +242,11 @@ are at the top of this file, and the boxes above say where the work stopped.
   file, not the terminal.)
 - `Localization.Tables.cs` is **LF**, not CRLF, and starts with a BOM. The generator matches that;
   do not "fix" it.
-- `UiLanguage` is **append-only**: the choice is persisted as the enum's number, so inserting a value
-  in the middle silently moves every setting saved before it.
+- `UiLanguage` is persisted **by name**, not by ordinal (`CenterSettings.Language` round-trips
+  `value.ToString()` through `Enum.TryParse`), so inserting a member in the middle is safe.
+  **Renaming one is not:** an unparseable name falls back to `System`, so a user's pinned language
+  quietly becomes "follow the OS". An earlier comment in `Localization.cs` claimed the opposite —
+  if you find that wording anywhere else, it is wrong.
 - `Loc.F` never throws: a mistyped placeholder falls back to the English format. That means a broken
   translation shows as a slightly wrong screen and **not** as an error — the lint in P1.6 is the only
   thing that catches it.
