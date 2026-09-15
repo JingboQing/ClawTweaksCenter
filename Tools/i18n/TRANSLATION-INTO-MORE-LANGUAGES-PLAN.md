@@ -225,10 +225,16 @@ scripts have never been seen in Center's font at all; Korean and Japanese only i
 rules apply there — build with `.\Build-Package.ps1` and nothing else, `Shared/Enums/Function.cs` is
 append-only. The helper is .NET Framework 4.8, not .NET 10. Scope is the notification cards only.
 
-- [ ] **P3.1 — how Center's language reaches the helper. ⚠️ Design decision, put it to the owner.**
-      The pipe is the obvious carrier, but the helper shows cards before Center has said anything,
-      so it needs somewhere to *read* the value at startup. Fallback chain: Center's choice → OS
+- [ ] **P3.1 — how Center's language reaches the helper. ✅ DECIDED 2026-09-15, not yet built.**
+      **Registry at startup, pipe for changes.** The helper reads
+      `HKCU\Software\ClawTweaks\Center` → `Language` when it starts - the value already exists
+      and is stored BY NAME (`Greek`, `System`, …), which is why renaming a `UiLanguage` member
+      is the one unsafe edit. That works with no Center running and before any pipe connection,
+      which is exactly the case the cards at boot fall into. Center additionally pushes a change
+      over the pipe so the next card is right immediately. Fallback: Center's choice → OS
       language → English.
+      ⚠️ **Verify first:** that the scheduled task really runs in the USER hive. As SYSTEM it
+      would read a different HKCU and silently always fall back to the OS language.
 - [ ] **P3.2 — a small `Loc` in the helper**, same shape and same "the key is the English string"
       rule, fed from the same `strings.tsv` so there is one source. The generator gets a second
       output.
@@ -255,13 +261,17 @@ nothing below is assumed:
 |---|---|
 | `[Languages]` | the five: `en de fr es ko`, all from Inno's own `.isl` files |
 | `[Messages]` | **one** overridden key, `WelcomeLabel2`, in the five languages |
-| `[CustomMessages]` | **55 keys x 5 languages**, read through `M('Key')` / `MF('Key', [...])` - **never** `CustomMessage()` directly, that returns `%n` unresolved |
+| `[CustomMessages]` | **54 keys x 5 languages**, read through `M('Key')` / `MF('Key', [...])` - **never** `CustomMessage()` directly, that returns `%n` unresolved |
 | language choice | `ShowLanguageDialog=no`, `UsePreviousLanguage=no` - Inno picks by the Windows UI language, silently, and falls back to the first line (English). See the note in the `.iss` on why `UsePreviousLanguage` has to stay `no` |
 | the two FSE wizard pages | wording is the owner's, near-verbatim, in every language - **do not** expand it into prose in any language |
 | `Log()` lines | English, and stay English - a translated setup log cannot be grepped |
 
-So the job is **55 + 1 keys x 8 new columns = 448 cells**, plus eight `[Languages]` lines. Small
+So the job is **55 keys x 8 new columns = 440 cells**, plus eight `[Languages]` lines. Small
 next to P2, but it has three traps of its own.
+
+*(Measured again on 2026-09-15 by the extractor: 54 `[CustomMessages]` keys plus
+`WelcomeLabel2` in `[Messages]` is **55 in total**, not 56. The earlier note counted
+`WelcomeLabel2` twice.)*
 
 ### Where Inno's own translations come from
 
@@ -300,8 +310,7 @@ Today the translations are **inline in the `.iss`** - a second source of truth n
   build step (the generated file is committed in the helper repo, like `Localization.Tables.cs`
   is in Center) and the same "never edit the generated file" discipline.
 
-**Recommendation: (b)**, for the same reason (1) in section 0 exists - but it is the owner's call,
-and until it is made the eight columns are not to be started in either form.
+**DECIDED 2026-09-15: (b)**, by the repo owner. Done - see P3b.1 below.
 
 ### The traps
 
@@ -317,15 +326,33 @@ and until it is made the eight columns are not to be started in either form.
 4. **Proving a language without switching Windows:** `ClawTweaks_<ver>_Setup.exe /LANG=el`. Korean
    is still unseen in the wizard font; CJK and Greek need one look each on the device.
 
-- [ ] **P3b.1 — decide (a) or (b)** with the owner.
+- [x] **P3b.1 — decided (b)** (2026-09-15) and carried out in the same pass: `Tools/i18n/inno.tsv`
+      holds the 55 keys x 13 languages, `loc_build.py` grew a second output
+      (`ClawTweaksInstaller/Languages/CustomMessages.iss`, pulled in with `#include`), and
+      `loc_lint.py --inno` is the second placeholder grammar. **The round trip was proven
+      before the inline blocks were deleted**: the generated file carried exactly the 275
+      (language, key, value) triples the `.iss` carried, none added, lost or changed.
+      Two lint rules differ from the C# half and the first run proved why: edge whitespace
+      can be the string's whole job (`PayloadAnd` is `" and"`), and `WelcomeLabel2` indents
+      its bullets with several spaces in every language. Commits `24ef404` (Center),
+      `174b2b80` (helper).
 - [ ] **P3b.2 — vendor `Greek.isl`, `ChineseSimplified.isl`, `ChineseTraditional.isl`** under
-      `ClawTweaksInstaller\Languages\`, and add the eight `[Languages]` lines. Compile: every new
-      language now fails on 56 missing keys, which is the list to work down.
-- [ ] **P3b.3 — the 56 keys x 8**, in the order of P2.3 (Italian first), using `glossary.tsv` from
-      P2.1 so the setup and Center call the same thing by the same word.
+      `ClawTweaksInstaller\Languages\`. **This is the only thing still missing**, and it is a
+      download from jrsoftware.org, so it waits for the owner. The other five `[Languages]`
+      lines (ru, it, ptBR, ja, pl) are in, because Inno 6.7 ships those `.isl` files.
+      ⚠️ The order the plan assumed is reversed in practice: the keys were filled FIRST, so
+      nothing fails on missing keys. What enforces the pairing instead is the generator - it
+      writes only languages that `[Languages]` declares (`INNO_SHIPPED` in `loc_build.py`)
+      and prints which translated columns it is holding back, because ISCC rejects a
+      `CustomMessages` entry whose prefix is not declared.
+- [x] **P3b.3 — the 55 keys x 8** (done 2026-09-15, 440 cells, `loc_lint.py --inno` 0 errors
+      0 warnings across all thirteen). Slot parity holds everywhere, `%n` line breaks match the
+      English shape so the FSE pages keep their layout, and `PayloadAnd` keeps its leading
+      space in every language. Commits `ab5b4c9` (Center), `ceaf2392` (helper).
 - [ ] **P3b.4 — one run per language** with `/LANG=xx`, the six wizard pages and the uninstall
       dialog. Fixed-width controls that clip get `CalculateButtonWidth` treatment, not a shorter
-      translation.
+      translation. **Nothing has been run yet** - ten languages compile into
+      `ClawTweaks_0.3.1.192_Setup.exe`, and none of them has been seen.
 
 ---
 
