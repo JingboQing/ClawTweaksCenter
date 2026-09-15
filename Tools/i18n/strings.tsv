@@ -5,7 +5,6 @@ A full reset backs up your settings first as well.	Auch ein Full Reset sichert v
 A helper from before the update is still running.	Ein Helper von vor dem Update läuft noch.	Un helper d'avant la mise à jour tourne encore.	업데이트 이전의 헬퍼가 아직 실행 중입니다.	Sigue activo un helper anterior a la actualización.								
 A safety backup is saved first	Vorher wird ein Sicherungs-Backup angelegt	Une sauvegarde de sécurité est faite d'abord	먼저 안전 백업을 저장합니다	Antes se guarda una copia de seguridad								
 A safety copy of your current settings is saved first, the Game Bar closes, the backup is written back, and the helper restarts. Reopen the Game Bar (Win+G) when it's done.	Zuerst wird der aktuelle Stand gesichert, dann schließt die Game Bar, das Backup wird zurückgeschrieben und der Helper startet neu. Danach die Game Bar mit Win+G wieder öffnen.	Une copie de vos réglages actuels est enregistrée, la Game Bar se ferme, le backup est réécrit et le helper redémarre. Rouvrez la Game Bar (Win+G) ensuite.	현재 설정을 먼저 백업하고 Game Bar를 닫은 뒤 백업을 되돌리고 헬퍼가 다시 시작합니다. 끝나면 Win+G로 Game Bar를 여세요.	Primero se guarda una copia de tus ajustes, se cierra la Game Bar, se escribe la copia y el helper se reinicia. Reabre la Game Bar (Win+G) al terminar.								
-About this library	Über diese Bibliothek	À propos de cette bibliothèque	이 라이브러리 정보	Sobre esta biblioteca								
 Achievements	Errungenschaften	Succès	도전 과제	Logros								
 Steam friends	Steam-Freunde	Amis Steam	Steam 친구	Amigos de Steam								
 {0} of {1} online	{0} von {1} online	{0} sur {1} en ligne	{1}명 중 {0}명 온라인	{0} de {1} en línea								
@@ -31,7 +30,6 @@ yesterday	gestern	hier	어제	ayer
 Achievement in {0}	Errungenschaft in {0}	Succès dans {0}	{0} 도전 과제	Logro en {0}								
 {0} achievements in {1}	{0} Errungenschaften in {1}	{0} succès dans {1}	{1} 도전 과제 {0}개	{0} logros en {1}								
 Played {0} for the first time	Hat {0} zum ersten Mal gespielt	A joué à {0} pour la première fois	{0} 첫 플레이	Jugó a {0} por primera vez								
-Added {0} to the wishlist	Hat {0} auf die Wunschliste gesetzt	A ajouté {0} à sa liste de souhaits	{0} 찜 목록에 추가	Añadió {0} a su lista de deseos								
 Played {0}	Spielte {0}	A joué à {0}	{0} 플레이	Jugó a {0}								
 Last online {0}	Zuletzt online {0}	En ligne {0}	마지막 접속 {0}	En línea {0}								
 Activate Game Bar auto-jump	Game-Bar-Autosprung aktivieren	Activer le saut auto Game Bar	Game Bar 자동 이동 켜기	Activar el salto automático								
@@ -39,7 +37,6 @@ Add ClawTweaks to the Game Bar	ClawTweaks zur Game Bar hinzufügen	Ajouter ClawT
 Add ClawTweaks to the Game Bar first.	Erst ClawTweaks zur Game Bar hinzufügen.	Ajoutez d'abord ClawTweaks à la Game Bar.	먼저 Game Bar에 ClawTweaks를 추가하세요.	Añade antes ClawTweaks a la Game Bar.								
 Add ROMs in Playnite, then close it — they are found automatically.	Füge ROMs in Playnite hinzu und schließe es — sie werden automatisch gefunden.	Ajoutez vos ROM dans Playnite puis fermez-le — elles sont trouvées automatiquement.	Playnite에서 ROM을 추가한 뒤 닫으세요 — 자동으로 검색됩니다.	Añade ROM en Playnite y ciérralo — se encuentran automáticamente.								
 Add a desktop icon	Desktop-Verknüpfung erstellen	Ajouter une icône au bureau	바탕 화면 아이콘 추가	Añadir icono al escritorio								
-Add a tool	Tool hinzufügen	Ajouter un outil	도구 추가	Nueva herramienta								
 Add an app	App hinzufügen	Ajouter une app	앱 추가	Añadir una app								
 Add app	Hinzufügen	Ajouter	앱 추가	Añadir app								
 Add it under Settings → SteamGridDB key.	Unter Einstellungen → SteamGridDB-Key eintragen.	Ajoutez-la dans Paramètres → clé SteamGridDB.	설정 → SteamGridDB 키에 입력하세요.	Añádela en Ajustes → clave de SteamGridDB.								
@@ -70,7 +67,6 @@ Both write the same hardware, and the last one to write wins.	Beide schreiben di
 Bring back a previous backup. A safety copy of the current state is taken automatically first.	Spielt ein früheres Backup zurück. Vom aktuellen Stand wird vorher automatisch eine Sicherung angelegt.	Restaure un backup précédent. Une copie de sécurité de l'état actuel est faite d'abord.	이전 백업을 되돌립니다. 현재 상태는 먼저 자동으로 백업됩니다.	Restaura una copia anterior. Antes se guarda automáticamente el estado actual.								
 Browse for a file	Datei auswählen	Parcourir un fichier	파일 찾아보기	Buscar un archivo								
 Browse…	Durchsuchen…	Parcourir…	찾아보기…	Examinar…								
-Button remaps, gyro and per-game controller profiles need it.	Tastenbelegung, Gyro und Controller-Profile pro Spiel brauchen ihn.	Le remappage, le gyro et les profils manette par jeu en dépendent.	버튼 재지정, 자이로, 게임별 컨트롤러 프로필에 필요합니다.	El remapeo, el giroscopio y los perfiles por juego lo necesitan.								
 Center background	Center-Hintergrund	Fond de Center	Center 배경	Fondo de Center								
 Change folder	Ordner wechseln	Changer de dossier	폴더 변경	Cambiar carpeta								
 Choose one of your images	Eigenes Bild wählen	Choisir une de vos images	내 이미지 선택	Elegir una de tus imágenes								
@@ -78,10 +74,8 @@ Choose a background	Hintergrund wählen	Choisir un fond	배경 선택	Elegir un 
 CPU boost	CPU-Boost	Boost CPU	CPU 부스트	Boost de CPU								
 CTW Full Reset	CTW ganz zurücksetzen	Reset complet CTW	CTW 전체 초기화	Restablecer todo CTW								
 Cancel	Abbrechen	Annuler	취소	Cancelar								
-Center home	Center-Startseite	Accueil Center	Center 홈	Inicio de Center								
 Center is how you update ClawTweaks and reset the device. Remove ClawTweaks first if you meant to remove both.	Über Center aktualisierst du ClawTweaks und setzt das Gerät zurück. Entferne erst ClawTweaks, wenn beides weg soll.	C'est par Center que tu mets ClawTweaks à jour et que tu restaures l'appareil. Supprime ClawTweaks d'abord si tu veux tout enlever.	Center로 ClawTweaks를 업데이트하고 기기를 되돌립니다. 둘 다 지우려면 ClawTweaks를 먼저 제거하세요.	Con Center actualizas ClawTweaks y restauras el dispositivo. Quita antes ClawTweaks si quieres eliminar ambos.								
 Center itself never asks for admin rights.	Center selbst fragt nie nach Adminrechten.	Center lui-même ne demande jamais les droits admin.	Center 자체는 관리자 권한을 요구하지 않습니다.	Center nunca pide permisos de administrador.								
-Center keeps running.	Center läuft weiter.	Center continue de tourner.	Center가 계속 실행됩니다.	Center sigue en marcha.								
 Center settings	Center-Einstellungen	Paramètres Center	Center 설정	Ajustes de Center								
 Center start screen	Center-Startseite	Écran d'accueil Center	Center 시작 화면	Pantalla de inicio								
 Centered	Zentriert	Centré	가운데 정렬	Centrado								
@@ -153,8 +147,6 @@ Disabled	Aus	Désactivé	사용 안 함	Desactivado
 Do I have to switch MSI Center M off?	Muss ich MSI Center M abschalten?	Dois-je désactiver MSI Center M ?	MSI Center M을 꺼야 하나요?	¿Tengo que desactivar MSI Center M?								
 Do I need the Game Bar for the game library?	Brauche ich die Game Bar für die Spielebibliothek?	Ai-je besoin du Game Bar pour la bibliothèque ?	게임 라이브러리에 게임 바가 필요한가요?	¿Necesito la Game Bar para la biblioteca?								
 Do not remove ClawTweaks through the Windows app list.	Deinstalliere ClawTweaks nicht über die Windows-App-Liste.	Ne supprime pas ClawTweaks depuis la liste des applications Windows.	Windows 앱 목록에서 ClawTweaks를 제거하지 마세요.	No elimines ClawTweaks desde la lista de aplicaciones de Windows.								
-Do that before removing the app: afterwards nothing can undo them.	Das vor dem Entfernen der App: danach kann es nichts mehr zurücknehmen.	Fais-le avant de supprimer l'app : après, plus rien ne peut les annuler.	앱을 지우기 전에 하세요. 그 뒤에는 되돌릴 수단이 없습니다.	Hazlo antes de quitar la app: después nada puede deshacerlo.								
-Done here?	Hier fertig?	Terminé ici ?	여기서 끝났나요?	¿Listo aquí?								
 Downgrade	Ältere Version	Rétrogradation	이전 버전	Bajar versión								
 Download and package install in progress.	Download und Paketinstallation laufen.	Téléchargement et installation en cours.	다운로드 및 패키지 설치 진행 중.	Descarga e instalación en curso.								
 Download the ClawTweaks setup and run that instead.	Lade das ClawTweaks-Setup herunter und führe stattdessen dieses aus.	Téléchargez le programme d'installation ClawTweaks et lancez-le à la place.	ClawTweaks 설치 파일을 내려받아 대신 실행하세요.	Descarga el instalador de ClawTweaks y ejécutalo en su lugar.								
@@ -167,10 +159,8 @@ Edit search	Suche ändern	Modifier	검색 편집	Editar búsqueda
 Enable the virtual controller first.	Erst den virtuellen Controller aktivieren.	Activez d'abord la manette virtuelle.	먼저 가상 컨트롤러를 켜세요.	Activa antes el mando virtual.								
 Enable virtual controller	Virtuellen Controller aktivieren	Activer la manette virtuelle	가상 컨트롤러 활성화	Activar el mando virtual								
 Enabled	An	Activé	사용	Activado								
-Ends Center completely.	Beendet Center vollständig.	Ferme Center complètement.	Center를 완전히 종료합니다.	Cierra Center por completo.								
 Enter the slot ClawTweaks sits at, then Run.	Den Platz eintragen, an dem ClawTweaks sitzt, dann Starten.	Indiquez la position de ClawTweaks, puis Lancer.	ClawTweaks가 있는 위치를 입력한 뒤 실행하세요.	Indica la posición de ClawTweaks y pulsa Ejecutar.								
 Exit	Beenden	Quitter	종료	Salir								
-Expected for a same-version reinstall — the helper doesn't restart or show a UAC prompt when nothing changed.	Bei einer Neuinstallation derselben Version normal — der Helper startet nicht neu und zeigt kein UAC, wenn sich nichts geändert hat.	Normal pour une réinstallation de la même version — le helper ne redémarre pas et n'affiche pas d'UAC si rien n'a changé.	같은 버전을 다시 설치할 때는 정상입니다 — 변경이 없으면 헬퍼는 재시작하지도, UAC를 띄우지도 않습니다.	Normal al reinstalar la misma versión — el helper no se reinicia ni muestra UAC si nada cambió.								
 Expected for a same-version reinstall — the helper doesn't restart or show a UAC prompt when nothing changed. Open the Game Bar (Win+G) to check it's still running.	Bei einer Neuinstallation derselben Version normal — der Helper startet nicht neu und zeigt keine UAC-Abfrage, wenn sich nichts geändert hat. Öffne die Game Bar (Win+G), um zu prüfen, ob er noch läuft.	Normal pour une réinstallation de la même version — l'assistant ne redémarre pas et n'affiche pas d'invite UAC si rien n'a changé. Ouvre la Game Bar (Win+G) pour vérifier qu'il tourne toujours.	동일한 버전을 다시 설치할 때는 정상입니다 — 변경된 것이 없으면 헬퍼는 다시 시작하거나 UAC 창을 표시하지 않습니다. Game Bar(Win+G)를 열어 실행 중인지 확인하세요.	Es normal al reinstalar la misma versión — el asistente no se reinicia ni muestra un aviso de UAC si nada ha cambiado. Abre la Game Bar (Win+G) para comprobar que sigue en marcha.								
 Experimental versions (nightly)	Experimentelle Versionen (Nightly)	Versions expérimentales (nightly)	실험 버전 (나이트리)	Versiones experimentales (nightly)								
 Folder is gone	Ordner fehlt	Dossier introuvable	폴더 없음	Carpeta perdida								
@@ -199,8 +189,6 @@ Hide	Ausblenden	Masquer	숨기기	Ocultar
 Hide a tab with A.	Blende einen Tab mit A aus.	Masquez un onglet avec A.	A로 탭을 숨기세요.	Oculta una pestaña con A.								
 HidHide and usbip install kernel drivers. Reboot the device once after installing them, then run this setup again.	HidHide und usbip installieren Kerneltreiber. Nach der Installation das Gerät einmal neu starten und dieses Setup erneut ausführen.	HidHide et usbip installent des pilotes noyau. Redémarrez l'appareil une fois après les avoir installés, puis relancez ce setup.	HidHide와 usbip은 커널 드라이버를 설치합니다. 설치 후 장치를 한 번 재부팅한 다음 이 설치를 다시 실행하세요.	HidHide y usbip instalan controladores de núcleo. Reinicia el dispositivo una vez tras instalarlos y vuelve a ejecutar este setup.								
 How do I uninstall and go back to MSI Center M?	Wie deinstalliere ich und kehre zu MSI Center M zurück?	Comment désinstaller et revenir à MSI Center M ?	어떻게 제거하고 MSI Center M으로 돌아가나요?	¿Cómo desinstalo y vuelvo a MSI Center M?								
-How do I uninstall everything?	Wie deinstalliere ich alles?	Comment tout désinstaller ?	전부 제거하려면 어떻게 하나요?	¿Cómo lo desinstalo todo?								
-Immersive mode	Immersiver Modus	Mode immersif	몰입 모드	Modo inmersivo								
 In virtual mode the physical pad is hidden and one virtual VIIPER controller is active; in hardware mode the physical pad is used directly.	Im virtuellen Modus wird der physische Pad versteckt und ein virtueller VIIPER-Controller ist aktiv; im Hardware-Modus wird der physische Pad direkt benutzt.	En mode virtuel la manette physique est masquée et une manette VIIPER virtuelle est active ; en mode matériel la manette physique est utilisée directement.	가상 모드에서는 물리 패드가 숨겨지고 VIIPER 가상 컨트롤러가 활성화되며, 하드웨어 모드에서는 물리 패드를 직접 사용합니다.	En modo virtual el mando físico se oculta y hay un mando virtual VIIPER activo; en modo hardware se usa el mando físico directamente.								
 Info	Info	Infos	정보	Info								
 Install	Installieren	Installer	설치	Instalar								
@@ -208,7 +196,6 @@ Install ClawTweaks	ClawTweaks installieren	Installer ClawTweaks	ClawTweaks 설�
 Install ClawTweaks Center	ClawTweaks Center installieren	Installer ClawTweaks Center	ClawTweaks Center 설치	Instalar ClawTweaks Center								
 Install failed — see the log for details. Try again, or run as Administrator.	Installation fehlgeschlagen — Details stehen im Log. Erneut versuchen oder als Administrator ausführen.	Échec de l'installation — voir le journal. Réessayez, ou lancez en administrateur.	설치 실패 — 자세한 내용은 로그를 보세요. 다시 시도하거나 관리자 권한으로 실행하세요.	Fallo al instalar — mira el registro. Inténtalo otra vez o ejecuta como administrador.								
 Install releases, test builds and nightlies.	Releases, Test-Builds und Nightlies installieren.	Installer releases, test builds et nightlies.	릴리즈, 테스트 빌드, 나이트리를 설치합니다.	Instala releases, test builds y nightlies.								
-Install this build	Diesen Build installieren	Installer ce build	이 빌드 설치	Instalar este build								
 Install this version	Diese Version installieren	Installer cette version	이 버전 설치	Instalar esta versión								
 Install this version?	Diese Version installieren?	Installer cette version ?	이 버전을 설치할까요?	¿Instalar esta versión?								
 Install timed out.	Zeitüberschreitung bei der Installation.	Délai d'installation dépassé.	설치 시간이 초과되었습니다.	Se agotó el tiempo de instalación.								
@@ -219,7 +206,6 @@ Installing package…	Paket wird installiert…	Installation du paquet…	패키
 Installing...	Installiere...	Installation...	설치 중...	Instalando...								
 Integer	Ganzzahlig	Entier	정수 배율	Entero								
 It is the standard mode in ClawTweaks.	Das ist der Standardmodus in ClawTweaks.	C'est le mode standard de ClawTweaks.	ClawTweaks의 기본 모드입니다.	Es el modo estándar de ClawTweaks.								
-It replaces the Claw's own gamepad with one ClawTweaks drives.	Er ersetzt das Gamepad der Claw durch eines, das ClawTweaks steuert.	Elle remplace la manette de la Claw par une que ClawTweaks pilote.	Claw의 기본 게임패드를 ClawTweaks가 제어하는 패드로 대체합니다.	Sustituye el mando de la Claw por uno que controla ClawTweaks.								
 It resets the charge limit, the fan and the controller first.	Es setzt vorher Ladelimit, Lüfter und Controller zurück.	Il réinitialise d'abord la limite de charge, le ventilateur et la manette.	먼저 충전 제한과 팬, 컨트롤러를 되돌립니다.	Primero restablece el límite de carga, el ventilador y el mando.								
 It starts with Windows through its scheduled task.	Er startet mit Windows über seine geplante Aufgabe.	Il démarre avec Windows via sa tâche planifiée.	예약 작업을 통해 Windows와 함께 시작합니다.	Arranca con Windows mediante su tarea programada.								
 It walks you through every step.	Es führt dich durch jeden Schritt.	Il te guide à chaque étape.	모든 단계를 안내해 줍니다.	Te guía por cada paso.								
@@ -284,7 +270,6 @@ Downloaded when you pick one.	Wird beim Auswählen geladen.	Téléchargé quand 
 Looking for wallpapers…	Hintergründe werden gesucht…	Recherche de fonds…	배경을 찾는 중…	Buscando fondos…								
 The wallpaper list could not be reached. Check your connection.	Die Hintergrund-Liste ist nicht erreichbar. Prüfe deine Verbindung.	Liste des fonds inaccessible. Vérifie ta connexion.	배경 목록에 연결하지 못했습니다. 연결을 확인하세요.	No se pudo acceder a la lista de fondos. Comprueba tu conexión.								
 No wallpapers published yet.	Noch keine Hintergründe veröffentlicht.	Aucun fond publié pour l'instant.	아직 공개된 배경이 없습니다.	Aún no hay fondos publicados.								
-Library	Bibliothek	Bibliothèque	라이브러리	Biblioteca								
 Library Settings	Bibliothek Einstellungen	Réglages bibliothèque	라이브러리 설정	Ajustes de biblioteca								
 Library settings	Bibliothek Einstellungen	Réglages bibliothèque	라이브러리 설정	Ajustes de biblioteca								
 Loading the page…	Seite wird geladen…	Chargement de la page…	문서를 불러오는 중…	Cargando la página…								
@@ -298,8 +283,6 @@ Manage your ClawTweaks settings — back them up, restore a previous backup, or 
 Menu	Menü	Menu	메뉴	Menú								
 Minimize	Minimieren	Réduire	최소화	Minimizar								
 Minimize Center	Center minimieren	Réduire Center	Center 최소화	Minimizar Center								
-Minimize to tray	In die Taskleiste	Réduire dans la zone	트레이로 최소화	Minimizar a la bandeja								
-Misc	Sonstige	Divers	기타	Otros								
 Mode: Fresh install	Modus: Neuinstallation	Mode : installation neuve	모드: 새로 설치	Modo: instalación nueva								
 Mode: Update	Modus: Update	Mode : mise à jour	모드: 업데이트	Modo: actualizar								
 Mouse	Maus	Souris	마우스	Ratón								
@@ -329,7 +312,6 @@ No games from these stores installed.	Keine Spiele aus diesen Stores installiert
 No installable package found after staging.	Nach dem Bereitstellen kein installierbares Paket gefunden.	Aucun paquet installable après la préparation.	준비 후 설치 가능한 패키지를 찾지 못했습니다.	No se encontró paquete instalable tras preparar.								
 No portrait covers found for that search.	Keine Hochkant-Cover für diese Suche gefunden.	Aucune jaquette portrait pour cette recherche.	해당 검색에 세로 커버가 없습니다.	No hay portadas verticales para esa búsqueda.								
 No restart necessary.	Kein Neustart nötig.	Aucun redémarrage requis.	재부팅이 필요 없습니다.	No hace falta reiniciar.								
-No tools added yet.	Noch keine Tools hinzugefügt.	Aucun outil ajouté.	추가된 도구가 없습니다.	No hay herramientas.								
 No uninstaller found for the older version.	Kein Deinstallationsprogramm für die ältere Version gefunden.	Aucun désinstalleur trouvé pour l'ancienne version.	이전 버전의 제거 프로그램을 찾지 못했습니다.	No se encontró desinstalador de la versión antigua.								
 No virtual pad detected — rolled back to the hardware controller.	Kein virtueller Pad erkannt — zurück zum Hardware-Controller.	Aucune manette virtuelle détectée — retour à la manette physique.	가상 패드를 찾지 못해 하드웨어 컨트롤러로 되돌렸습니다.	No se detectó mando virtual — se volvió al mando físico.								
 No. The library runs on its own, without the Game Bar.	Nein. Die Bibliothek läuft eigenständig, ohne die Game Bar.	Non. La bibliothèque fonctionne seule, sans le Game Bar.	아니요. 라이브러리는 게임 바 없이 단독으로 동작합니다.	No. La biblioteca funciona sola, sin la Game Bar.								
@@ -353,19 +335,16 @@ Off	Aus	Désactivé	꺼짐	Desactivado
 Older than installed	Älter als installiert	Plus ancienne qu'installée	설치된 것보다 이전	Más antigua que la instalada								
 On	An	Activé	켬	Activado								
 Onboarding lists it as a to-do the first time you install ClawTweaks.	Beim ersten Installieren von ClawTweaks steht es im Onboarding als Aufgabe.	Lors de la première installation de ClawTweaks, l'onboarding l'indique comme à faire.	ClawTweaks를 처음 설치할 때 온보딩에 할 일로 표시됩니다.	Al instalar ClawTweaks por primera vez, aparece como tarea en el onboarding.								
-Onboarding switches it off. Uninstall ClawTweaks switches it back on.	Das Onboarding schaltet es ab, die Deinstallation wieder an.	L'Onboarding le désactive, la désinstallation le réactive.	온보딩이 끄고, 제거 화면이 다시 켭니다.	Onboarding lo apaga, y la desinstalación lo vuelve a encender.								
 Once, at the first install, to register its background task.	Einmal bei der Erstinstallation, um seine Hintergrundaufgabe anzulegen.	Une fois, à la première installation, pour créer sa tâche de fond.	최초 설치 때 한 번, 백그라운드 작업을 등록하기 위해서입니다.	Una vez, en la primera instalación, para registrar su tarea de fondo.								
 One click in the widget or in Center brings Center M back.	Ein Klick im Widget oder in Center holt Center M zurück.	Un clic dans le widget ou dans Center rend Center M.	위젯이나 Center에서 한 번만 누르면 Center M이 돌아옵니다.	Un clic en el widget o en Center devuelve Center M.								
 Only Steam is supported for now.	Bisher wird nur Steam unterstützt.	Seul Steam est pris en charge pour l'instant.	현재는 Steam만 지원합니다.	Por ahora solo se admite Steam.								
 Only for apps you added yourself	Nur für selbst hinzugefügte Apps	Seulement pour les apps ajoutées à la main	직접 추가한 앱에만 적용됩니다	Solo para apps añadidas por ti								
 Only the ClawTweaks widget lives in the Game Bar.	Nur das ClawTweaks-Widget sitzt in der Game Bar.	Seul le widget ClawTweaks vit dans le Game Bar.	게임 바에 있는 것은 ClawTweaks 위젯뿐입니다.	Solo el widget de ClawTweaks vive en la Game Bar.								
 Open	Öffnen	Ouvrir	열기	Abrir								
-Open Onboarding and enter the slot ClawTweaks sits at in the Game Bar.	Im Onboarding die Position eintragen, an der ClawTweaks in der Game Bar sitzt.	Dans l'Onboarding, indique la position de ClawTweaks dans le Game Bar.	온보딩에서 게임 바의 ClawTweaks 위치 번호를 입력하세요.	En Onboarding indica la posición de ClawTweaks en la Game Bar.								
 Open OptiClick	OptiClick öffnen	Ouvrir OptiClick	OptiClick 열기	Abrir OptiClick								
 Open Reset · Backup · Restore on the start screen.	Auf dem Startbildschirm Reset · Backup · Restore öffnen.	Ouvre Reset · Backup · Restore sur l'écran d'accueil.	시작 화면에서 Reset · Backup · Restore를 여세요.	Abre Reset · Backup · Restore en la pantalla de inicio.								
 Open Steam	Steam öffnen	Ouvrir Steam	Steam 열기	Abrir Steam								
 Open SteamGridDB	SteamGridDB öffnen	Ouvrir SteamGridDB	SteamGridDB 열기	Abrir SteamGridDB								
-Open Uninstall ClawTweaks on the start screen and work down the list.	Auf dem Startbildschirm Uninstall ClawTweaks öffnen und die Liste abarbeiten.	Ouvre Uninstall ClawTweaks sur l'écran d'accueil et suis la liste.	시작 화면에서 Uninstall ClawTweaks를 열고 목록을 따라가세요.	Abre Uninstall ClawTweaks en la pantalla de inicio y sigue la lista.								
 Open Windows Settings, go to Apps, find "ClawTweaks Center" and uninstall it, then press Re-check.	Windows-Einstellungen öffnen, zu Apps gehen, "ClawTweaks Center" suchen und deinstallieren, dann Neu prüfen drücken.	Ouvrez les Paramètres Windows, allez dans Applications, trouvez "ClawTweaks Center", désinstallez-le, puis Revérifier.	Windows 설정을 열고 앱에서 "ClawTweaks Center"를 찾아 제거한 뒤 다시 확인을 누르세요.	Abre Configuración de Windows, ve a Aplicaciones, busca "ClawTweaks Center", desinstálalo y pulsa Recomprobar.								
 Open all	Alle öffnen	Tout ouvrir	모두 열기	Abrir todo								
 Open download page	Downloadseite öffnen	Page de téléchargement	다운로드 페이지 열기	Abrir página de descarga								
@@ -406,7 +385,6 @@ Preview versions for trying upcoming changes	Vorabversionen, um kommende Änderu
 Probing controller topology	Controller-Topologie wird geprüft	Analyse de la manette	컨트롤러 구성을 확인하는 중	Analizando el mando								
 Puts the charge limit, the fan and the controller back.	Setzt Ladelimit, Lüfter und Controller zurück.	Restaure la limite de charge, le ventilateur et la manette.	충전 제한과 팬, 컨트롤러를 되돌립니다.	Restaura el límite de carga, el ventilador y el mando.								
 REBOOT REQUIRED	NEUSTART NÖTIG	REDÉMARRAGE REQUIS	재부팅 필요	REINICIO NECESARIO								
-Raise "Wait before jumping" in the widget if a game is busy.	Im Widget „Wait before jumping“ erhöhen, wenn ein Spiel ausgelastet ist.	Augmente « Wait before jumping » dans le widget si un jeu charge le système.	게임이 바쁠 때는 위젯에서 “Wait before jumping” 값을 올리세요.	Sube «Wait before jumping» en el widget si un juego va cargado.								
 Re-check	Neu prüfen	Revérifier	다시 확인	Recomprobar								
 Re-enables MSI's tasks, service and Game Bar widget.	Aktiviert MSIs Aufgaben, Dienst und Game-Bar-Widget wieder.	Réactive les tâches, le service et le widget Game Bar de MSI.	MSI의 작업, 서비스, 게임 바 위젯을 다시 켭니다.	Reactiva las tareas, el servicio y el widget de Game Bar de MSI.								
 Reading installed apps…	Installierte Apps werden gelesen…	Lecture des apps installées…	설치된 앱을 읽는 중…	Leyendo apps instaladas…								
@@ -424,7 +402,6 @@ Removes the app, its background helper and its scheduled task.	Entfernt die App,
 Removes this app and closes it.	Entfernt diese App und schließt sie.	Supprime cette app et la ferme.	이 앱을 제거하고 닫습니다.	Quita esta app y la cierra.								
 Removing Center…	Entfernt Center…	Suppression de Center…	Center 제거 중…	Quitando Center…								
 Removing ClawTweaks…	Entfernt ClawTweaks…	Suppression de ClawTweaks…	ClawTweaks 제거 중…	Quitando ClawTweaks…								
-Removing it needs administrator rights. ClawTweaks Center never asks for those — the button below hands the job to Windows' own uninstaller.	Das Entfernen braucht Adminrechte. ClawTweaks Center fragt nie danach — der Knopf unten übergibt die Aufgabe an die Windows-Deinstallation.	Le retrait demande des droits administrateur. ClawTweaks Center n'en demande jamais — le bouton ci-dessous confie la tâche au désinstalleur de Windows.	제거하려면 관리자 권한이 필요합니다. ClawTweaks Center는 절대 요구하지 않으며, 아래 버튼이 Windows 제거 프로그램에 넘깁니다.	Quitarlo requiere permisos de administrador. ClawTweaks Center nunca los pide — el botón de abajo deja la tarea al desinstalador de Windows.								
 Removing leftover helper…	Übrig gebliebenen Helper entfernen…	Suppression du helper restant…	남은 헬퍼 제거 중…	Quitando el helper sobrante…								
 Renaming looks for new cover art.	Beim Umbenennen wird neues Cover gesucht.	Renommer relance la recherche de jaquette.	이름을 바꾸면 커버를 다시 찾습니다.	Al renombrar se busca nueva portada.								
 Required tools	Benötigte Tools	Outils requis	필요한 도구	Herramientas necesarias								
@@ -492,7 +469,6 @@ Steam cover art is found automatically.	Steam-Cover werden automatisch gefunden.
 Steam has taken over. The download shows in Recent.	Steam hat übernommen. Der Download steht unter Zuletzt.	Steam a pris le relais. Le téléchargement apparaît dans Récents.	Steam이 이어서 처리합니다. 다운로드는 최근 항목에 표시됩니다.	Steam se encarga. La descarga aparece en Recientes.								
 SteamGridDB key	SteamGridDB-Key	Clé SteamGridDB	SteamGridDB 키	Clave de SteamGridDB								
 Step 1 has not run. After this, nothing on the device can switch the charge limit off or hand the fan back to firmware.	Schritt 1 lief noch nicht. Danach kann nichts auf dem Gerät das Ladelimit ausschalten oder den Lüfter an die Firmware zurückgeben.	L'étape 1 n'a pas été lancée. Ensuite, plus rien sur l'appareil ne pourra désactiver la limite de charge ni rendre le ventilateur au firmware.	1단계를 아직 실행하지 않았습니다. 이후에는 기기에서 충전 제한을 끄거나 팬을 펌웨어에 넘길 수 없습니다.	El paso 1 no se ha ejecutado. Después, nada en el dispositivo podrá desactivar el límite de carga ni devolver el ventilador al firmware.								
-Step 1 puts the charge limit, the fan and the controller back.	Schritt 1 setzt Ladelimit, Lüfter und Controller zurück.	L'étape 1 restaure la limite de charge, le ventilateur et la manette.	1단계가 충전 제한과 팬, 컨트롤러를 되돌립니다.	El paso 1 restaura el límite de carga, el ventilador y el mando.								
 Stick deadzone	Stick-Deadzone	Zone morte stick	스틱 데드존	Zona muerta del stick								
 Stretch	Gestreckt	Étiré	늘이기	Estirado								
 System	System	Système	시스템	Sistema								
@@ -501,28 +477,23 @@ TDP boost	TDP-Boost	Boost TDP	TDP 부스트	Boost de TDP
 Test versions	Testversionen	Versions de test	테스트 버전	Versiones de prueba								
 That is what makes the extra controller features possible.	Erst dadurch sind die zusätzlichen Controller-Funktionen möglich.	C'est ce qui rend possibles les fonctions supplémentaires de la manette.	그덜분에 추가 컨트롤러 기능을 사용할 수 있습니다.	Eso es lo que hace posibles las funciones adicionales del mando.								
 That key was rejected.	Der Key wurde abgelehnt.	Cette clé a été refusée.	키가 거부되었습니다.	Esa clave fue rechazada.								
-The MSI button does not open the widget.	Die MSI-Taste öffnet das Widget nicht.	Le bouton MSI n'ouvre pas le widget.	MSI 버튼을 눌러도 위젯이 열리지 않습니다.	El botón MSI no abre el widget.								
 The charge limit, the fan curve and the controller mode can only be reset by ClawTweaks. Install it again to restore them, then come back here. You can still uninstall Center.	Ladelimit, Lüfterkurve und Controller-Modus kann nur ClawTweaks zurücksetzen. Installiere es erneut, setze zurück und komm hierher zurück. Center lässt sich trotzdem deinstallieren.	Seul ClawTweaks peut réinitialiser la limite de charge, la courbe du ventilateur et le mode manette. Réinstalle-le, puis reviens ici. Tu peux quand même désinstaller Center.	충전 제한, 팬 커브, 컨트롤러 모드는 ClawTweaks만 되돌릴 수 있습니다. 다시 설치한 뒤 여기로 돌아오세요. Center는 그래도 제거할 수 있습니다.	Solo ClawTweaks puede restablecer el límite de carga, la curva del ventilador y el modo del mando. Vuelve a instalarlo y regresa aquí. Aun así puedes desinstalar Center.								
 The controller did not confirm — check it before you unplug.	Der Controller hat nicht bestätigt — prüfe ihn, bevor du abziehst.	La manette n'a pas confirmé — vérifie-la avant de débrancher.	컨트롤러가 확인되지 않았습니다. 분리하기 전에 확인하세요.	El mando no confirmó — compruébalo antes de desconectar.								
 The device can be restored	Das Gerät lässt sich zurücksetzen	L'appareil peut être restauré	기기를 되돌릴 수 있습니다	El dispositivo puede restaurarse								
 The helper did not confirm in time.	Der Helper hat nicht rechtzeitig bestätigt.	Le helper n'a pas confirmé à temps.	헬퍼가 제때 확인하지 않았습니다.	El helper no confirmó a tiempo.								
-The helper hops to that slot; it cannot read the position itself.	Der Helper springt dorthin; auslesen kann er die Position nicht.	Le helper saute jusque-là ; il ne peut pas lire la position.	헬퍼는 그 위치로 이동합니다. 위치를 직접 읽을 수는 없습니다.	El helper salta a esa posición; no puede leerla por su cuenta.								
 The helper is not answering	Der Helper antwortet nicht	Le helper ne répond pas	헬퍼가 응답하지 않습니다	El helper no responde								
-The last step removes Center and always works.	Der letzte Schritt entfernt Center und geht immer.	La dernière étape supprime Center et fonctionne toujours.	마지막 단계는 Center를 제거하며 항상 실행됩니다.	El último paso quita Center y siempre funciona.								
 The library comes back when the game ends.	Die Bibliothek kommt nach Spielende zurück.	La bibliothèque revient à la fin du jeu.	게임이 끝나면 라이브러리로 돌아옵니다.	La biblioteca vuelve al terminar el juego.								
 The native controller must be clean before the virtual controller mode can work. In virtual mode the physical pad is hidden and one virtual VIIPER controller is active; in hardware mode the physical pad is used directly.	Der native Controller muss sauber sein, bevor der virtuelle Controller-Modus funktioniert. Im virtuellen Modus wird der physische Pad versteckt und ein virtueller VIIPER-Controller ist aktiv; im Hardware-Modus wird der physische Pad direkt benutzt.	La manette native doit être propre avant que le mode virtuel puisse fonctionner. En mode virtuel la manette physique est masquée et une manette VIIPER virtuelle est active ; en mode matériel la manette physique est utilisée directement.	가상 컨트롤러 모드가 동작하려면 기본 컨트롤러가 깨끗해야 합니다. 가상 모드에서는 물리 패드가 숨겨지고 VIIPER 가상 컨트롤러가 활성화되며, 하드웨어 모드에서는 물리 패드를 직접 사용합니다.	El mando nativo debe estar limpio antes de que funcione el modo de mando virtual. En modo virtual el mando físico se oculta y hay un mando virtual VIIPER activo; en modo hardware se usa el mando físico directamente.								
 The newest changes, least tested	Die neuesten Änderungen, am wenigsten getestet	Les changements les plus récents, les moins testés	가장 새로운 변경, 가장 적게 검증됨	Los cambios más nuevos, los menos probados								
 The old helper exited on its own.	Der alte Helper hat sich selbst beendet.	L'ancien assistant s'est arrêté tout seul.	이전 헬퍼가 스스로 종료되었습니다.	El asistente anterior se cerró solo.								
-The old version's uninstaller is running — confirm its prompt. This notice disappears once it's gone.	Die Deinstallation der alten Version läuft — bestätige ihre Abfrage. Der Hinweis verschwindet, sobald sie weg ist.	Le désinstalleur de l'ancienne version tourne — confirmez sa demande. Cet avis disparaît une fois terminé.	이전 버전의 제거 프로그램이 실행 중입니다 — 표시되는 확인을 눌러 주세요. 제거되면 이 안내는 사라집니다.	El desinstalador de la versión antigua está en marcha — confirma su aviso. Este mensaje desaparece al terminar.								
+The old version's uninstaller is running — confirm its prompt. This notice disappears once it's gone (press Ⓨ to refresh).	Die Deinstallation der alten Version läuft — bestätige ihre Abfrage. Der Hinweis verschwindet, sobald sie weg ist (Ⓨ aktualisiert).	Le désinstalleur de l'ancienne version tourne — confirmez sa demande. Cet avis disparaît une fois terminé (Ⓨ pour actualiser).	이전 버전의 제거 프로그램이 실행 중입니다 — 표시되는 확인을 눌러 주세요. 제거되면 이 안내는 사라집니다 (Ⓨ로 새로 고침).	El desinstalador de la versión antigua está en marcha — confirma su aviso. Este mensaje desaparece cuando termine (Ⓨ para actualizar).								
 The package could not be removed. Close the Game Bar and try again, or remove ClawTweaks from Settings → Apps.	Das Paket ließ sich nicht entfernen. Schließe die Game Bar und versuche es erneut, oder entferne ClawTweaks über Einstellungen → Apps.	Le paquet n'a pas pu être supprimé. Ferme le Game Bar et réessaie, ou supprime ClawTweaks depuis Paramètres → Applications.	패키지를 제거하지 못했습니다. 게임 바를 닫고 다시 시도하거나, 설정 → 앱에서 ClawTweaks를 제거하세요.	No se pudo quitar el paquete. Cierra la Game Bar e inténtalo otra vez, o quita ClawTweaks desde Configuración → Aplicaciones.								
 The package family conflicted with this update. Clearing it and retrying once…	Die Paketfamilie stand diesem Update im Weg. Sie wird geleert und einmal erneut versucht…	La famille de paquets bloquait cette mise à jour. Nettoyage puis nouvelle tentative…	패키지 제품군이 이 업데이트와 충돌했습니다. 정리한 뒤 한 번 다시 시도합니다…	La familia de paquetes bloqueó esta actualización. Se limpia y se reintenta una vez…								
 The reset did not finish.	Das Zurücksetzen ist nicht durchgelaufen.	La réinitialisation n'a pas abouti.	초기화가 끝나지 않았습니다.	El restablecimiento no terminó.								
 The signing certificate uses Windows' own prompt, once per device.	Das Zertifikat nutzt Windows' eigene Abfrage, einmal pro Gerät.	Le certificat passe par la fenêtre de Windows, une fois par appareil.	서명 인증서는 Windows 자체 창을 쓰며, 기기당 한 번입니다.	El certificado usa la ventana de Windows, una vez por dispositivo.								
 The widget shows what the helper does; it changes nothing by itself.	Das Widget zeigt, was der Helper tut; es ändert selbst nichts.	Le widget montre ce que fait le helper ; il ne change rien lui-même.	위젯은 헬퍼가 하는 일을 보여줄 뿐, 스스로 바꾸지 않습니다.	El widget muestra lo que hace el helper; no cambia nada por sí solo.								
 The wiki page could not be read. Open it in a browser.	Die Wiki-Seite ließ sich nicht lesen. Öffne sie im Browser.	La page wiki n'a pas pu être lue. Ouvre-la dans le navigateur.	위키 문서를 읽지 못했습니다. 브라우저에서 열어 보세요.	No se pudo leer la página wiki. Ábrela en el navegador.								
-These install kernel drivers. Without the restart everything looks installed and the virtual controller silently does not work.	Diese installieren Kerneltreiber. Ohne Neustart sieht alles installiert aus und der virtuelle Controller funktioniert stillschweigend nicht.	Ceux-ci installent des pilotes noyau. Sans redémarrage tout semble installé et la manette virtuelle ne marche pas, sans le dire.	이들은 커널 드라이버를 설치합니다. 재부팅하지 않으면 설치된 것처럼 보이지만 가상 컨트롤러가 조용히 동작하지 않습니다.	Estos instalan controladores de núcleo. Sin reiniciar todo parece instalado y el mando virtual no funciona en silencio.								
 This Setup build is outdated	Dieser Setup-Build ist veraltet	Ce build de Setup est obsolète	이 Setup 빌드는 오래되었습니다	Este build de Setup es antiguo								
-This build can't be installed	Dieser Build lässt sich nicht installieren	Ce build ne peut pas être installé	이 빌드는 설치할 수 없습니다	Este build no se puede instalar								
 This installs an OLDER version than the one installed.	Das installiert eine ÄLTERE Version als die installierte.	Ceci installe une version PLUS ANCIENNE que celle installée.	설치된 것보다 이전 버전을 설치합니다.	Esto instala una versión MÁS ANTIGUA que la instalada.								
 This is a scaffold build without a bundled package, so there's nothing to install here. In a real setup bundle the .msix and .cer sit next to this exe.	Das ist ein Gerüst-Build ohne mitgeliefertes Paket, hier gibt es also nichts zu installieren. In einem echten Setup-Bündel liegen .msix und .cer neben dieser exe.	Ceci est un build d'ossature sans paquet, il n'y a donc rien à installer ici. Dans un vrai bundle, le .msix et le .cer sont à côté de cet exe.	이 빌드는 패키지가 포함되지 않은 골격 빌드라 설치할 것이 없습니다. 실제 설치 번들에서는 .msix와 .cer이 이 exe 옆에 있습니다.	Este es un build de andamiaje sin paquete, así que no hay nada que instalar. En un bundle real el .msix y el .cer están junto a este exe.								
 This puts the device back and clears your ClawTweaks settings:	Das setzt das Gerät zurück und löscht deine ClawTweaks-Einstellungen:	Ceci restaure l'appareil et efface tes réglages ClawTweaks :	기기를 되돌리고 ClawTweaks 설정을 지웁니다:	Esto restaura el dispositivo y borra tus ajustes de ClawTweaks:								
@@ -533,17 +504,14 @@ This takes a moment.	Das dauert einen Moment.	Cela prend un instant.	잠시 걸�
 This version can't be installed	Diese Version lässt sich nicht installieren	Cette version ne peut pas être installée	이 버전은 설치할 수 없습니다	Esta versión no se puede instalar								
 This version is already installed. Open it from the Start Menu or the ClawTweaks Game Bar widget instead of running this Setup file again.	Diese Version ist bereits installiert. Öffne sie über das Startmenü oder das ClawTweaks-Widget in der Game Bar, statt diese Setup-Datei erneut auszuführen.	Cette version est déjà installée. Ouvrez-la depuis le menu Démarrer ou le widget ClawTweaks de la Game Bar plutôt que de relancer ce fichier.	이 버전은 이미 설치되어 있습니다. 이 설치 파일을 다시 실행하지 말고 시작 메뉴나 Game Bar의 ClawTweaks 위젯에서 여세요.	Esta versión ya está instalada. Ábrela desde el menú Inicio o el widget de ClawTweaks en la Game Bar en vez de ejecutar este archivo otra vez.								
 Timed out	Zeit abgelaufen	Délai dépassé	시간 초과	Tiempo agotado								
-To tray	Taskleiste	Réduire	트레이로	A la bandeja								
 Transition to new Center App - Uninstall the old version	Umstieg auf das neue Center — alte Version deinstallieren	Passage au nouveau Center — désinstaller l'ancienne version	새 Center로 전환 — 이전 버전 제거	Cambio al nuevo Center — desinstala la versión antigua								
 Trusts the signing certificate, installs the app package, opens the Game Bar and waits for the helper. Safe to run again on an update.	Vertraut dem Signaturzertifikat, installiert das App-Paket, öffnet die Game Bar und wartet auf den Helper. Bei einem Update gefahrlos wiederholbar.	Approuve le certificat, installe le paquet, ouvre la Game Bar et attend le helper. Peut être relancé sans risque lors d'une mise à jour.	서명 인증서를 신뢰하고 앱 패키지를 설치한 뒤 Game Bar를 열고 헬퍼를 기다립니다. 업데이트 시 다시 실행해도 안전합니다.	Confía en el certificado, instala el paquete, abre la Game Bar y espera al helper. Se puede repetir sin riesgo en una actualización.								
 Turn MSI Center M back on	MSI Center M wieder einschalten	Réactiver MSI Center M	MSI Center M 다시 켜기	Volver a activar MSI Center M								
-Turn it on in Onboarding. It switches itself back if no pad appears.	Im Onboarding einschalten. Erscheint kein Pad, schaltet er sich zurück.	Active-la dans l'Onboarding. Si aucune manette n'apparaît, elle revient en arrière.	온보딩에서 켜세요. 패드가 나타나지 않으면 자동으로 되돌립니다.	Actívalo en Onboarding. Si no aparece un mando, vuelve solo.								
 Turn on	Einschalten	Activer	켜기	Activar								
 Turning MSI Center M back on…	Schaltet MSI Center M wieder ein…	Réactivation de MSI Center M…	MSI Center M을 다시 켜는 중…	Reactivando MSI Center M…								
 Uninstall	Deinstallieren	Désinstaller	제거	Desinstalar								
 Uninstall Center	Center deinstallieren	Désinstaller Center	Center 제거	Desinstalar Center								
 Update ClawTweaks Center	ClawTweaks Center aktualisieren	Mettre à jour ClawTweaks Center	ClawTweaks Center 업데이트	Actualizar ClawTweaks Center								
-Update ClawTweaks from "Update & Release" first.	ClawTweaks zuerst unter "Update & Release" aktualisieren.	Mettez d'abord ClawTweaks à jour via "Update & Release".	먼저 "Update & Release"에서 ClawTweaks를 업데이트하세요.	Actualiza antes ClawTweaks desde "Update & Release".								
 Update failed — see the log for details. Try again, or run as Administrator.	Update fehlgeschlagen — Details stehen im Log. Erneut versuchen oder als Administrator ausführen.	Échec de la mise à jour — voir le journal. Réessayez, ou lancez en administrateur.	업데이트 실패 — 자세한 내용은 로그를 보세요. 다시 시도하거나 관리자 권한으로 실행하세요.	Fallo al actualizar — mira el registro. Inténtalo otra vez o ejecuta como administrador.								
 Updates cost no prompt — the task does not carry a version number.	Updates kosten keine Abfrage — die Aufgabe trägt keine Versionsnummer.	Les mises à jour ne demandent rien — la tâche ne porte pas de version.	업데이트에는 창이 뜨지 않습니다. 작업에 버전 번호가 없기 때문입니다.	Las actualizaciones no piden nada: la tarea no lleva número de versión.								
 Updating...	Aktualisiere...	Mise à jour...	업데이트 중...	Actualizando...								
@@ -555,7 +523,6 @@ Virtual controller already active — controller is healthy.	Virtueller Controll
 Virtual pad did not mount — rolling back to the hardware controller.	Virtueller Pad kam nicht hoch — zurück zum Hardware-Controller.	La manette virtuelle n'est pas montée — retour à la manette physique.	가상 패드가 올라오지 않아 하드웨어 컨트롤러로 되돌립니다.	El mando virtual no montó — se vuelve al mando físico.								
 Waiting for UAC…	Warte auf UAC…	Attente de l'UAC…	UAC 대기 중…	Esperando a UAC…								
 Waiting for the ClawTweaks helper to start. If the Game Bar opened but nothing happens, select the ClawTweaks Widget in its widget menu and add it — a widget that isn't in the Game Bar yet doesn't start the helper on its own.	Warte darauf, dass der ClawTweaks-Helper startet. Wenn die Game Bar offen ist und nichts passiert, wähle das ClawTweaks-Widget in ihrem Widget-Menü aus und füge es hinzu — ein Widget, das noch nicht in der Game Bar ist, startet den Helper nicht von allein.	En attente du démarrage de l'assistant ClawTweaks. Si la Game Bar s'est ouverte sans rien faire, sélectionne le widget ClawTweaks dans son menu et ajoute-le — un widget absent de la Game Bar ne démarre pas l'assistant tout seul.	ClawTweaks 헬퍼가 시작될 때까지 기다리는 중입니다. Game Bar가 열렸지만 아무 일도 일어나지 않으면 위젯 메뉴에서 ClawTweaks 위젯을 선택해 추가하세요. Game Bar에 없는 위젯은 헬퍼를 스스로 시작하지 않습니다.	Esperando a que se inicie el asistente de ClawTweaks. Si la Game Bar se abrió y no ocurre nada, selecciona el widget de ClawTweaks en su menú de widgets y añádelo — un widget que aún no está en la Game Bar no inicia el asistente por sí solo.								
-Waiting for the ClawTweaks helper to start. If the Game Bar opened but nothing happens, select the ClawTweaks widget once.	Warte auf den Start des ClawTweaks-Helpers. Wenn die Game Bar offen ist und nichts passiert, das ClawTweaks-Widget einmal anwählen.	Attente du démarrage du helper ClawTweaks. Si la Game Bar est ouverte sans rien faire, sélectionnez une fois le widget ClawTweaks.	ClawTweaks 헬퍼가 시작되기를 기다리는 중입니다. Game Bar가 열렸는데 아무 일도 없으면 ClawTweaks 위젯을 한 번 선택하세요.	Esperando a que arranque el helper de ClawTweaks. Si la Game Bar se abrió y no pasa nada, selecciona una vez el widget.								
 Waiting for the virtual controller to settle…	Warte, bis der virtuelle Controller steht…	Attente de la stabilisation de la manette…	가상 컨트롤러가 안정될 때까지 대기 중…	Esperando a que el mando virtual se asiente…								
 What does the background helper do?	Was macht der Hintergrund-Helper?	Que fait le helper en arrière-plan ?	백그라운드 헬퍼는 무엇을 하나요?	¿Qué hace el helper en segundo plano?								
 What happens	Was passiert	Ce qui se passe	무엇이 일어나는지	Qué ocurre								
@@ -563,7 +530,6 @@ What is the virtual controller for?	Wofür ist der virtuelle Controller da?	À q
 What's new	Neuerungen	Nouveautés	새로운 점	Novedades								
 Where are my settings, and how do I back them up?	Wo sind meine Einstellungen, und wie sichere ich sie?	Où sont mes réglages, et comment les sauvegarder ?	설정은 어디에 있고, 어떻게 백업하나요?	¿Dónde están mis ajustes y cómo los guardo?								
 Why does ClawTweaks ask for admin rights?	Warum fragt ClawTweaks nach Adminrechten?	Pourquoi ClawTweaks demande-t-il les droits admin ?	ClawTweaks는 왜 관리자 권한을 요구하나요?	¿Por qué ClawTweaks pide permisos de administrador?								
-Wiki page	Wiki-Seite	Page wiki	위키 문서	Página wiki								
 Will be saved to	Wird gespeichert unter	Sera enregistré dans	저장 위치	Se guardará en								
 Windowed	Fenstermodus	Mode fenêtré	창 모드	En ventana								
 Windows Insider Preview detected	Windows Insider Preview erkannt	Windows Insider Preview détecté	Windows Insider Preview 감지됨	Windows Insider Preview detectado								
@@ -572,12 +538,10 @@ Windows could not open the package file. This is not a problem with the package 
 Windows could not open the package from this folder. Retrying from a machine-wide location…	Windows konnte das Paket aus diesem Ordner nicht öffnen. Neuer Versuch von einem systemweiten Ort…	Windows n'a pas pu ouvrir le paquet depuis ce dossier. Nouvelle tentative depuis un emplacement système…	Windows가 이 폴더에서 패키지를 열 수 없었습니다. 시스템 전역 위치에서 다시 시도합니다…	Windows no pudo abrir el paquete desde esta carpeta. Reintentando desde una ubicación del sistema…								
 Windows file picker	Windows-Dateiauswahl	Sélecteur de fichiers Windows	Windows 파일 선택기	Selector de archivos								
 Wipe every ClawTweaks setting back to a clean state (all profiles, fan curves, TDP, controller). This cannot be undone — take a backup first if unsure.	Setzt jede ClawTweaks-Einstellung zurück (alle Profile, Lüfterkurven, TDP, Controller). Das lässt sich nicht rückgängig machen — im Zweifel vorher ein Backup anlegen.	Remet chaque réglage ClawTweaks à zéro (profils, courbes, TDP, manette). Irréversible — faites un backup avant en cas de doute.	모든 ClawTweaks 설정을 초기 상태로 되돌립니다 (프로필, 팬 커브, TDP, 컨트롤러). 되돌릴 수 없으니 확실하지 않으면 먼저 백업하세요.	Restablece todos los ajustes de ClawTweaks (perfiles, ventiladores, TDP, mando). No se puede deshacer — haz una copia antes si dudas.								
-Without it the gamepad still works, but those settings do nothing.	Ohne ihn läuft das Gamepad weiter, aber diese Einstellungen tun nichts.	Sans elle la manette marche, mais ces réglages n'ont aucun effet.	없어도 게임패드는 작동하지만 그 설정들은 아무 효과가 없습니다.	Sin él el mando funciona, pero esos ajustes no hacen nada.								
 Work down the list. Each step is optional except the last.	Arbeite die Liste ab. Nur der letzte Schritt ist Pflicht.	Suis la liste. Seule la dernière étape est obligatoire.	목록을 차례로 진행하세요. 마지막 단계만 필수입니다.	Sigue la lista. Solo el último paso es obligatorio.								
 Working…	Läuft…	En cours…	진행 중…	Trabajando…								
 XInput controllers	XInput-Controller	Manettes XInput	XInput 컨트롤러	Mandos XInput								
 Yes, if ClawTweaks should control the controller, the fan and the LEDs.	Ja, wenn ClawTweaks Controller, Lüfter und LEDs steuern soll.	Oui, si ClawTweaks doit piloter la manette, le ventilateur et les LED.	예, ClawTweaks가 컨트롤러와 팬, LED를 제어하려면 필요합니다.	Sí, si ClawTweaks debe controlar el mando, el ventilador y los LED.								
-Yes, if ClawTweaks should own the controller, the fan and the LEDs.	Ja, wenn ClawTweaks Controller, Lüfter und LEDs führen soll.	Oui, si ClawTweaks doit gérer la manette, le ventilateur et les LED.	예, ClawTweaks가 컨트롤러와 팬, LED를 맡아야 한다면요.	Sí, si ClawTweaks debe llevar el mando, el ventilador y los LED.								
 Yes, install	Ja, installieren	Oui, installer	예, 설치	Sí, instalar								
 Yes, reset everything	Ja, alles zurücksetzen	Oui, tout réinitialiser	예, 모두 초기화	Sí, restablecer todo								
 Yes, restore	Ja, wiederherstellen	Oui, restaurer	예, 복원	Sí, restaurar								
@@ -688,31 +652,20 @@ Device drivers and the state of Windows Update.	Gerätetreiber und der Stand von
 Device drivers and Windows Update.	Gerätetreiber und Windows Update.	Pilotes de périphériques et Windows Update.	장치 드라이버와 Windows 업데이트.	Controladores de dispositivo y Windows Update.								
 Cannot tell	Nicht feststellbar	Impossible à dire	확인 불가	No se puede determinar								
 Notifications	Benachrichtigungen	Notifications	알림	Notificaciones								
-Nothing here yet.	Noch nichts da.	Rien pour l'instant.	아직 아무것도 없습니다.	Aún no hay nada.								
 Center tells you here when a driver, a Windows update or a new widget build turns up.	Hier meldet Center, wenn ein Treiber, ein Windows-Update oder eine neue Widget-Version auftaucht.	Center vous prévient ici quand un pilote, une mise à jour Windows ou une nouvelle version du widget arrive.	드라이버, Windows 업데이트, 새 위젯 버전이 나오면 Center가 여기에서 알려줍니다.	Center te avisa aquí cuando aparece un controlador, una actualización de Windows o una nueva versión del widget.								
 Mark all as read	Alle als gelesen markieren	Tout marquer comme lu	모두 읽음으로 표시	Marcar todo como leído								
-Check for driver updates	Nach Treiberupdates suchen	Rechercher des mises à jour de pilotes	드라이버 업데이트 확인	Buscar actualizaciones de controladores								
-Check for Windows updates	Nach Windows-Updates suchen	Rechercher des mises à jour Windows	Windows 업데이트 확인	Buscar actualizaciones de Windows								
-Windows' own page.	Die Seite von Windows selbst.	La page de Windows elle-même.	Windows 자체 페이지.	La propia página de Windows.								
-last checked {0}	zuletzt geprüft {0}	vérifié le {0}	마지막 확인 {0}	última comprobación {0}								
-not checked yet	noch nicht geprüft	pas encore vérifié	아직 확인하지 않음	aún sin comprobar								
 Never	Nie	Jamais	안 함	Nunca								
 Every week	Jede Woche	Chaque semaine	매주	Cada semana								
 Every {0} weeks	Alle {0} Wochen	Toutes les {0} semaines	{0}주마다	Cada {0} semanas								
-Update notifications	Update-Benachrichtigungen	Notifications de mise à jour	업데이트 알림	Notificaciones de actualización								
-Center already looks for new versions at every start. This decides how often it says so.	Center sucht ohnehin bei jedem Start nach neuen Versionen. Das hier entscheidet, wie oft es das sagt.	Center cherche de toute façon de nouvelles versions à chaque démarrage. Ceci décide à quelle fréquence il le dit.	Center는 시작할 때마다 새 버전을 찾습니다. 여기서는 얼마나 자주 알릴지를 정합니다.	Center ya busca versiones nuevas en cada inicio. Esto decide con qué frecuencia lo dice.								
-Tell me about new versions	Über neue Versionen informieren	M'informer des nouvelles versions	새 버전 알리기	Avisarme de versiones nuevas								
 Include test versions	Testversionen einbeziehen	Inclure les versions de test	테스트 버전 포함	Incluir versiones de prueba								
 ClawTweaks {0} is available	ClawTweaks {0} ist verfügbar	ClawTweaks {0} est disponible	ClawTweaks {0} 사용 가능	ClawTweaks {0} está disponible								
 Install it under Update & Release.	Unter Update & Release installieren.	Installez-la sous Update & Release.	Update & Release에서 설치하세요.	Instálala en Update & Release.								
 Driver update: {0}	Treiberupdate: {0}	Mise à jour de pilote : {0}	드라이버 업데이트: {0}	Actualización de controlador: {0}								
 Version {0} is available.	Version {0} ist verfügbar.	La version {0} est disponible.	버전 {0}을(를) 사용할 수 있습니다.	La versión {0} está disponible.								
 {0} Windows update(s) waiting	{0} Windows-Update(s) warten	{0} mise(s) à jour Windows en attente	Windows 업데이트 {0}개 대기 중	{0} actualización(es) de Windows en espera								
-Automatic check	Automatische Prüfung	Vérification automatique	자동 확인	Comprobación automática								
 No new notifications	Keine neuen Benachrichtigungen	Aucune nouvelle notification	새 알림 없음	Sin notificaciones nuevas								
 Gamebar Widget Releases	Gamebar Widget Releases	Gamebar Widget Releases	Gamebar 위젯 릴리스	Gamebar Widget Releases								
 Check for updates and notify	Nach Updates suchen und benachrichtigen	Rechercher des mises à jour et notifier	업데이트 확인 및 알림	Buscar actualizaciones y notificar								
-The widget list is read at every start; this only decides how often Center says so.	Die Widget-Liste wird bei jedem Start gelesen; das hier entscheidet nur, wie oft Center es sagt.	La liste du widget est lue à chaque démarrage ; ceci décide seulement à quelle fréquence Center le dit.	위젯 목록은 시작할 때마다 읽습니다. 여기서는 Center가 얼마나 자주 알릴지만 정합니다.	La lista del widget se lee en cada inicio; esto solo decide con qué frecuencia Center lo dice.								
 Windows Update	Windows Update	Windows Update	Windows 업데이트	Windows Update								
 Not checked automatically. You can switch this on in Center settings.	Wird nicht automatisch geprüft. In den Center-Einstellungen kannst du das einschalten.	Pas de vérification automatique. Tu peux l'activer dans les paramètres de Center.	자동으로 확인하지 않습니다. Center 설정에서 켤 수 있습니다.	No se comprueba automáticamente. Puedes activarlo en los ajustes de Center.								
 Checked automatically: {0}. You can change or switch this off in Center settings.	Wird automatisch geprüft: {0}. In den Center-Einstellungen kannst du das ändern oder abschalten.	Vérification automatique : {0}. Tu peux le modifier ou le désactiver dans les paramètres de Center.	자동 확인: {0}. Center 설정에서 변경하거나 끌 수 있습니다.	Comprobación automática: {0}. Puedes cambiarlo o desactivarlo en los ajustes de Center.								

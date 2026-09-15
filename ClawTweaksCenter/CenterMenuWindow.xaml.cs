@@ -1592,8 +1592,7 @@ namespace ClawTweaksCenter
             remove.Click += (_, __) =>
             {
                 if (SelfInstaller.RemoveLegacyInstall(m => _legacyRemovalStatus = m))
-                    _legacyRemovalStatus = "The old version's uninstaller is running — confirm its prompt. " +
-                                           "This notice disappears once it's gone (press Ⓨ to refresh).";
+                    _legacyRemovalStatus = Core.Loc.T("The old version's uninstaller is running — confirm its prompt. This notice disappears once it's gone (press Ⓨ to refresh).");
                 RenderHome();
             };
             buttons.Children.Add(remove);

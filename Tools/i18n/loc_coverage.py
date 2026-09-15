@@ -292,7 +292,9 @@ def main():
 
     files = [f for f in sorted(glob.glob(SRC_GLOB, recursive=True))
              if (os.sep + 'obj' + os.sep) not in f and (os.sep + 'bin' + os.sep) not in f
-             and 'Localization' not in os.path.basename(f)]
+             # Only the GENERATED tables are skipped. Localization.cs itself has live keys
+             # (NameOf returns T("System language")), and skipping it reported that key as stale.
+             and os.path.basename(f) != 'Localization.Tables.cs']
 
     for path in files:
         rel = os.path.relpath(path, ROOT).replace('\\', '/')
