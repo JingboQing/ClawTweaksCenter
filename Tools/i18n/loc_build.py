@@ -49,6 +49,17 @@ INNO_NAME = collections.OrderedDict([
     ('pt-BR', 'ptBR'), ('ja', 'ja'), ('pl', 'pl'),
 ])
 
+# WHAT THE SETUP CAN COMPILE TODAY. ISCC rejects a CustomMessages entry whose language prefix is
+# not declared in [Languages], and three languages cannot be declared yet: Inno 6.7 ships no .isl
+# for Greek or for either Chinese script, and the unofficial ones from jrsoftware.org have to be
+# vendored into ClawTweaksInstaller/Languages/ first.
+#
+# Their columns in inno.tsv are filled anyway. The translation is the expensive part and it is
+# done; this list is the cheap part, and the day the three .isl files land it grows by three
+# entries and one regeneration. A column that is translated but not listed here is silently not
+# written - which is why the run prints both counts.
+INNO_SHIPPED = ['en', 'de', 'fr', 'ko', 'es', 'ru', 'it', 'pt-BR', 'ja', 'pl']
+
 # TSV column -> the C# field name for that language's dictionary. The order here is the order the
 # blocks appear in the generated file.
 LANGS = collections.OrderedDict([
@@ -293,7 +304,7 @@ def render_inno(order, tables):
     first language in [Languages], which is English. That is the same "an empty cell is a
     decision" rule the C# half runs on."""
     parts = [INNO_HEADER]
-    langs = [c for c in INNO_NAME if c in tables]
+    langs = [c for c in INNO_NAME if c in tables and c in INNO_SHIPPED]
 
     # [Messages] first: it overrides one of Inno's own keys and cannot sit in [CustomMessages].
     msg = [(s, k) for s, k in order if s == 'Messages']
@@ -330,7 +341,11 @@ def build_inno(check):
     order, tables = read_inno_tsv()
     text = render_inno(order, tables)
     counts = ', '.join('%s %d' % (c, len(tables.get(c) or {})) for c in INNO_NAME if c in tables)
+    waiting = [c for c in INNO_NAME if c in tables and tables[c] and c not in INNO_SHIPPED]
     head = '%d setup keys; %s' % (len(order), counts)
+    if waiting:
+        head += ('\n  translated but not written - no .isl in [Languages] yet: %s'
+                 % ', '.join(waiting))
 
     if check:
         try:
