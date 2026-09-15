@@ -11,7 +11,10 @@ namespace ClawTweaksCenter.Library
     {
         Achievement,
         FirstPlayed,
-        Wishlist,
+        // Wishlist (type 9) is deliberately not decoded. The event carries only the appid, and a
+        // wishlisted game is almost never in appinfo.vdf (measured 2026-09-15: 1 of 11 resolved),
+        // so the row would read "Added 3681610 to the wishlist". Naming it needs the Store API;
+        // the user chose to drop the events instead.
     }
 
     public sealed class FriendAchievement
@@ -46,7 +49,7 @@ namespace ClawTweaksCenter.Library
     ///
     /// -- The message ---------------------------------------------------------------------------------
     /// field 1 varint    type (Steam's EUserNewsType, from its own UI code: 2 AchievementUnlocked,
-    ///                   9 AddedGameToWishlist, 30 PlayedGameFirstTime; the rest are not shown)
+    ///                   30 PlayedGameFirstTime; 9 AddedGameToWishlist is dropped, see the enum)
     /// field 2 varint    unix time
     /// field 3 fixed64   the friend's SteamID
     /// field 5 fixed64   game id (low 24 bits = appid)
@@ -230,7 +233,6 @@ namespace ClawTweaksCenter.Library
             switch (type)
             {
                 case 2: kind = FriendActivityKind.Achievement; break;
-                case 9: kind = FriendActivityKind.Wishlist; break;
                 case 30: kind = FriendActivityKind.FirstPlayed; break;
                 default: return null;
             }
