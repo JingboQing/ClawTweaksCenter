@@ -60,6 +60,40 @@ INNO_NAME = collections.OrderedDict([
 INNO_SHIPPED = ['en', 'de', 'fr', 'ko', 'es', 'ru', 'it', 'pt-BR', 'ja', 'pl',
                 'el', 'zh-Hans', 'zh-Hant']
 
+# The helper's OSD cards. Same source (strings.tsv), third output, and the ONLY keys that reach
+# the helper - see the module docstring for why the list is explicit.
+#
+# Card lines are separate keys because a card is "title\nbody" and the composed string could never
+# match one; OsdLoc.Card splits on the newline and looks each line up on its own.
+OSD_OUT = os.path.join(INNO_REPO, 'XboxGamingBarHelper', 'Localization', 'OsdLoc.Tables.cs')
+
+OSD_KEYS = [
+    # the controller mount card, and the two it can end on
+    'Connecting controller',
+    'Setting up virtual gamepad\u2026',
+    'Controller connected',
+    'Ready to play',
+    'Controller not connected',
+    # the restore-before-shutdown card
+    'Restoring controller',
+    'Switching back to the hardware gamepad\u2026',
+    'Controller restored',
+    'Hardware gamepad is back',
+    'Controller not restored',
+    'It stays in DInput mode',
+    # the hardware-mouse card and the mode confirmations
+    'HW Mouse ON \u2014 controller paused. Click the HW Mouse tile or press the keyboard hotkey to return.',
+    'Virtual mouse restored',
+    'Controller mode',
+    'Mouse mode',
+    # the two limits, as formats - the value moves, the sentence does not
+    'Charge Limit: set it up in Settings first',
+    'Charge Limit: On {0}%',
+    'Charge Limit: Off',
+    'FPS Limit: {0} FPS',
+    'FPS Limit: Off',
+]
+
 # TSV column -> the C# field name for that language's dictionary. The order here is the order the
 # blocks appear in the generated file.
 LANGS = collections.OrderedDict([
@@ -365,6 +399,94 @@ def build_inno(check):
     return 0, head + '\nwrote %s' % INNO_OUT
 
 
+# ---------------------------------------------------------------------------------------------
+# The helper half: strings.tsv (OSD_KEYS only) -> XboxGamingBarHelper/Localization/OsdLoc.Tables.cs
+# ---------------------------------------------------------------------------------------------
+
+OSD_HEADER = u"""// GENERATED FROM ClawTweaksCenter/Tools/i18n/strings.tsv BY Tools/i18n/loc_build.py
+// DO NOT EDIT BY HAND - an edit here survives exactly until the next run of that script.
+//
+// The notification cards only, which is the scope the i18n plan set (decision 5): the native
+// Quick Panel's own labels are not in here and are not meant to be.
+//
+// Keyed by the English line, like every other table in this project, so a line with no row simply
+// renders in English. OsdLoc.Card splits a card on its newline and looks up each line separately -
+// a card is "title\\nbody" and the composed string could never match a key.
+//
+// WHICH KEYS: Tools/i18n/loc_build.py holds the list (OSD_KEYS). Adding a card line means adding
+// it there and in strings.tsv, then regenerating - the generator stops if the list names a key the
+// TSV does not have, so the two cannot drift apart quietly.
+using System.Collections.Generic;
+
+namespace XboxGamingBarHelper.Localization
+{
+    internal static class OsdLocTables
+    {
+"""
+
+OSD_FOOTER = u"""
+        internal static Dictionary<string, string> For(OsdLanguage language)
+        {
+            switch (language)
+            {
+%s                default: return null;
+            }
+        }
+    }
+}
+"""
+
+
+def render_osd(tables):
+    """One dictionary per language, holding only OSD_KEYS. English is not a table: an absent
+    translation returns the key, which IS the English."""
+    missing = [k for k in OSD_KEYS if all(k not in (tables.get(c) or {}) for c in LANGS)]
+    parts = [OSD_HEADER]
+    cases = []
+    for col, field in LANGS.items():
+        table = tables.get(col) or {}
+        rows = [(k, table[k]) for k in OSD_KEYS if k in table]
+        parts.append(u'        private static readonly Dictionary<string, string> %s '
+                     u'= new Dictionary<string, string>\n        {\n' % field)
+        for k, v in rows:
+            parts.append(u'            { "%s", "%s" },\n' % (cs_escape(k), cs_escape(v)))
+        parts.append(u'        };\n\n')
+        cases.append(u'                case OsdLanguage.%s: return %s;\n' % (field, field))
+    parts.append(OSD_FOOTER % ''.join(cases))
+    return ''.join(parts), missing
+
+
+def build_osd(keys, tables, check):
+    """-> (exit code, message). Skips cleanly when the sibling repo is not checked out."""
+    if not os.path.isdir(INNO_REPO):
+        return 0, 'OSD: sibling repo not found - skipped.'
+
+    unknown = [k for k in OSD_KEYS if k not in keys]
+    if unknown:
+        return 1, ('OSD: %d key(s) in OSD_KEYS are not in strings.tsv - add the row or fix the '
+                   'spelling:%s' % (len(unknown), ''.join('\n    ' + repr(k) for k in unknown)))
+
+    text, missing = render_osd(tables)
+    head = ('%d OSD keys' % len(OSD_KEYS))
+    if missing:
+        head += ' (%d with no translation in any language)' % len(missing)
+
+    if check:
+        try:
+            current = io.open(OSD_OUT, encoding='utf-8-sig').read()
+        except IOError:
+            return 1, head + '\nOsdLoc.Tables.cs is missing - run loc_build.py.'
+        if current.lstrip(u'\ufeff') == text.lstrip(u'\ufeff'):
+            return 0, head + '\nOsdLoc.Tables.cs is up to date.'
+        return 1, head + '\nOsdLoc.Tables.cs does NOT match strings.tsv - run loc_build.py.'
+
+    folder = os.path.dirname(OSD_OUT)
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
+    io.open(OSD_OUT, 'w', encoding='utf-8', newline='\r\n').write(text)
+    return 0, head + '\nwrote %s' % OSD_OUT
+
+
 def main():
     keys, tables = read_tsv()
     text = render(keys, tables)
@@ -390,7 +512,11 @@ def main():
     # stale CustomMessages.iss cannot hide behind an up-to-date Localization.Tables.cs.
     inno_rc, inno_msg = build_inno(check)
     sys.stdout.write(inno_msg + '\n')
-    return rc or inno_rc
+
+    osd_rc, osd_msg = build_osd(keys, tables, check)
+    sys.stdout.write(osd_msg + '\n')
+
+    return rc or inno_rc or osd_rc
 
 
 if __name__ == '__main__':

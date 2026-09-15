@@ -228,7 +228,7 @@ scripts have never been seen in Center's font at all; Korean and Japanese only i
 rules apply there — build with `.\Build-Package.ps1` and nothing else, `Shared/Enums/Function.cs` is
 append-only. The helper is .NET Framework 4.8, not .NET 10. Scope is the notification cards only.
 
-- [ ] **P3.1 — how Center's language reaches the helper. ✅ DECIDED 2026-09-15, not yet built.**
+- [x] **P3.1 — how Center's language reaches the helper. DECIDED AND BUILT 2026-09-15.**
       **Registry at startup, pipe for changes.** The helper reads
       `HKCU\Software\ClawTweaks\Center` → `Language` when it starts - the value already exists
       and is stored BY NAME (`Greek`, `System`, …), which is why renaming a `UiLanguage` member
@@ -236,21 +236,50 @@ append-only. The helper is .NET Framework 4.8, not .NET 10. Scope is the notific
       which is exactly the case the cards at boot fall into. Center additionally pushes a change
       over the pipe so the next card is right immediately. Fallback: Center's choice → OS
       language → English.
-      ⚠️ **Verify first:** that the scheduled task really runs in the USER hive. As SYSTEM it
-      would read a different HKCU and silently always fall back to the OS language.
-- [ ] **P3.2 — a small `Loc` in the helper**, same shape and same "the key is the English string"
-      rule, fed from the same `strings.tsv` so there is one source. The generator gets a second
-      output.
-- [ ] **P3.3 — the helper's card texts**, about ten:
+      ✅ **Verified 2026-09-15:** the task runs `UserId=<the user>`, `LogonType=Interactive`,
+      `RunLevel=Highest` — elevated, but in the user context, so `HKEY_CURRENT_USER` is the
+      right hive. If it is ever changed to SYSTEM this reads a different hive, finds nothing,
+      and every card quietly falls back to the OS language.
+      **Simplified while building it: there is no pipe push.** The value is read fresh on every
+      card instead of being cached, which is what the push was for — the next card after a
+      change is already right, with no message to add on Center's side and no cache to
+      invalidate. A card is a rare event and a registry read is nothing next to drawing a
+      Direct2D window.
+- [x] **P3.2 — done 2026-09-15.** `XboxGamingBarHelper/Localization/OsdLoc.cs` (hand-written:
+      language resolution, `L`, `Card`, `F`) and `OsdLoc.Tables.cs` (generated).
+      `loc_build.py` now has a **third** output, and it carries ONLY the keys the cards use —
+      an explicit `OSD_KEYS` list, not all 858 rows of Center UI in a .NET 4.8 background
+      process, and not a scan of the helper source that would break silently. A key in the
+      list that the TSV does not have stops the generator.
+      `Card()` is the piece that matters: a card is `"title\nbody"`, so it splits on the
+      newline and looks each line up separately. That is what makes a body ending in a value
+      translatable without making every value a key.
+- [x] **P3.3 — done 2026-09-15**, 20 keys. The named ones:
       `Program.MSIClaw.cs` — charge-limit hint (~1954), hardware-mouse mode (~2754), controller
       connecting / connected / not connected (~4212, ~4228, ~4242);
       `Program.PowerActions.cs` — controller restoring / restored / not restored (~117, ~137, ~139).
       Cards split on the first newline: line 1 is the title, the rest is the body.
-- [ ] **P3.4 — the widget's card texts.** `XboxGamingBar/GamingWidget.xaml.cs` (~3691) sends
-      `title + "\n" + content`; profile applied / no profile / global restored / reverted. Plus
-      `Features/QuickSettings/GamingWidget.QuickSettings.Actions.cs` (~3084),
-      `SendActionNotificationAsync`. These are built by concatenation and need the same treatment as
-      P1.4.
+      Also routed, because they sit on the same surface and half a translated surface reads as
+      broken: `Controller mode` / `Mouse mode`, and the charge-limit and FPS-limit
+      confirmations — the last two as **formats** (`Charge Limit: On {0}%`), so a language may
+      move the number.
+      ⚠️ **Still English, and deliberately listed rather than left to be discovered:** the
+      failure REASON on the mount card (a runtime diagnostic, and the thing a bug report
+      quotes), `Overlay: {0}` and `Hotkey: {0}`, the brightness and volume cards, and the
+      power-source card (`Charging` and its parts). Each is one TSV row plus one `OSD_KEYS`
+      entry away.
+- [x] **P3.4 — done 2026-09-15 with NO widget change at all**, which is a deviation from what this
+      box assumed and the better answer. The widget does not draw its cards: it sends
+      `title + "\n" + content` over the pipe as `ShowOSDNotification`, and the HELPER draws it
+      (`Program.PipeHandlers.cs`). One `OsdLoc.Card(notifText)` there translates every card the
+      widget raises.
+      This dissolves the problem the box names. The concatenation was only a problem while the
+      translation had to happen where the string was BUILT; doing it where the card is DRAWN
+      makes line-wise lookup possible instead. It also avoids giving a UWP process a registry
+      read it is not allowed to make.
+      ⚠️ The widget's own card lines (profile applied / no profile / global restored /
+      reverted) are **not translated yet** — the mechanism reaches them, but their English
+      lines still need TSV rows and `OSD_KEYS` entries.
 - [ ] **P3.5 — test on the device** with Center set to a language Windows does not have.
 
 ---
