@@ -754,9 +754,7 @@ namespace ClawTweaksCenter.Core
             ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "Wird automatisch gepr\u00FCft: {0}. In den Center-Einstellungen kannst du das \u00E4ndern oder abschalten.",
             ["Uninstall\u2026"] = "Deinstallieren\u2026",
             ["Steam removes the game files"] = "Steam entfernt die Spieldateien",
-            ["Uninstall {0}?"] = "{0} deinstallieren?",
-            ["Steam removes the game files and asks once more."] = "Steam entfernt die Spieldateien und fragt noch einmal.",
-            ["Steam could not be reached."] = "Steam ist nicht erreichbar.",
+            ["Back to Recent"] = "Zur\u00FCck zu Zuletzt",
         };
 
         private static readonly Dictionary<string, string> French = new Dictionary<string, string>
@@ -1478,9 +1476,7 @@ namespace ClawTweaksCenter.Core
             ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "V\u00E9rification automatique : {0}. Tu peux le modifier ou le d\u00E9sactiver dans les param\u00E8tres de Center.",
             ["Uninstall\u2026"] = "D\u00E9sinstaller\u2026",
             ["Steam removes the game files"] = "Steam supprime les fichiers du jeu",
-            ["Uninstall {0}?"] = "D\u00E9sinstaller {0} ?",
-            ["Steam removes the game files and asks once more."] = "Steam supprime les fichiers du jeu et demande une confirmation.",
-            ["Steam could not be reached."] = "Steam est injoignable.",
+            ["Back to Recent"] = "Retour aux R\u00E9cents",
         };
 
         private static readonly Dictionary<string, string> Korean = new Dictionary<string, string>
@@ -2205,9 +2201,7 @@ namespace ClawTweaksCenter.Core
             ["Status"] = "\uC0C1\uD0DC",
             ["Uninstall\u2026"] = "\uC81C\uAC70\u2026",
             ["Steam removes the game files"] = "Steam\uC774 \uAC8C\uC784 \uD30C\uC77C\uC744 \uC0AD\uC81C\uD569\uB2C8\uB2E4",
-            ["Uninstall {0}?"] = "{0}\uC744(\uB97C) \uC81C\uAC70\uD560\uAE4C\uC694?",
-            ["Steam removes the game files and asks once more."] = "Steam\uC774 \uAC8C\uC784 \uD30C\uC77C\uC744 \uC0AD\uC81C\uD558\uBA70 \uD55C \uBC88 \uB354 \uBB3B\uC2B5\uB2C8\uB2E4.",
-            ["Steam could not be reached."] = "Steam\uC5D0 \uC5F0\uACB0\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.",
+            ["Back to Recent"] = "\uCD5C\uADFC \uD56D\uBAA9\uC73C\uB85C",
         };
 
         private static readonly Dictionary<string, string> Spanish = new Dictionary<string, string>
@@ -2931,9 +2925,7 @@ namespace ClawTweaksCenter.Core
             ["Checked automatically: {0}. You can change or switch this off in Center settings."] = "Comprobaci\u00F3n autom\u00E1tica: {0}. Puedes cambiarlo o desactivarlo en los ajustes de Center.",
             ["Uninstall\u2026"] = "Desinstalar\u2026",
             ["Steam removes the game files"] = "Steam elimina los archivos del juego",
-            ["Uninstall {0}?"] = "\u00BFDesinstalar {0}?",
-            ["Steam removes the game files and asks once more."] = "Steam elimina los archivos del juego y vuelve a preguntar.",
-            ["Steam could not be reached."] = "No se pudo contactar con Steam.",
+            ["Back to Recent"] = "Volver a Recientes",
         };
 
         private static readonly Dictionary<string, string> Russian = new Dictionary<string, string>

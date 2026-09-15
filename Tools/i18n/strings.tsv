@@ -719,6 +719,4 @@ Checked automatically: {0}. You can change or switch this off in Center settings
 Status			상태									
 Uninstall…	Deinstallieren…	Désinstaller…	제거…	Desinstalar…								
 Steam removes the game files	Steam entfernt die Spieldateien	Steam supprime les fichiers du jeu	Steam이 게임 파일을 삭제합니다	Steam elimina los archivos del juego								
-Uninstall {0}?	{0} deinstallieren?	Désinstaller {0} ?	{0}을(를) 제거할까요?	¿Desinstalar {0}?								
-Steam removes the game files and asks once more.	Steam entfernt die Spieldateien und fragt noch einmal.	Steam supprime les fichiers du jeu et demande une confirmation.	Steam이 게임 파일을 삭제하며 한 번 더 묻습니다.	Steam elimina los archivos del juego y vuelve a preguntar.								
-Steam could not be reached.	Steam ist nicht erreichbar.	Steam est injoignable.	Steam에 연결할 수 없습니다.	No se pudo contactar con Steam.								
+Back to Recent	Zurück zu Zuletzt	Retour aux Récents	최근 항목으로	Volver a Recientes								

@@ -818,7 +818,7 @@ namespace ClawTweaksCenter
         /// <summary>
         /// A refresh that leaves the screen alone while it runs.
         ///
-        /// The difference to RescanFromInstall is one line - _libraryScanned STAYS true - and that
+        /// The difference to a Y rescan is one line - _libraryScanned STAYS true - and that
         /// line is the whole point. With it false the grid empties and "Reading your stores..." takes
         /// the screen: the right answer the first time, and a flicker every time after. Here the list
         /// that is already up stays up, and each store repaints it as it lands.
@@ -3357,16 +3357,16 @@ namespace ClawTweaksCenter
             else ArmDownloadWatch();                  // only to stop it once the patience is spent
         }
 
-        /// <summary>Closes the hand-over screen and rescans, so a finished install moves out of the
-        /// Not Installed tab without the user having to find the Rescan chip on another screen. It is
-        /// NOT automatic: an install takes minutes to hours, and a library that rescans itself on a
-        /// timer would be doing it for nothing almost every time.</summary>
-        private void RescanFromInstall()
+        /// <summary>
+        /// Closes the hand-over screen and goes to Recent, where the download now sits at the front
+        /// with its band (user, 2026-09-15). The rescan that used to be here is the watcher's job:
+        /// ExpectSteamDownload is armed before this screen is even drawn, and it runs the full scan
+        /// the moment Steam writes the manifest.
+        /// </summary>
+        private void BackToRecentFromInstall()
         {
             ClearLaunchOverlay();
-            if (_libraryScanning) return;
-            _libraryScanned = false;
-            _ = ScanLibraryAsync();
+            SetLibraryGroup(LibraryGroup.Recent);
         }
 
         /// <summary>A on the confirmation: this is where the game actually starts.</summary>
@@ -5095,7 +5095,7 @@ namespace ClawTweaksCenter
                         AddLaunchOptiActions();
                         break;
                     case LaunchPrompt.InstallHandedOver:
-                        AddAction(PadButton.A, "Rescan", true, RescanFromInstall);
+                        AddAction(PadButton.A, "Back to Recent", true, BackToRecentFromInstall);
                         AddAction(PadButton.B, "Back", true, ClearLaunchOverlay);
                         break;
                     case LaunchPrompt.Running:

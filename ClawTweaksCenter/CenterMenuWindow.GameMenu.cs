@@ -31,8 +31,6 @@ namespace ClawTweaksCenter
             ArtPicker,
             /// <summary>Name box for a Misc entry. Not offered for anything else - see RenameRow.</summary>
             Rename,
-            /// <summary>"Uninstall <game>?" for an installed Steam game. A hands it to Steam.</summary>
-            UninstallConfirm,
             /// <summary>A grid of the user's OWN pictures, from the folder they named. Used for a
             /// cover here and for the window background from Library settings - see
             /// CenterMenuWindow.UserArt.cs.</summary>
@@ -166,14 +164,6 @@ namespace ClawTweaksCenter
                 UserArtBack();
                 return;
             }
-            if (_gameMenuOverlay == GameMenuOverlay.UninstallConfirm)
-            {
-                _uninstallFailed = false;
-                _gameMenuOverlay = GameMenuOverlay.Menu;
-                RenderGameMenuOverlay();
-                RefreshActionBar();
-                return;
-            }
             if (_gameMenuOverlay == GameMenuOverlay.CtwWallpapers)
             {
                 CtwWallpapersBack();
@@ -248,7 +238,6 @@ namespace ClawTweaksCenter
                 case GameMenuOverlay.Menu: RenderGameMenuMenu(); break;
                 case GameMenuOverlay.ArtPicker: RenderArtPicker(); break;
                 case GameMenuOverlay.Rename: RenderRename(); break;
-                case GameMenuOverlay.UninstallConfirm: RenderUninstallConfirm(); break;
                 case GameMenuOverlay.UserArt: RenderUserArtGrid(); break;
                 case GameMenuOverlay.UserArtFolder: RenderUserArtFolder(); break;
                 case GameMenuOverlay.Achievements: RenderAchievements(); break;
@@ -361,16 +350,20 @@ namespace ClawTweaksCenter
                 () => { if (GameMenuTargetIsMisc) OpenRename(); }));
 
             // A Steam game cannot be removed from the library (the next scan brings it back), but it
-            // CAN be uninstalled - through Steam, after a prompt of our own (user, 2026-09-15). The
-            // row takes the place of "Remove from library" for Steam entries only; every other store
-            // keeps the greyed remove row, because there is nothing we can hand the job to.
+            // CAN be uninstalled - through Steam (user, 2026-09-15). The row takes the place of
+            // "Remove from library" for Steam entries only; every other store keeps the greyed
+            // remove row, because there is nothing we can hand the job to.
+            //
+            // NO PROMPT OF OUR OWN. steam://uninstall/<appid> opens Steam's own "are you sure"
+            // dialog, and a second question in front of it was one too many (user, after the first
+            // device test). Same glyph as the remove row below: it is the same kind of action.
             if (game?.Store == GameStore.Steam)
             {
                 bool canUninstall = game.Installed;
-                stack.Children.Add(GameMenuRow("", "Uninstall\u2026",
+                stack.Children.Add(GameMenuRow("", "Uninstall\u2026",
                     canUninstall ? "Steam removes the game files" : "Not installed",
                     canUninstall ? UiHelpers.Text : UiHelpers.Subtle, "Uninstall",
-                    () => { if (GameMenuTargetIsInstalledSteam) OpenUninstallConfirm(); }));
+                    () => { if (GameMenuTargetIsInstalledSteam) UninstallThroughSteam(); }));
             }
             else
             {
@@ -461,7 +454,6 @@ namespace ClawTweaksCenter
             if (_gameMenuOverlay == GameMenuOverlay.UserArtFolder) { MoveUserArtFolderSelection(dir); return; }
             if (_gameMenuOverlay == GameMenuOverlay.Achievements) { MoveAchievementSelection(dir); return; }
             if (_gameMenuOverlay == GameMenuOverlay.CtwWallpapers) { MoveCtwWallpaperSelection(dir); return; }
-            if (_gameMenuOverlay == GameMenuOverlay.UninstallConfirm) return;
             if (_gameMenuRows.Count == 0) return;
 
             int next = _gameMenuIndex + (dir == PadButton.Down ? 1 : dir == PadButton.Up ? -1 : 0);
@@ -491,78 +483,23 @@ namespace ClawTweaksCenter
         private bool GameMenuTargetIsInstalledSteam
             => _gameMenuTarget?.Store == GameStore.Steam && _gameMenuTarget.Installed;
 
-        private bool _uninstallFailed;
-
-        private void OpenUninstallConfirm()
-        {
-            if (!GameMenuTargetIsInstalledSteam) return;
-            _uninstallFailed = false;
-            _gameMenuOverlay = GameMenuOverlay.UninstallConfirm;
-            RenderGameMenuOverlay();
-            RefreshActionBar();
-        }
-
         /// <summary>
-        /// Our own prompt before Steam's. Same shape as the install confirmation on the launch
-        /// screen: A is also the button that walked here through the menu, and an uninstall that
-        /// fires on the same press that opened the row is the shape people lose games to.
-        /// </summary>
-        private void RenderUninstallConfirm()
-        {
-            var game = _gameMenuTarget;
-            var stack = new StackPanel
-            {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                MaxWidth = 720,
-                MinWidth = 560,
-            };
-            stack.Children.Add(new TextBlock
-            {
-                Text = Core.Loc.F("Uninstall {0}?", game?.Title ?? string.Empty),
-                FontSize = 26,
-                FontWeight = FontWeights.SemiBold,
-                Foreground = UiHelpers.Text,
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 0, 0, 16),
-            });
-            stack.Children.Add(new TextBlock
-            {
-                Text = _uninstallFailed
-                    ? Core.Loc.T("Steam could not be reached.")
-                    : Core.Loc.T("Steam removes the game files and asks once more."),
-                FontSize = 15,
-                Foreground = _uninstallFailed ? UiHelpers.Text : UiHelpers.Subtle,
-                TextWrapping = TextWrapping.Wrap,
-            });
-            LibraryRoot.Children.Add(stack);
-        }
-
-        /// <summary>
-        /// A on the confirmation. STEAM DOES THE WORK AND STEAM ASKS AGAIN - <c>steam://uninstall/N</c>
-        /// opens the client's own "are you sure" dialog, exactly like <c>steam://install/N</c> on the
-        /// launch screen, and there is deliberately no way past it from here. Center never touches
-        /// the game folder itself.
+        /// STEAM DOES THE WORK AND STEAM ASKS. <c>steam://uninstall/N</c> opens the client's own
+        /// "are you sure" dialog, exactly like <c>steam://install/N</c> on the launch screen, and
+        /// there is deliberately no way past it from here. Center never touches the game folder.
         ///
-        /// The menu closes on hand-over; the entry stays on the shelf until the next scan, the same
-        /// as an install does - Steam takes its time, and a library rescanning itself on a guess
-        /// would be wrong almost every time.
+        /// The menu closes on hand-over; the entry stays on the shelf until the next scan.
         /// </summary>
-        private void ConfirmUninstallNow()
+        private void UninstallThroughSteam()
         {
             var game = _gameMenuTarget;
             if (game == null || !GameMenuTargetIsInstalledSteam) return;
 
             if (GameLibrary.OpenSteamUri("steam://uninstall/" + game.Id))
-            {
                 Core.InstallLog.Write("[GameMenu] uninstall handed to Steam: " + game.Title + " (" + game.Id + ")");
-                CloseGameMenuOverlay();
-                return;
-            }
-
-            _uninstallFailed = true;
-            RenderGameMenuOverlay();
-            RefreshActionBar();
+            else
+                Core.InstallLog.Write("[GameMenu] steam://uninstall could not be opened for " + game.Title);
+            CloseGameMenuOverlay();
         }
 
         /// <summary>
@@ -1075,11 +1012,6 @@ namespace ClawTweaksCenter
                 case GameMenuOverlay.Rename:
                     AddAction(PadButton.A, "Edit name", true, () => { _renameBox?.Focus(); _renameBox?.SelectAll(); });
                     AddAction(PadButton.B, "Save", true, GameMenuBack);
-                    return true;
-
-                case GameMenuOverlay.UninstallConfirm:
-                    AddAction(PadButton.A, "Uninstall", !_uninstallFailed, ConfirmUninstallNow);
-                    AddAction(PadButton.B, "Back", true, GameMenuBack);
                     return true;
 
                 case GameMenuOverlay.Achievements:
