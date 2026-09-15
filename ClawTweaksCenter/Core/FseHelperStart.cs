@@ -107,11 +107,25 @@ namespace ClawTweaksCenter.Core
         /// </summary>
         internal static string TryStartHelper()
         {
-            // OFF unless the user turned the experiment on. Measured across four boots on 2026-09-14:
-            // the helper's logon trigger fires at about +16.7s, Center runs at about +21.7s, and the
-            // scheduler refused every request as a duplicate (event 322). See CenterSettings.
-            if (!CenterSettings.FseStartsHelper)
-                return "disabled: experimental setting is off";
+            // ⚠️ THE WHOLE MECHANISM IS OFF SINCE 2026-09-15, and this return is the last of three
+            // places that make sure of it: the call site in App.xaml.cs is commented out, the
+            // setting CenterSettings.FseStartsHelper is commented out, and nothing below this line
+            // runs even if somebody wires the caller back up without reading either.
+            //
+            // WHY: measured across four boots on 2026-09-14, the helper's logon trigger fires at
+            // about +16.7s and Center runs at about +21.7s, so the scheduler refused every request
+            // as a duplicate (event 322). It was never once the earlier of the two. The startup
+            // problem this was aimed at got solved in the scheduled task itself — see
+            // Doku/TODO_Scheduled_Task_Fast_Controller.md in the helper repo.
+            //
+            // The rest of this file is kept because the GUARDS are the hard part and the reasoning
+            // in them is still correct. If a machine ever does serve the logon trigger late, this is
+            // the shape the answer takes; re-enabling means all three places, not just this one.
+            return "disabled: the FSE helper start was removed on 2026-09-15 (measured: no effect)";
+
+            // if (!CenterSettings.FseStartsHelper)
+            //     return "disabled: experimental setting is off";
+#pragma warning disable CS0162 // unreachable code - deliberate, see above
 
             if (!IsFseStartApp(out string fseDetail))
                 return $"skipped: not the FSE start app ({fseDetail})";
@@ -142,6 +156,7 @@ namespace ClawTweaksCenter.Core
             return ok
                 ? $"requested: scheduled task run ({runDetail}){qualifier}"
                 : $"FAILED: {runDetail}{qualifier}";
+#pragma warning restore CS0162
         }
 
         /// <summary>

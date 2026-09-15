@@ -49,13 +49,27 @@ namespace ClawTweaksCenter
         private const int CenterSettingsWidgetCheckRow = 4;
         private const int CenterSettingsWidgetTestRow = 5;
 
-        // ── Experimentell ───────────────────────────────────────────────────────────────────────
+        // ── Experimentell - ENTFERNT 2026-09-15 ────────────────────────────────────────────────
         //
-        // Its OWN band, under a heading that says what it is, because it is not a preference in the
-        // sense the rows above are: it changes startup orchestration, it is off by default, and the
-        // measurement says it does nothing on the machine it was built for. A row like that sitting
-        // between Language and Fullscreen would read as an ordinary switch.
-        private const int CenterSettingsFseStartRow = 6;
+        // There was one experimental row here, "Center starts the helper" (CenterSettingsFseStartRow
+        // = 6). It asked the helper's scheduled task to run early when Center is the full screen
+        // home app. It is gone, together with the machinery behind it, for three reasons:
+        //
+        //   * THE MEASUREMENT CAME BACK NEGATIVE. Across four boots on 2026-09-14 the logon trigger
+        //     fired at about +16.7s and Center ran at about +21.7s, so the scheduler refused every
+        //     request as a duplicate (event 322). It never once made anything faster.
+        //   * The problem it aimed at - the virtual pad arriving in the middle of the user's first
+        //     navigation - was solved somewhere else entirely, in the scheduled task itself. See
+        //     Doku/TODO_Scheduled_Task_Fast_Controller.md in the helper repo.
+        //   * An experimental switch that does nothing is worse than no switch: it invites people to
+        //     turn it on, and then it owns the blame for the next unrelated startup oddity.
+        //
+        // DISCONNECTED, NOT MERELY HIDDEN. Four places carry this same note: the call site in
+        // App.xaml.cs is commented out, the stored preference CenterSettings.FseStartsHelper is
+        // commented out, Core/FseHelperStart.TryStartHelper returns before it does anything, and the
+        // activation case at the bottom of this file is commented out.
+        //
+        // Row numbers 0..5 above are unchanged, so nothing that remembers an index moves.
 
         private void OpenCenterSettings()
         {
@@ -92,6 +106,33 @@ namespace ClawTweaksCenter
                 null, WindowMode.IsFullscreen(this)));
             stack.Children.Add(pairs);
 
+            // RIGHT HERE, under the row it belongs to, and that is the whole fix (user, 2026-09-15).
+            //
+            // This block used to be appended at the END of the screen, which was correct while
+            // Language and Fullscreen were the only rows: the end of the screen WAS under the
+            // language row. Then the update intervals and the experimental band arrived between
+            // them, and the list kept unfolding at the bottom - far below the row that opened it,
+            // past the bottom of the viewport, and therefore not operable with a pad at all: the
+            // selection moved through something the user could not see.
+            //
+            // The lesson generalises: a control that belongs UNDER another one has to be added next
+            // to it, not at the end of the builder. "Last" is only "below" until somebody appends
+            // the next section.
+            if (_languageListOpen) stack.Children.Add(BuildLanguageList());
+
+            // Under the language row, and ONLY while the preference is "System": it is the one entry
+            // whose result is not written on it. "System language" does not say which language that
+            // turned out to be, and on a machine where the answer is English - which is every machine
+            // we do not translate - the setting otherwise looks like it is not working.
+            else if (Loc.Preference == UiLanguage.System)
+                stack.Children.Add(new TextBlock
+                {
+                    Text = "→ " + Loc.NameOf(Loc.Current),
+                    FontSize = 13,
+                    Foreground = UiHelpers.Subtle,
+                    Margin = new Thickness(2, 2, 0, 10),
+                });
+
             stack.Children.Add(new TextBlock
             {
                 Text = Loc.T("Check for updates and notify"),
@@ -125,47 +166,9 @@ namespace ClawTweaksCenter
                 Margin = new Thickness(2, 2, 10, 0),
             });
 
-            stack.Children.Add(new TextBlock
-            {
-                Text = Loc.T("Experimental"),
-                FontSize = 15,
-                FontWeight = FontWeights.SemiBold,
-                Foreground = UiHelpers.Subtle,
-                Margin = new Thickness(2, 18, 0, 8),
-            });
-
-            var experimental = new UniformGrid { Columns = 2 };
-            experimental.Children.Add(BuildCenterSettingRow(CenterSettingsFseStartRow,
-                Loc.T("Center starts the helper"), null, CenterSettings.FseStartsHelper));
-            stack.Children.Add(experimental);
-
-            // Says the measured result, not a promise. The row exists so the experiment can be run on
-            // a machine where Windows is slower with the logon trigger than it is here - anyone
-            // expecting a speed-up on THIS one should read it and leave the switch alone.
-            stack.Children.Add(new TextBlock
-            {
-                Text = Loc.T("Only in the full screen experience. Measured here it changes nothing: Windows starts the helper about five seconds before Center is up."),
-                FontSize = 12,
-                Foreground = UiHelpers.Subtle,
-                Opacity = 0.8,
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(2, 2, 10, 0),
-            });
-
-            if (_languageListOpen) stack.Children.Add(BuildLanguageList());
-
-            // Under the language row, and ONLY while the preference is "System": it is the one entry
-            // whose result is not written on it. "System language" does not say which language that
-            // turned out to be, and on a machine where the answer is English - which is every machine
-            // we do not translate - the setting otherwise looks like it is not working.
-            else if (Loc.Preference == UiLanguage.System)
-                stack.Children.Add(new TextBlock
-                {
-                    Text = "→ " + Loc.NameOf(Loc.Current),
-                    FontSize = 13,
-                    Foreground = UiHelpers.Subtle,
-                    Margin = new Thickness(2, 2, 0, 0),
-                });
+            // "Experimental" was a band of its own here. REMOVED 2026-09-15 - see the note where
+            // CenterSettingsFseStartRow used to be declared. It held one switch, it measured as
+            // doing nothing, and the speed-up it was aiming at came from the scheduled task instead.
 
             ContentHost.Children.Add(stack);
             ApplyCenterSettingsSelection();
@@ -358,6 +361,30 @@ namespace ClawTweaksCenter
             return row;
         }
 
+        /// <summary>
+        /// Keeps the highlighted language on screen while the pad walks the list.
+        ///
+        /// Thirteen languages plus System is taller than the viewport once the update bands are
+        /// above it, so without this the selection walks off the bottom edge and the list is again
+        /// something a pad cannot operate - the same complaint that moved the list up in the first
+        /// place, just further down the list instead of at the start of it.
+        ///
+        /// At Loaded priority because RenderCenterSettings has just rebuilt every row: the element
+        /// exists but has no layout yet, and BringIntoView on a thing with no position scrolls
+        /// nowhere. Same shape as the friends list (CenterMenuWindow.Friends.cs).
+        /// </summary>
+        private void ScrollLanguageRowIntoView()
+        {
+            if (!_languageListOpen) return;
+            if (_languageIndex < 0 || _languageIndex >= _languageRows.Count) return;
+
+            var target = _languageRows[_languageIndex];
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                try { target.BringIntoView(); } catch { }
+            }), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
         private void ApplyCenterSettingsSelection()
         {
             foreach (var row in _centerSettingsRows)
@@ -380,6 +407,7 @@ namespace ClawTweaksCenter
 
                 _languageIndex = target;
                 RenderCenterSettings();
+                ScrollLanguageRowIntoView();
                 return;
             }
 
@@ -423,6 +451,7 @@ namespace ClawTweaksCenter
                     _languageIndex = Math.Max(0, Array.IndexOf(LanguageOrder(), Loc.Preference));
                     _languageListOpen = true;
                     RenderCenterSettings();
+                    ScrollLanguageRowIntoView();
                     RefreshActionBar();
                     return;
 
@@ -449,9 +478,12 @@ namespace ClawTweaksCenter
                     CenterSettings.WidgetNotifyTestBuilds = !CenterSettings.WidgetNotifyTestBuilds;
                     break;
 
-                case CenterSettingsFseStartRow:
-                    CenterSettings.FseStartsHelper = !CenterSettings.FseStartsHelper;
-                    break;
+                // Removed 2026-09-15 with the experimental band - see the note where the row
+                // constants are declared, at the top of this file.
+                //
+                // case CenterSettingsFseStartRow:
+                //     CenterSettings.FseStartsHelper = !CenterSettings.FseStartsHelper;
+                //     break;
 
             }
 

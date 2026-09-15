@@ -252,21 +252,31 @@ namespace ClawTweaksCenter
                     "starting anyway, without the single-instance claim.");
             }
 
-            // The helper, as early as we can ask for it — but only when Center is what Windows
-            // booted into. In FSE we are up long before the logon-triggered task gets its turn, so
-            // the virtual pad lands in the middle of the user's first navigation; outside FSE the
-            // dependency runs the other way and this does nothing. Every guard lives in
-            // FseHelperStart; here it is one fire-and-forget call, off the UI thread, so a slow
-            // schtasks cannot hold up the window.
+            // ── Center asking the helper's scheduled task to run early: DISCONNECTED 2026-09-15 ──
             //
-            // Deliberately AFTER the uninstall branches and the single-instance gate (an uninstall
-            // must not start anything, and a second launch must not fire a second request), and
-            // BEFORE the window — the library may prewarm Steam, and that has to lose this race.
-            System.Threading.Tasks.Task.Run(() =>
-            {
-                try { Core.InstallLog.Write("FSE helper start: " + Core.FseHelperStart.TryStartHelper()); }
-                catch (Exception ex) { try { Core.InstallLog.Write("FSE helper start threw: " + ex.Message); } catch { } }
-            });
+            // This called Core.FseHelperStart.TryStartHelper() to bring the helper up as soon as
+            // Center was the Windows full screen home app, on the theory that Center is on the
+            // machine before Windows reaches the helper's logon trigger. It was behind an
+            // experimental setting in Center's settings screen, off by default.
+            //
+            // IT NEVER HELPED, and that is measured rather than assumed: across four boots on
+            // 2026-09-14 the logon trigger fired at about +16.7s and Center ran at about +21.7s, so
+            // the scheduler refused every request as a duplicate (event 322).
+            //
+            // What actually fixed the symptom — the virtual pad arriving in the middle of the user's
+            // first navigation — was the scheduled task itself, not a second party asking it to run.
+            // See Doku/TODO_Scheduled_Task_Fast_Controller.md in the helper repo.
+            //
+            // Left commented rather than deleted because the reasoning in Core/FseHelperStart.cs is
+            // worth keeping: if a machine ever DOES serve the logon trigger late, this is the shape
+            // the answer would take, and the guards there are the hard part. Re-enabling means this
+            // call, CenterSettings.FseStartsHelper, and the gate in TryStartHelper — all three.
+            //
+            // System.Threading.Tasks.Task.Run(() =>
+            // {
+            //     try { Core.InstallLog.Write("FSE helper start: " + Core.FseHelperStart.TryStartHelper()); }
+            //     catch (Exception ex) { try { Core.InstallLog.Write("FSE helper start threw: " + ex.Message); } catch { } }
+            // });
 
             var window = new CenterMenuWindow(
                 startOnboarding: startOnboarding,
