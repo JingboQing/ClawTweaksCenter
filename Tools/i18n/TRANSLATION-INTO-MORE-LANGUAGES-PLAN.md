@@ -207,8 +207,11 @@ job and it is several working sessions, not one.
       shortened until it fits. What cannot be shortened honestly goes in `left-in-english.tsv`
       with its width and budget, and the cell is left empty.
 
-**Gate out of P2:** lint clean, `--check` passes, publishes, and each language opened once on the
-device — Onboarding, Library, Settings, Maintenance.
+**Gate out of P2: ✅ CLOSED 2026-09-15 by the repo owner.** Lint clean, `--check` passes, builds,
+and **several** languages opened in Center on the device. Not all thirteen, and the owner said so:
+the remainder goes to test users. That is a decision, not an oversight — record it as one. What a
+test user is actually checking is the thing nobody here can: whether the words are right. Width
+and font coverage are what the owner could see, and those were fine in what was opened.
 
 Device-test builds so far: setup `0.3.1.190` (Center 0.2.71: en/de/fr/ko/es/it), setup `0.3.1.191`
 (Center 0.2.72: plus pt-BR/pl/ru), setup `0.3.1.192` (Center 0.2.73: **all thirteen** — plus
@@ -359,7 +362,7 @@ Today the translations are **inline in the `.iss`** - a second source of truth n
       0 warnings across all thirteen). Slot parity holds everywhere, `%n` line breaks match the
       English shape so the FSE pages keep their layout, and `PayloadAnd` keeps its leading
       space in every language. Commits `ab5b4c9` (Center), `ceaf2392` (helper).
-- [ ] **P3b.4 — one run per language** with `/LANG=xx`, the six wizard pages and the uninstall
+- [x] **P3b.4 — CLOSED 2026-09-15 by the repo owner** after four runs; the rest goes to test users. One run per language with `/LANG=xx`, the six wizard pages and the uninstall
       dialog. Fixed-width controls that clip get `CalculateButtonWidth` treatment, not a shorter
       translation. **Four of thirteen run and judged on 2026-09-15**, from
       `ClawTweaks_0.3.1.192_Setup.exe` (SHA256 `9107081...`):
@@ -371,8 +374,8 @@ Today the translations are **inline in the `.iss`** - a second source of truth n
       | `zhHant` | title | clean; proves the vendored `ChineseTraditional.isl` loads |
       | `el` | title, FSE page, both buttons | clean |
 
-      Still unseen: `de`, `fr`, `es`, `ko`, `it`, `ptBR`, `ja`, `pl`. Korean was unseen before
-      this work too.
+      Still unseen: `de`, `fr`, `es`, `ko`, `it`, `ptBR`, `ja`, `pl` — **handed to test users**,
+      not pending here. Korean was unseen before this work too.
 
       Two things the runs settled that no lint could:
       * **Inno grows its own buttons.** Greek "&Επόμενο" got 96 px where Russian got 86. So
