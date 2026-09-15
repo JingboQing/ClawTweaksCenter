@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -889,6 +890,7 @@ namespace ClawTweaksCenter
                 _libraryScanning = false;
                 RenderLibraryIfNoOverlay();
                 RefreshTabStrip();
+                ArmDownloadWatch();
 
                 // The library is up and usable: the one moment where a background update check is
                 // affordable. Fire and forget, and it decides for itself whether anything is due -
@@ -1043,10 +1045,11 @@ namespace ClawTweaksCenter
 
             foreach (var g in _library.ForGroup(LibraryGroup.NotInstalled))
             {
-                if (g.DownloadTotalBytes <= 0) continue;
+                if (!g.Downloading) continue;
+                // No percentage: Steam does not write one while it downloads (GameEntry.Downloading).
                 stack.Children.Add(new TextBlock
                 {
-                    Text = g.Title + "  ·  " + Core.Loc.T("Downloading") + " " + g.DownloadPercent + "%",
+                    Text = g.Title + "  ·  " + Core.Loc.T("Downloading") + "…",
                     FontSize = 13,
                     FontWeight = FontWeights.SemiBold,
                     Foreground = UiHelpers.Accent,
@@ -1304,8 +1307,8 @@ namespace ClawTweaksCenter
             // hours come from the account and are real even for a game that lives on another machine
             // - but "12 h" with no explanation on a game that is not there reads as a fault.
             if (!g.Installed)
-                parts.Add(g.DownloadTotalBytes > 0
-                    ? Core.Loc.T("Downloading") + " " + g.DownloadPercent + "%"
+                parts.Add(g.Downloading
+                    ? Core.Loc.T("Downloading") + "…"
                     : Core.Loc.T("Not installed"));
 
             string played = Library.SteamPlaytime.Format(g.PlaytimeMinutes);
@@ -3255,13 +3258,103 @@ namespace ClawTweaksCenter
 
             // Already downloading: there is nothing to ask for, so this opens the queue instead of
             // asking Steam to install something it is already installing.
-            string uri = game.DownloadTotalBytes > 0
+            string uri = game.Downloading
                 ? "steam://open/downloads"
                 : "steam://install/" + game.Id;
 
             _launchPrompt = GameLibrary.OpenSteamUri(uri) ? LaunchPrompt.InstallHandedOver : LaunchPrompt.Failed;
+            // Steam may take a while to answer its own dialog - or never, if the user cancels it.
+            // The watcher looks for the manifest for a bounded time and gives up quietly.
+            if (_launchPrompt == LaunchPrompt.InstallHandedOver) ExpectSteamDownload(game.Id);
             RenderLaunchOverlay();
             RefreshActionBar();
+        }
+
+        // ── The download watcher ───────────────────────────────────────────────────────────────
+        //
+        // While Steam installs something, Recent shows it with a moving band and refreshes by itself
+        // (user, 2026-09-15). Three things start it: a scan that finds a download, an install started
+        // from the launch screen, and Y - which is a scan. Nothing else does; a library that polls
+        // Steam on a timer for no reason is the shape this file has refused twice.
+        //
+        // It does NOT rescan the library every tick. A tick re-reads ONE manifest per watched app
+        // (SteamSource.IsFullyInstalled); the full rescan - nine stores, the owned list, the cover
+        // warm-up - runs exactly when something CHANGED: a manifest appeared for an expected install,
+        // or a download finished. That is also why the tile carries no figure to refresh.
+        private DispatcherTimer _downloadWatch;
+        private readonly HashSet<string> _expectedSteamInstalls = new HashSet<string>(StringComparer.Ordinal);
+        private DateTime _expectedSteamInstallsUntil = DateTime.MinValue;
+        private static readonly TimeSpan DownloadWatchTick = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan ExpectedInstallPatience = TimeSpan.FromMinutes(3);
+
+        /// <summary>The user just asked Steam to install this appid. Steam's own dialog may still be
+        /// open; the manifest appears the moment it is confirmed and never if it is cancelled.</summary>
+        private void ExpectSteamDownload(string appId)
+        {
+            if (string.IsNullOrEmpty(appId)) return;
+            _expectedSteamInstalls.Add(appId);
+            _expectedSteamInstallsUntil = DateTime.UtcNow + ExpectedInstallPatience;
+            ArmDownloadWatch();
+        }
+
+        /// <summary>Called after every scan: starts the watcher when there is something to watch,
+        /// stops it when there is not. Idempotent, so calling it once too often costs nothing.</summary>
+        private void ArmDownloadWatch()
+        {
+            bool anything = _library.Games.Any(g => g.Downloading)
+                            || (_expectedSteamInstalls.Count > 0 && DateTime.UtcNow < _expectedSteamInstallsUntil);
+            if (!anything)
+            {
+                _expectedSteamInstalls.Clear();
+                _downloadWatch?.Stop();
+                return;
+            }
+            if (_downloadWatch == null)
+            {
+                _downloadWatch = new DispatcherTimer(DispatcherPriority.Background) { Interval = DownloadWatchTick };
+                _downloadWatch.Tick += (_, __) => DownloadWatchTick_Elapsed();
+            }
+            if (!_downloadWatch.IsEnabled)
+            {
+                Core.InstallLog.Write("[Downloads] watching: " +
+                    string.Join(", ", _library.Games.Where(g => g.Downloading).Select(g => g.Title)
+                                              .Concat(_expectedSteamInstalls.Select(id => "expected " + id))));
+                _downloadWatch.Start();
+            }
+        }
+
+        private void DownloadWatchTick_Elapsed()
+        {
+            if (_libraryScanning) return;
+
+            bool changed = false;
+            foreach (var g in _library.Games.Where(g => g.Downloading).ToList())
+            {
+                bool? ready = Library.SteamSource.IsFullyInstalled(g.Id);
+                // null = the manifest is gone: the user cancelled the download in Steam. That is a
+                // change too - the band must come off the shelf.
+                if (ready != false)
+                {
+                    Core.InstallLog.Write("[Downloads] " + g.Title + (ready == true ? " finished" : " vanished"));
+                    changed = true;
+                }
+            }
+            foreach (string id in _expectedSteamInstalls.ToList())
+            {
+                if (Library.SteamSource.IsFullyInstalled(id) == null) continue;
+                Core.InstallLog.Write("[Downloads] expected install " + id + " has a manifest now");
+                _expectedSteamInstalls.Remove(id);
+                changed = true;
+            }
+            if (_expectedSteamInstalls.Count > 0 && DateTime.UtcNow >= _expectedSteamInstallsUntil)
+            {
+                Core.InstallLog.Write("[Downloads] no manifest appeared for " + string.Join(", ", _expectedSteamInstalls) +
+                                      " - the install was probably cancelled in Steam");
+                _expectedSteamInstalls.Clear();
+            }
+
+            if (changed) RefreshLibrarySilently();   // ScanLibraryAsync re-arms or stops the watch
+            else ArmDownloadWatch();                  // only to stop it once the patience is spent
         }
 
         /// <summary>Closes the hand-over screen and rescans, so a finished install moves out of the
@@ -3587,14 +3680,14 @@ namespace ClawTweaksCenter
                     }
                     break;
                 case LaunchPrompt.ConfirmInstall:
-                    head = (game != null && game.DownloadTotalBytes > 0)
+                    head = (game != null && game.Downloading)
                         ? Core.Loc.F("{0} is downloading", title)
                         : Core.Loc.F("Install {0}?", title);
                     sub = "Steam asks you where to put it.";
                     break;
                 case LaunchPrompt.InstallHandedOver:
                     head = title;
-                    sub = "Steam has taken over. Rescan the library when it is done.";
+                    sub = "Steam has taken over. The download shows in Recent.";
                     break;
                 default:
                     head = Core.Loc.F("Could not start {0}.", title);
@@ -4994,7 +5087,7 @@ namespace ClawTweaksCenter
                         break;
                     case LaunchPrompt.ConfirmInstall:
                         AddAction(PadButton.A,
-                                  _launchTarget != null && _launchTarget.DownloadTotalBytes > 0 ? "Open Steam" : "Install",
+                                  _launchTarget != null && _launchTarget.Downloading ? "Open Steam" : "Install",
                                   true, ConfirmInstallNow);
                         AddAction(PadButton.B, "Cancel", true, ClearLaunchOverlay);
                         // The wiki and OptiClick apply to a game you own, installed or not - deciding
@@ -5224,6 +5317,7 @@ namespace ClawTweaksCenter
 
             var badge = BuildProfileBadge(game.Profiles);
             if (badge != null) content.Children.Add(badge);
+            if (game.Downloading) content.Children.Add(BuildDownloadingBand());
 
             if (glass)
             {
@@ -5264,6 +5358,41 @@ namespace ClawTweaksCenter
 
             if (game.ArtPath != null) LoadCover(owner, game.ArtPath, image);
             return tile;
+        }
+
+        /// <summary>
+        /// The band along the bottom of a cover while Steam installs the game: a word and a bar that
+        /// moves. INDETERMINATE ON PURPOSE - Steam writes no progress figure anywhere on disk while
+        /// it downloads (see GameEntry.Downloading), so a bar with a position would be invented.
+        /// The band is what tells "downloading" from "not installed" on a shelf of covers.
+        /// </summary>
+        private static Border BuildDownloadingBand()
+        {
+            var stack = new StackPanel();
+            stack.Children.Add(new TextBlock
+            {
+                Text = Core.Loc.T("Downloading") + "\u2026",
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = Brushes.White,
+                Margin = new Thickness(8, 4, 8, 3),
+            });
+            stack.Children.Add(new ProgressBar
+            {
+                IsIndeterminate = true,
+                Height = 4,
+                BorderThickness = new Thickness(0),
+                Background = new SolidColorBrush(Color.FromArgb(0x50, 0xFF, 0xFF, 0xFF)),
+                Foreground = UiHelpers.Accent,
+                Margin = new Thickness(8, 0, 8, 6),
+            });
+            return new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(0xB4, 0x00, 0x00, 0x00)),
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Child = stack,
+                IsHitTestVisible = false,
+            };
         }
 
         /// <summary>
