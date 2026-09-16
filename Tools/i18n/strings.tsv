@@ -914,3 +914,42 @@ Saved {0} stores and {1} Center files to:\n{2}	{0} Speicher und {1} Center-Datei
 Restored {0} files. Center restarts now to bring back the library and its settings — reopen the Game Bar (Win+G) afterwards.	{0} Dateien wiederhergestellt. Center startet jetzt neu, um Bibliothek und Einstellungen zurückzuholen — öffne danach die Game Bar (Win+G) erneut.	{0} fichiers restaurés. Center redémarre pour rétablir la bibliothèque et ses réglages — rouvrez ensuite la Game Bar (Win+G).	파일 {0}개를 복원했습니다. 라이브러리와 설정을 되돌리기 위해 Center가 지금 다시 시작됩니다. 이후 Game Bar(Win+G)를 다시 여세요.	{0} archivos restaurados. Center se reinicia ahora para recuperar la biblioteca y sus ajustes; después vuelve a abrir la Game Bar (Win+G).	Восстановлено файлов: {0}. Center перезапускается, чтобы вернуть библиотеку и настройки — затем снова откройте Game Bar (Win+G).	Επαναφέρθηκαν {0} αρχεία. Το Center επανεκκινεί για να φέρει πίσω τη βιβλιοθήκη και τις ρυθμίσεις — ανοίξτε ξανά το Game Bar (Win+G) μετά.	已恢复 {0} 个文件。Center 现在重启以恢复游戏库和设置，之后请重新打开 Game Bar（Win+G）。	已還原 {0} 個檔案。Center 現在重新啟動以還原遊戲庫和設定，之後請重新開啟 Game Bar（Win+G）。	Ripristinati {0} file. Center si riavvia ora per riportare libreria e impostazioni — poi riapri la Game Bar (Win+G).	{0} arquivos restaurados. O Center reinicia agora para trazer de volta a biblioteca e as configurações — depois reabra a Game Bar (Win+G).	{0} 件のファイルを復元しました。ライブラリと設定を戻すため Center を再起動します。その後 Game Bar（Win+G）を開き直してください。	Przywrócono {0} plików. Center uruchamia się ponownie, aby odtworzyć bibliotekę i ustawienia — potem otwórz ponownie Game Bar (Win+G).
 This panel works only with the virtual controller	Dieses Panel geht nur mit dem virtuellen Controller	Ce panneau ne fonctionne qu'avec la manette virtuelle	이 패널은 가상 컨트롤러로만 조작할 수 있습니다	Este panel solo funciona con el mando virtual	Эта панель работает только с виртуальным контроллером	Αυτό το πάνελ λειτουργεί μόνο με το εικονικό χειριστήριο	此面板仅支持虚拟手柄操作	此面板僅能以虛擬控制器操作	Questo pannello funziona solo con il controller virtuale	Este painel só funciona com o controle virtual	このパネルは仮想コントローラーでのみ操作できます	Ten panel działa tylko z kontrolerem wirtualnym
 Use the Game Bar instead.	Nutze stattdessen die Game Bar.	Utilisez la Game Bar à la place.	대신 Game Bar를 사용하세요.	Usa la Game Bar en su lugar.	Используйте вместо неё Game Bar.	Χρησιμοποιήστε το Game Bar.	请改用 Game Bar。	請改用 Game Bar。	Usa invece la Game Bar.	Use a Game Bar em vez disso.	代わりに Game Bar を使ってください。	Użyj zamiast tego Game Bar.
+Brightness	Helligkeit	Luminosité	밝기	Brillo	Яркость	Φωτεινότητα	亮度	亮度	Luminosità	Brilho	明るさ	Jasność
+Volume	Lautstärke	Volume	음량	Volumen	Громкость	Ένταση	音量	音量	Volume	Volume	音量	Głośność
+muted	stumm	muet	음소거	silencio	без звука	σίγαση	静音	靜音	muto	mudo	ミュート	wyciszony
+Profile	Profil	Profil	프로필	Perfil	Профиль	Προφίλ	配置	設定檔	Profilo	Perfil	プロファイル	Profil
+Game profile	Spielprofil	Profil du jeu	게임 프로필	Perfil del juego	Профиль игры	Προφίλ παιχνιδιού	游戏配置	遊戲設定檔	Profilo gioco	Perfil do jogo	ゲーム設定	Profil gry
+Global profile	Globales Profil	Profil global	전역 프로필	Perfil global	Общий профиль	Καθολικό προφίλ	全局配置	全域設定檔	Profilo globale	Perfil global	全体設定	Profil globalny
+Power limit	Leistungslimit	Limite de puissance	전력 제한	Límite de potencia	Лимит мощности	Όριο ισχύος	功耗限制	功耗限制	Limite potenza	Limite de energia	電力制限	Limit mocy
+FPS Limit	FPS-Limit	Limite FPS	FPS 제한	Límite de FPS	Лимит FPS	Όριο FPS	帧率限制	幀率限制	Limite FPS	Limite de FPS	FPS 制限	Limit FPS
+stepped	gestuft	par paliers	단계	por pasos	ступенями	βηματικά	分档	分段	a scatti	em passos	段階	skokowo
+free	frei	libre	자유	libre	свободно	ελεύθερα	自由	自由	libero	livre	自由	dowolnie
+OS power mode	OS-Energiemodus	Mode d'alimentation	OS 전원 모드	Modo de energía	Режим питания	Λειτουργία ισχύος	系统电源模式	系統電源模式	Modo energia	Modo de energia	電源モード	Tryb zasilania
+Best power efficiency	Beste Energieeffizienz	Efficacité maximale	최고 효율	Máxima eficiencia	Макс. экономия	Μέγιστη οικονομία	最佳能效	最佳能效	Massima efficienza	Máxima eficiência	最高効率	Najlepsza wydajność energ.
+Balanced	Ausbalanciert	Équilibré	균형	Equilibrado	Баланс	Ισορροπημένη	平衡	平衡	Bilanciato	Equilibrado	バランス	Zrównoważony
+Best performance	Beste Leistung	Performance maximale	최고 성능	Máximo rendimiento	Макс. производит.	Μέγιστη απόδοση	最佳性能	最佳效能	Massime prestazioni	Máximo desempenho	最高性能	Najwyższa wydajność
+Overlay	Overlay	Overlay	오버레이	Overlay	Оверлей	Επικάλυψη	叠加层	疊加層	Overlay	Overlay	オーバーレイ	Nakładka
+Basic	Einfach	Basique	기본	Básico	Базовый	Βασικό	基础	基本	Base	Básico	基本	Podstawowy
+Horizontal	Horizontal	Horizontal	가로	Horizontal	Горизонтальный	Οριζόντιο	横向	橫向	Orizzontale	Horizontal	横	Poziomy
+Horizontal Custom	Horizontal eigen	Horizontal perso	가로 사용자	Horizontal propio	Горизонт. свой	Οριζόντιο δικό	横向自定义	橫向自訂	Orizzontale pers.	Horizontal pers.	横カスタム	Poziomy własny
+Vertical Custom	Vertikal eigen	Vertical perso	세로 사용자	Vertical propio	Вертик. свой	Κάθετο δικό	纵向自定义	縱向自訂	Verticale pers.	Vertical pers.	縦カスタム	Pionowy własny
+Background	Hintergrund	Arrière-plan	배경	Fondo	Фон	Φόντο	背景	背景	Sfondo	Fundo	背景	Tło
+Position	Position	Position	위치	Posición	Позиция	Θέση	位置	位置	Posizione	Posição	位置	Pozycja
+Left top	Links oben	Haut gauche	왼쪽 위	Arriba izq.	Слева сверху	Πάνω αριστερά	左上	左上	Alto sinistra	Sup. esquerda	左上	Lewy górny
+Left middle	Links Mitte	Milieu gauche	왼쪽 중앙	Centro izq.	Слева по центру	Μέση αριστερά	左中	左中	Centro sinistra	Centro esquerda	左中	Lewy środek
+Left bottom	Links unten	Bas gauche	왼쪽 아래	Abajo izq.	Слева снизу	Κάτω αριστερά	左下	左下	Basso sinistra	Inf. esquerda	左下	Lewy dolny
+Center top	Mitte oben	Haut centre	중앙 위	Arriba centro	По центру сверху	Πάνω κέντρο	中上	中上	Alto centro	Superior centro	中央上	Środek górny
+Center bottom	Mitte unten	Bas centre	중앙 아래	Abajo centro	По центру снизу	Κάτω κέντρο	中下	中下	Basso centro	Inferior centro	中央下	Środek dolny
+Right top	Rechts oben	Haut droite	오른쪽 위	Arriba der.	Справа сверху	Πάνω δεξιά	右上	右上	Alto destra	Sup. direita	右上	Prawy górny
+Right middle	Rechts Mitte	Milieu droite	오른쪽 중앙	Centro der.	Справа по центру	Μέση δεξιά	右中	右中	Centro destra	Centro direita	右中	Prawy środek
+Right bottom	Rechts unten	Bas droite	오른쪽 아래	Abajo der.	Справа снизу	Κάτω δεξιά	右下	右下	Basso destra	Inf. direita	右下	Prawy dolny
+Fly-in	Einflug	Animation	슬라이드 인	Entrada	Анимация	Είσοδος	滑入	滑入	Entrata	Entrada	スライドイン	Wjazd
+Set in the widget	Im Widget gesetzt	Défini dans le widget	위젯에서 설정	Definido en el widget	Задано в виджете	Ορίστηκε στο widget	在小组件中设置	在小工具中設定	Impostato nel widget	Definido no widget	ウィジェットで設定	Ustawione w widżecie
+remove in the widget	im Widget entfernen	à retirer dans le widget	위젯에서 제거	quitar en el widget	удалить в виджете	αφαίρεση στο widget	在小组件中移除	在小工具中移除	rimuovi nel widget	remover no widget	ウィジェットで削除	usuń w widżecie
+Gyro sens X	Gyro-Empf. X	Sensib. gyro X	자이로 감도 X	Sensib. giro X	Чувств. гиро X	Ευαισθ. γύρου X	陀螺仪灵敏度 X	陀螺儀靈敏度 X	Sensib. giro X	Sensib. giro X	ジャイロ感度 X	Czułość żyro X
+Gyro sens Y	Gyro-Empf. Y	Sensib. gyro Y	자이로 감도 Y	Sensib. giro Y	Чувств. гиро Y	Ευαισθ. γύρου Y	陀螺仪灵敏度 Y	陀螺儀靈敏度 Y	Sensib. giro Y	Sensib. giro Y	ジャイロ感度 Y	Czułość żyro Y
+Gyro smoothing	Gyro-Glättung	Lissage gyro	자이로 스무딩	Suavizado giro	Сглаж. гиро	Εξομάλυνση γύρου	陀螺仪平滑	陀螺儀平滑	Smussatura giro	Suavização giro	ジャイロ平滑化	Wygładzanie żyro
+Gyro anti-deadzone	Gyro-Anti-Deadzone	Anti-zone morte gyro	자이로 안티 데드존	Anti zona muerta giro	Антимёртвая зона гиро	Αντι-νεκρή ζώνη γύρου	陀螺仪反死区	陀螺儀反死區	Anti-zona morta giro	Anti-zona morta giro	ジャイロ反デッドゾーン	Anty-martwa strefa żyro
+[Right stick], hold [LT]	[Rechter Stick], [LT] halten	[Stick droit], maintenir [LT]	[오른쪽 스틱], [LT] 누른 채	[Stick derecho], mantén [LT]	[Правый стик], удерживая [LT]	[Δεξί stick], κρατώντας [LT]	[右摇杆]，按住 [LT]	[右搖桿]，按住 [LT]	[Stick destro], tieni [LT]	[Stick direito], segure [LT]	[右スティック]、[LT] 長押し	[Prawy drążek], trzymaj [LT]
+[Right stick] ^ v source · < > step size	[Rechter Stick] ^ v Quelle · < > Schrittweite	[Stick droit] ^ v source · < > pas	[오른쪽 스틱] ^ v 소스 · < > 단계	[Stick derecho] ^ v fuente · < > paso	[Правый стик] ^ v источник · < > шаг	[Δεξί stick] ^ v πηγή · < > βήμα	[右摇杆] ^ v 来源 · < > 步长	[右搖桿] ^ v 來源 · < > 步長	[Stick destro] ^ v sorgente · < > passo	[Stick direito] ^ v fonte · < > passo	[右スティック] ^ v ソース · < > 刻み	[Prawy drążek] ^ v źródło · < > krok
+[Start] opens Game Bar	[Start] öffnet die Game Bar	[Start] ouvre la Game Bar	[Start] Game Bar 열기	[Start] abre la Game Bar	[Start] откроет Game Bar	[Start] ανοίγει το Game Bar	[Start] 打开 Game Bar	[Start] 開啟 Game Bar	[Start] apre la Game Bar	[Start] abre a Game Bar	[Start] で Game Bar を開く	[Start] otwiera Game Bar

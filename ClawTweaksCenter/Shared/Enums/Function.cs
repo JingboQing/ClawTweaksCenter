@@ -958,5 +958,9 @@
         // See Doku/PLAN_Drivers_And_Windows_Updates.md section 3.0.
         // APPEND-ONLY: Function is serialised by ordinal - new members go at the END.
         WindowsUpdateResult,            // string - JSON, see above
+
+        // The MSI Quick Settings button opens the helper's native Quick Panel instead of the Game
+        // Bar. Helper-owned, unused here - mirrored so the ordinals stay aligned.
+        Settings_QuickSettingsButtonOpensPanel,   // bool
     }
 }

@@ -95,6 +95,23 @@ OSD_KEYS = [
     # the native Quick Panel's one translated notice: it cannot be used without the virtual pad
     'This panel works only with the virtual controller',
     'Use the Game Bar instead.',
+    # the native Quick Panel's labels, values and hints (user, 2026-09-16). Keys in [brackets] are
+    # controller buttons and sticks - the bracket is part of the key and stays in every language.
+    'Brightness', 'Volume', 'muted',
+    'Profile', 'Game profile', 'Global profile',
+    'Power limit', 'FPS Limit', 'stepped', 'free',
+    'CPU boost', 'On', 'Off',
+    'OS power mode', 'Best power efficiency', 'Balanced', 'Best performance',
+    'Overlay', 'Basic', 'Horizontal', 'Horizontal Custom', 'Vertical Custom',
+    'Background', 'Position',
+    'Left top', 'Left middle', 'Left bottom', 'Center top', 'Center bottom',
+    'Right top', 'Right middle', 'Right bottom',
+    'Fly-in',
+    'Set in the widget', 'remove in the widget',
+    'Vibration', 'Gyro', 'Gyro sens X', 'Gyro sens Y', 'Gyro smoothing', 'Gyro anti-deadzone',
+    '[Right stick], hold [LT]',
+    '[Right stick] ^ v source · < > step size',
+    '[Start] opens Game Bar',
 ]
 
 # TSV column -> the C# field name for that language's dictionary. The order here is the order the
@@ -409,9 +426,9 @@ def build_inno(check):
 OSD_HEADER = u"""// GENERATED FROM ClawTweaksCenter/Tools/i18n/strings.tsv BY Tools/i18n/loc_build.py
 // DO NOT EDIT BY HAND - an edit here survives exactly until the next run of that script.
 //
-// The notification cards only, which is the scope the i18n plan set (decision 5): the native
-// Quick Panel's own labels are not in here and are not meant to be - with ONE exception, the
-// notice it shows when the virtual controller is off (user, 2026-09-16).
+// The notification cards AND the native Quick Panel's labels (user, 2026-09-16). The i18n plan's
+// decision 5 had scoped this to the cards alone; the panel came in as one block once it had its
+// controller page and was about to ship.
 //
 // Keyed by the English line, like every other table in this project, so a line with no row simply
 // renders in English. OsdLoc.Card splits a card on its newline and looks up each line separately -
