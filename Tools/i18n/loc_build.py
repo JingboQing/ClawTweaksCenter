@@ -95,14 +95,17 @@ OSD_KEYS = [
     # the native Quick Panel's one translated notice: it cannot be used without the virtual pad
     'This panel works only with the virtual controller',
     'Use the Game Bar instead.',
+    # the fallback card when the button is pressed without the virtual controller
+    'Game Bar opened instead',
+    'Quick Settings need the virtual controller',
     # the native Quick Panel's labels, values and hints (user, 2026-09-16). Keys in [brackets] are
     # controller buttons and sticks - the bracket is part of the key and stays in every language.
     'Brightness', 'Volume', 'muted',
     'Profile', 'Game profile', 'Global profile',
     'Power limit', 'FPS Limit', 'stepped', 'free',
     'CPU boost', 'On', 'Off',
-    'OS power mode', 'Best power efficiency', 'Balanced', 'Best performance',
-    'Overlay', 'Basic', 'Horizontal', 'Horizontal Custom', 'Vertical Custom',
+    'OS power mode', 'Best power efficiency', 'Balanced', 'Best performance', 'Efficiency', 'Performance',
+    'Overlay', 'Basic', 'Horizontal', 'Horizontal Custom', 'Vertical Custom', 'Vertical',
     'Background', 'Position',
     'Left top', 'Left middle', 'Left bottom', 'Center top', 'Center bottom',
     'Right top', 'Right middle', 'Right bottom',
