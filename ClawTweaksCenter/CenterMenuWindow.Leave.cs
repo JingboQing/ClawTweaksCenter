@@ -58,7 +58,7 @@ namespace ClawTweaksCenter
         {
             // Started by the Windows uninstaller: there is no Home to go back to that the user asked
             // for. Closing is the honest answer to "I changed my mind".
-            if (_leaveFromWindowsUninstall) { Application.Current.Shutdown(); return; }
+            if (_leaveFromWindowsUninstall) { _reallyExiting = true; Application.Current.Shutdown(); return; }
             GoHome();
         }
 
@@ -369,6 +369,9 @@ namespace ClawTweaksCenter
             try { SelfInstaller.Uninstall(); }
             catch (Exception ex) { InstallLog.Write("Center uninstall failed: " + ex.Message); }
 
+            // A real exit: the Closing handler must not turn this into hide-to-tray (Run in
+            // background on) or a trip to Home (FSE) - Center has just been uninstalled.
+            _reallyExiting = true;
             Application.Current.Shutdown();
         }
     }

@@ -67,6 +67,17 @@ namespace ClawTweaksCenter
 
                 if (!resident) return;
                 e.Cancel = true;
+
+                // In FSE "hidden to the tray" is hidden to nowhere: there is no tray, no taskbar and
+                // no desktop behind this window, and a hidden library does not come back (user,
+                // 2026-09-16). Every close that is not a real exit goes to the start screen instead.
+                if (Core.CenterSettings.FseMode)
+                {
+                    Core.InstallLog.Write("Closing: FSE mode - showing the start screen instead of hiding.");
+                    if (_view != View.Home) GoHome();
+                    return;
+                }
+
                 Hide();
             };
 

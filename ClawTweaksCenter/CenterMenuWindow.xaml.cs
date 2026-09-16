@@ -358,6 +358,7 @@ namespace ClawTweaksCenter
                 // this channel exists for: something is badly broken, or a release needs a special
                 // setup. The duplicate key is what stops it repeating.
                 PostManifestAnnouncements();
+                PostFseHintOnce();
 
                 RenderCurrentView(); // picks up the outdated-Setup / Insider-channel warnings once known
 
@@ -2230,8 +2231,14 @@ namespace ClawTweaksCenter
                 // it minimizing reads as two different things. Shutdown() is still correct here - it
                 // closes every window through Close(), and the Closing handler in Tray.cs cancels the
                 // whole shutdown and hides instead.
-                AddAction(PadButton.B, Core.CenterSettings.RunInBackground ? "Minimize" : "Exit",
-                    true, () => Application.Current.Shutdown());
+                //
+                // ⚠️ NO B AT ALL IN FSE (user, 2026-09-16). There is no tray and no desktop behind
+                // Center there, so "Minimize" would put the window somewhere the user cannot reach
+                // and the library would be gone until a reboot. The Closing handler in Tray.cs has
+                // the same guard for every other route into Close().
+                if (!Core.CenterSettings.FseMode)
+                    AddAction(PadButton.B, Core.CenterSettings.RunInBackground ? "Minimize" : "Exit",
+                        true, () => Application.Current.Shutdown());
                 return;
             }
 
@@ -2352,12 +2359,13 @@ namespace ClawTweaksCenter
         ///
         /// Built by ActionBarBuilder so it lines up with the action tiles next to it: same glyph size,
         /// same height, same padding. Hand-sizing it here is what made it sit a few pixels off.</summary>
-        private void AddScrollHint()
-        {
-            _pendingHint = ActionBarBuilder.BuildHint(
-                new BitmapImage(new Uri("pack://application:,,,/Assets/xbox/xbox_stick_r_vertical.png", UriKind.Absolute)),
-                "Scroll");
-        }
+        /// <summary>
+        /// Used to put a right-stick "Scroll" hint in the footer. A NO-OP since 2026-09-16 (user:
+        /// "das brauchen wir nie" - people know how to scroll a list). Kept as a method so the
+        /// fifteen call sites stay where a screen's action bar is assembled; the hint slot itself
+        /// (_pendingHint) is still used by other hints.
+        /// </summary>
+        private void AddScrollHint() { }
 
         /// <summary>
         /// Stacks the header's brand block and device banner vertically below the narrow breakpoint.

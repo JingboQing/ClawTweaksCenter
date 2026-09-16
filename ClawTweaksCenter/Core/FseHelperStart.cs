@@ -88,6 +88,44 @@ namespace ClawTweaksCenter.Core
         }
 
         /// <summary>
+        /// The FSE package is the chosen gaming home app, whether or not Windows boots into it. The
+        /// weaker half of <see cref="IsFseStartApp"/>: enough to know the user has already been
+        /// through the registration, which is all the one-time hint needs.
+        /// </summary>
+        internal static bool IsFsePackageChosen()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(GamingConfigKey))
+                {
+                    string homeApp = key?.GetValue("GamingHomeApp") as string ?? "";
+                    return homeApp.StartsWith(FsePackagePrefix, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            catch { return false; }
+        }
+
+        /// <summary>
+        /// Windows offers the full-screen experience picker at all. 10.0.26100.8039 is the floor the
+        /// installer checks before it asks; below it there is nothing to register into. The UBR
+        /// (fourth part) is not in Environment.OSVersion, so it is read from the registry.
+        /// </summary>
+        internal static bool WindowsHasFsePicker()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion"))
+                {
+                    if (key == null) return false;
+                    int.TryParse(Convert.ToString(key.GetValue("CurrentBuildNumber"), CultureInfo.InvariantCulture), out int build);
+                    int ubr = key.GetValue("UBR") is int u ? u : 0;
+                    return build > 26100 || (build == 26100 && ubr >= 8039);
+                }
+            }
+            catch { return false; }
+        }
+
+        /// <summary>
         /// Fire-and-forget: bring the helper up now, if all guards agree. Returns what happened so the
         /// caller can log ONE line — this runs before any window exists, so there is nowhere to show
         /// anything and nothing here is worth bothering the user with.

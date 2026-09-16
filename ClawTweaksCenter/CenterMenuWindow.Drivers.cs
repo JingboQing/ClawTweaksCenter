@@ -61,10 +61,20 @@ namespace ClawTweaksCenter
             public int Column;          // 0 = drivers, 1 = Windows Update
             public Action Activate;     // null for a row that only reports
             public FrameworkElement Element;
+            public DriverEntryDto Driver;   // set on a driver card, so RT can mute it
         }
 
         private readonly List<DriverRow> _driverRows = new List<DriverRow>();
         private int _driverRowIndex;
+
+        /// <summary>
+        /// Drivers whose download the helper was asked to start in this Center session, by mute key.
+        /// The helper answers the install request on the WIDGET's pipe (Program.PipeHandlers,
+        /// InstallDriverUpdate), so Center never hears the outcome; the card says the download was
+        /// started and the next refresh - which re-reads PnP, the helper drops its cache after an
+        /// install - shows what came of it. Cleared on every forced refresh for that reason.
+        /// </summary>
+        private readonly HashSet<string> _driverInstallStarted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         // Deliberately generous. The driver check can go out to MSI and Intel on a cold cache, and the
         // Windows Update search is a network round trip that measured 29.1 s on this very machine - a
@@ -91,6 +101,7 @@ namespace ClawTweaksCenter
         {
             _driversBusy = true;
             _driversError = null;
+            if (force) _driverInstallStarted.Clear();
             RenderDriversIfStillOpen();
             try
             {
@@ -117,6 +128,10 @@ namespace ClawTweaksCenter
                 }
                 _driverResult = ParseJson<DriversResult>(json);
                 if (_driverResult == null) _driversError = "The driver list could not be read.";
+                // A manual check is still a check: what it finds goes to the notification list
+                // exactly as the background pass would post it (user, 2026-09-16 - a driver found by
+                // hand never showed up under LT).
+                else if (force) PostDriverNotifications(_driverResult);
             }
             catch (Exception ex)
             {
@@ -156,6 +171,10 @@ namespace ClawTweaksCenter
                        ?? new WindowsUpdateResultDto { ErrorMessage = "The answer could not be read." });
 
                 _windowsUpdatesCheckedLocal = ParseUtc(_windowsUpdates.CheckedUtc);
+                // Same as the driver side: a manual search that finds something posts it. The search
+                // takes half a minute, so the user has usually moved on by the time it lands - which
+                // is exactly what the list is for.
+                if (force) PostWindowsUpdateNotifications(_windowsUpdates);
             }
             catch (Exception ex)
             {
@@ -180,10 +199,34 @@ namespace ClawTweaksCenter
         /// back after the user has moved on must not repaint someone else's screen.</summary>
         private void RenderDriversIfStillOpen()
         {
-            if (_view != View.Drivers) return;
             if (!Dispatcher.CheckAccess()) { Dispatcher.Invoke(RenderDriversIfStillOpen); return; }
+            // Center settings shows the helper's two driver opt-ins out of the same result, so an
+            // answer that lands while THAT screen is up redraws it as well.
+            if (_view == View.CenterSettings) { RenderCenterSettings(); return; }
+            if (_view != View.Drivers) return;
             RenderDrivers();
             RefreshActionBar();
+        }
+
+        /// <summary>
+        /// Flips one of the helper's two driver opt-ins from Center settings. The helper owns the
+        /// value (its LocalSettings, the same ones the widget's checkboxes write), so this sends the
+        /// widget's verb and then asks for a fresh list - forced, because the modded Wi-Fi choice
+        /// changes which ROW the Wi-Fi driver is, and a cached serve would still show the old one.
+        /// </summary>
+        private async void SetDriverOptIn(string verb, bool value)
+        {
+            try
+            {
+                if (!await EnsureHelperAsync()) return;
+                _helperPipe.SendRequest(verb, value);
+                Core.InstallLog.Write($"{verb} = {value} sent from Center settings.");
+                await RequestDriversAsync(force: true);
+            }
+            catch (Exception ex)
+            {
+                Core.InstallLog.Write("SetDriverOptIn failed: " + ex.Message);
+            }
         }
 
         // ── Render ─────────────────────────────────────────────────────────────────────────────
@@ -248,7 +291,10 @@ namespace ClawTweaksCenter
 
             if (graphics.Count > 0)
             {
-                stack.Children.Add(SubHeading("Graphics"));
+                // What the catalogue was asked for, next to the rows it produced: WHQL only, or
+                // betas too. The switch is in Center settings; the answer belongs here (user,
+                // 2026-09-16).
+                stack.Children.Add(SubHeading(_driverResult.UseIntelBeta ? "Graphics (WHQL and non-WHQL)" : "Graphics (WHQL only)"));
                 foreach (var d in graphics) stack.Children.Add(BuildDriverCard(d, showHighlights: true));
                 stack.Children.Add(new Border
                 {
@@ -295,6 +341,22 @@ namespace ClawTweaksCenter
 
             stack.Children.Add(BuildDriverChip(d));
 
+            bool started = _driverInstallStarted.Contains(DriverMuteKey(d));
+            if (started)
+                stack.Children.Add(new TextBlock
+                {
+                    // Three shapes: the modded Wi-Fi driver is unpacked into a folder the user runs
+                    // Setup.bat from; the graphics driver is the one download big enough (over
+                    // 800 MB) that "nothing is happening" needs an answer (user, 2026-09-16).
+                    Text = Core.Loc.T(IsModdedWifi(d)
+                        ? "Download started in the background. The folder opens when it is done - run Setup.bat there."
+                        : IsGraphics(d)
+                            ? "Download started in the background - over 800 MB. The installer opens when it is done."
+                            : "Download started in the background. The installer opens when it is done."),
+                    FontSize = 12, Foreground = UiHelpers.Accent, TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 6, 0, 0),
+                });
+
             if (showHighlights && !string.IsNullOrWhiteSpace(d.Highlights))
                 stack.Children.Add(new TextBlock
                 {
@@ -312,11 +374,88 @@ namespace ClawTweaksCenter
                 Child = stack,
             };
 
-            // A cursor stop even though pressing it does nothing. That is the point: without it the
-            // left column cannot be reached or scrolled with the pad at all, and reading the list is
-            // exactly what somebody comes to this column for (user, 2026-09-13).
-            RegisterDriverRow(0, card, null);
+            // A cursor stop whether or not pressing it does anything: without it the left column
+            // cannot be reached or scrolled with the pad at all, and reading the list is what most
+            // people come to this column for (user, 2026-09-13).
+            //
+            // A INSTALLS when there is something to install (user, 2026-09-16) - the same helper verb
+            // the Game Bar widget's Install button sends. Muted rows do not offer it: the user said
+            // they do not want to hear about this version, and RT unmutes it first.
+            Action install = CanInstall(d) && !started ? () => StartDriverInstall(d) : (Action)null;
+            RegisterDriverRow(0, card, install, d);
             return card;
+        }
+
+        private static bool IsModdedWifi(DriverEntryDto d) =>
+            string.Equals(d.Action, "moddedwifi", StringComparison.OrdinalIgnoreCase);
+
+        private static bool CanInstall(DriverEntryDto d) =>
+            !d.Ignored
+            && !string.IsNullOrWhiteSpace(d.DownloadUrl)
+            && (d.UpdateStatus == DriverUpdateStatusDto.UpdateAvailable
+                || d.UpdateStatus == DriverUpdateStatusDto.NotInstalled);
+
+        /// <summary>The helper's mute key, composed the way MsiClawDriverCheckService.IgnoreKey
+        /// composes it (name|version, lower case). Three writers now - helper, widget, Center - and
+        /// a key that drifts in one of them is a mute that silently does not apply.</summary>
+        private static string DriverMuteKey(DriverEntryDto d) =>
+            ((d.Name ?? "").Trim() + "|" + (d.Version ?? "").Trim()).ToLowerInvariant();
+
+        /// <summary>
+        /// Hands the download to the helper and marks the card. Fire-and-forget by necessity: the
+        /// helper acknowledges on the widget's pipe and pushes DriverInstallComplete there too, so
+        /// there is nothing on this pipe to wait for. The helper downloads, launches the installer
+        /// (an .exe/.msi; a BIOS zip is only downloaded) and invalidates its own cache, so the next
+        /// refresh here tells the truth about what happened.
+        /// </summary>
+        private async void StartDriverInstall(DriverEntryDto d)
+        {
+            try
+            {
+                if (!await EnsureHelperAsync()) { _driversError = "ClawTweaks is not running."; RenderDriversIfStillOpen(); return; }
+                // The modded Wi-Fi driver has its own verb: the helper downloads and unpacks it and
+                // opens the folder, because its Setup.bat is the user's to run (see the helper's
+                // InstallModdedWifiAsync). InstallDriverUpdate would try to launch a zip.
+                bool sent = IsModdedWifi(d)
+                    ? _helperPipe.SendRequest("InstallModdedWifi", true)
+                    : _helperPipe.SendRequest("InstallDriverUpdate", d.DownloadUrl);
+                if (sent)
+                {
+                    _driverInstallStarted.Add(DriverMuteKey(d));
+                    Core.InstallLog.Write($"Driver install requested from Center: {d.Name} {d.Version}");
+                }
+                RenderDriversIfStillOpen();
+            }
+            catch (Exception ex)
+            {
+                Core.InstallLog.Write("StartDriverInstall failed: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Mute or unmute the driver under the cursor - the same SetDriverIgnore verb and the same key
+        /// the widget sends, so a mute made here shows there and vice versa. The helper acks on the
+        /// widget's pipe, so the list is simply re-requested (cached; the helper re-applies mutes on
+        /// every serve) and the pill changes on the redraw.
+        /// </summary>
+        private async void ToggleDriverMute(DriverEntryDto d)
+        {
+            try
+            {
+                if (!await EnsureHelperAsync()) return;
+                bool mute = !d.Ignored;
+                _helperPipe.SendRequest(new[]
+                {
+                    new KeyValuePair<string, object>("SetDriverIgnore", DriverMuteKey(d)),
+                    new KeyValuePair<string, object>("IgnoreState", mute),
+                });
+                Core.InstallLog.Write($"Driver {(mute ? "muted" : "unmuted")} from Center: {d.Name} {d.Version}");
+                await RequestDriversAsync(force: false);
+            }
+            catch (Exception ex)
+            {
+                Core.InstallLog.Write("ToggleDriverMute failed: " + ex.Message);
+            }
         }
 
         /// <summary>
@@ -428,14 +567,22 @@ namespace ClawTweaksCenter
                 return stack;
             }
 
+            // ONE banner, not two (user, 2026-09-16): "restart pending" used to be its own row under
+            // the list, and with the count banner above it the column spent two cards on one fact.
+            // It folds into the banner instead - the title says both, the detail says what to do.
             var updates = _windowsUpdates.Updates ?? new List<WindowsUpdateEntryDto>();
+            bool reboot = _windowsUpdates.RebootRequired;
             if (updates.Count == 0)
-                stack.Children.Add(UiHelpers.StatusRow(StatusKind.Ok, "Up to date",
-                    "Windows has nothing pending for this machine."));
+                stack.Children.Add(reboot
+                    ? UiHelpers.StatusRow(StatusKind.Warning, "Restart pending",
+                        "Windows needs a restart to finish an update.")
+                    : UiHelpers.StatusRow(StatusKind.Ok, "Up to date",
+                        "Windows has nothing pending for this machine."));
             else
                 stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning,
-                    Core.Loc.F("{0} update(s) ready", updates.Count),
-                    "Install them in Windows Update."));
+                    reboot ? Core.Loc.F("{0} update(s) ready, restart pending", updates.Count)
+                           : Core.Loc.F("{0} update(s) ready", updates.Count),
+                    reboot ? "Install them in Windows Update, then restart." : "Install them in Windows Update."));
 
             if (_windowsUpdatesCheckedLocal.HasValue)
                 stack.Children.Add(new TextBlock
@@ -445,10 +592,6 @@ namespace ClawTweaksCenter
                 });
 
             foreach (var u in updates) stack.Children.Add(BuildWindowsUpdateCard(u));
-
-            if (_windowsUpdates.RebootRequired)
-                stack.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Restart pending",
-                    "Windows needs a restart to finish an update."));
 
             AppendWindowsUpdateFooterRows(stack);
             return stack;
@@ -518,7 +661,7 @@ namespace ClawTweaksCenter
         /// The selection is drawn as an outline on whatever the element already is, so a card still
         /// looks like a card and a button still looks like a button.
         /// </summary>
-        private void RegisterDriverRow(int column, FrameworkElement element, Action activate)
+        private void RegisterDriverRow(int column, FrameworkElement element, Action activate, DriverEntryDto driver = null)
         {
             int index = _driverRows.Count;
             bool selected = index == _driverRowIndex;
@@ -540,7 +683,7 @@ namespace ClawTweaksCenter
                 element.MouseLeftButtonUp += (_, __) => { _driverRowIndex = index; activate(); };
             }
 
-            _driverRows.Add(new DriverRow { Column = column, Activate = activate, Element = element });
+            _driverRows.Add(new DriverRow { Column = column, Activate = activate, Element = element, Driver = driver });
         }
 
         /// <summary>1 \u2192 2 \u2192 3 \u2192 4 \u2192 off \u2192 1. Off is reachable on purpose: a background check that
@@ -589,7 +732,28 @@ namespace ClawTweaksCenter
 
             // Without this the cursor walks off the bottom of the viewport and the screen looks
             // frozen - the rows below the fold are exactly the ones this navigation exists for.
-            _driverRows[_driverRowIndex].Element?.BringIntoView();
+            //
+            // ⚠️ THE FIRST ROW OF A COLUMN SCROLLS TO THE VERY TOP, not merely into view. Above it
+            // sit the title, the heading and the interval chips, and BringIntoView stops the moment
+            // the card is visible - so once the screen had been scrolled down, nothing the pad
+            // could do brought the top back (user, 2026-09-16). The first row is the only stop
+            // there is up there, so it has to carry the whole trip.
+            if (IsFirstRowOfItsColumn(_driverRowIndex)) ContentScroller?.ScrollToTop();
+            else _driverRows[_driverRowIndex].Element?.BringIntoView();
+
+            // ⚠️ THE CHIPS FOLLOW THE CURSOR, and they did not until 2026-09-16. Ⓐ is enabled per
+            // row (a card reads, a button acts), but the bar was only rebuilt when the screen was
+            // opened - with the cursor on the first driver card. So "Open Windows Update" stayed
+            // greyed out however far the cursor went, and the press did nothing (user report).
+            RefreshActionBar();
+        }
+
+        private bool IsFirstRowOfItsColumn(int index)
+        {
+            int column = _driverRows[index].Column;
+            for (int i = 0; i < index; i++)
+                if (_driverRows[i].Column == column) return false;
+            return true;
         }
 
         /// <summary>
@@ -599,18 +763,41 @@ namespace ClawTweaksCenter
         /// to it - and because the setting itself no longer lives on this screen (it moved to Center
         /// settings on 2026-09-13). Without the pointer, a column that quietly checks itself once a
         /// week would be a behaviour with no visible switch anywhere near it.
+        ///
+        /// TWO CHIPS, not a sentence (user, 2026-09-16): the interval, and where it is changed. An
+        /// outlined chip with rounded corners, so it reads as a fact about the column and not as a
+        /// second line of the heading.
         /// </summary>
-        private static TextBlock IntervalHint(int weeks) => new TextBlock
+        private static StackPanel IntervalHint(int weeks)
         {
-            Text = weeks <= Core.CenterSettings.IntervalOff
-                ? Core.Loc.T("Not checked automatically. You can switch this on in Center settings.")
-                : Core.Loc.F("Checked automatically: {0}. You can change or switch this off in Center settings.",
-                             IntervalLabel(weeks).ToLowerInvariant()),
-            FontSize = 12,
-            Foreground = UiHelpers.Subtle,
+            var row = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Margin = new Thickness(0, -4, 10, 12),
+            };
+            row.Children.Add(InfoChip(weeks <= Core.CenterSettings.IntervalOff
+                ? Core.Loc.T("Automatic check: off")
+                : Core.Loc.F("Automatic check: {0}", IntervalLabel(weeks).ToLowerInvariant())));
+            row.Children.Add(InfoChip(Core.Loc.T("Change in Center settings")));
+            return row;
+        }
+
+        /// <summary>A small outlined chip. Distinct from the driver state pill on purpose - that one
+        /// is filled and coloured by state, this one only informs.</summary>
+        private static Border InfoChip(string text) => new Border
+        {
+            BorderBrush = UiHelpers.Subtle,
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(7),
+            Padding = new Thickness(9, 2, 9, 3),
+            Margin = new Thickness(0, 0, 8, 0),
             Opacity = 0.85,
-            TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(2, -4, 10, 12),
+            Child = new TextBlock
+            {
+                Text = text,
+                FontSize = 12,
+                Foreground = UiHelpers.Subtle,
+            },
         };
 
         private static TextBlock SectionHeading(string text) => new TextBlock
@@ -635,16 +822,21 @@ namespace ClawTweaksCenter
             // press, and burying them one cursor move deep would be the wrong trade.
             // Enabled only when the row under the cursor actually does something - most of them are
             // driver and update cards, which exist to be read.
-            bool canAct = _driverRowIndex >= 0 && _driverRowIndex < _driverRows.Count
-                          && _driverRows[_driverRowIndex].Activate != null;
-            AddAction(PadButton.A, "Open", canAct, () =>
+            var row = _driverRowIndex >= 0 && _driverRowIndex < _driverRows.Count ? _driverRows[_driverRowIndex] : null;
+            bool canAct = row?.Activate != null;
+            // "Install" on a driver card, "Open" on the Windows Update button - the chip names what
+            // the press does, and the two are not the same thing.
+            AddAction(PadButton.A, row?.Driver != null ? "Install" : "Open", canAct, () =>
             {
-                if (canAct) _driverRows[_driverRowIndex].Activate();
+                if (canAct) row.Activate();
             });
+            // Mute lives on RT: A, X and Y are taken and the chip has to exist to be found. Only
+            // while the cursor is on a driver card - there is nothing to mute anywhere else.
+            if (row?.Driver != null)
+                AddAction(PadButton.RT, row.Driver.Ignored ? "Unmute" : "Mute", true, () => ToggleDriverMute(row.Driver));
             AddAction(PadButton.X, "Check Windows Update", !_windowsUpdatesBusy, () => _ = RequestWindowsUpdatesAsync(force: true));
-            AddAction(PadButton.Y, "Refresh drivers", !_driversBusy, () => _ = RequestDriversAsync(force: true));
+            AddAction(PadButton.Y, "Check drivers again", !_driversBusy, () => _ = RequestDriversAsync(force: true));
             AddAction(PadButton.B, "Back", true, GoHome);
-            AddScrollHint();
         }
 
         /// <summary>
@@ -701,6 +893,10 @@ namespace ClawTweaksCenter
         private sealed class DriversResult
         {
             public bool LiveFetchSucceeded { get; set; }
+            /// <summary>The helper's two opt-ins, as it holds them. Shown and toggled from Center
+            /// settings, never stored here - the helper is the one copy.</summary>
+            public bool UseIntelBeta { get; set; }
+            public bool UseModdedWifi { get; set; }
             public string Message { get; set; }
             public List<DriverEntryDto> Drivers { get; set; }
         }
@@ -716,6 +912,8 @@ namespace ClawTweaksCenter
             public bool IsBeta { get; set; }
             public bool Ignored { get; set; }
             public string ProviderScope { get; set; }
+            public string DownloadUrl { get; set; }   // what A hands to the helper
+            public string Action { get; set; }        // "install" | "moddedwifi" | ... - picks the verb
         }
 
         private sealed class WindowsUpdateResultDto

@@ -46,8 +46,18 @@ namespace ClawTweaksCenter
         // shape, and each screen keeps only what it is for.
         private const int CenterSettingsDriverCheckRow = 2;
         private const int CenterSettingsWindowsCheckRow = 3;
-        private const int CenterSettingsWidgetCheckRow = 4;
-        private const int CenterSettingsWidgetTestRow = 5;
+
+        // The helper's two driver opt-ins, under the driver row (user, 2026-09-16). HELPER STATE,
+        // read out of the driver result and written back over the pipe - the same verbs the widget's
+        // checkboxes send - so Center holds no copy of either. Without a helper the rows say so.
+        private const int CenterSettingsDriverBetaRow = 4;
+        private const int CenterSettingsDriverWifiRow = 5;
+
+        private const int CenterSettingsWidgetCheckRow = 6;
+        private const int CenterSettingsWidgetTestRow = 7;
+
+        /// <summary>From here down the grid is ONE column - see MoveCenterSettingsSelection.</summary>
+        private const int CenterSettingsTailStart = CenterSettingsDriverBetaRow;
 
         // ── Experimentell - ENTFERNT 2026-09-15 ────────────────────────────────────────────────
         //
@@ -147,6 +157,19 @@ namespace ClawTweaksCenter
                 IntervalLabel(CenterSettings.DriverCheckIntervalWeeks)));
             checks.Children.Add(BuildCenterSettingRow(CenterSettingsWindowsCheckRow, Loc.T("Windows Update"),
                 IntervalLabel(CenterSettings.WindowsUpdateCheckIntervalWeeks)));
+
+            // The two opt-ins sit UNDER the driver row, one column, with the empty cell doing the
+            // pushing - the same shape as "Include test versions" under the widget row below. Their
+            // value comes from the helper's last answer; until one has arrived the row says so.
+            bool haveHelper = _driverResult != null && string.IsNullOrEmpty(_driverResult.Message);
+            if (_driverResult == null && !_driversBusy) _ = RequestDriversAsync(force: false);
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsDriverBetaRow, Loc.T("Also non-WHQL graphics drivers"),
+                haveHelper ? null : Loc.T("ClawTweaks is not running."), haveHelper ? _driverResult.UseIntelBeta : (bool?)null));
+            checks.Children.Add(new Border());
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsDriverWifiRow, Loc.T("Modded Wi-Fi driver instead of stock"),
+                haveHelper ? null : Loc.T("ClawTweaks is not running."), haveHelper ? _driverResult.UseModdedWifi : (bool?)null));
+            checks.Children.Add(new Border());
+
             checks.Children.Add(BuildCenterSettingRow(CenterSettingsWidgetCheckRow, Loc.T("Gamebar Widget Releases"),
                 IntervalLabel(CenterSettings.WidgetUpdateNotifyIntervalWeeks)));
             // "Include test versions" belongs UNDER the widget row, not beside it (user, 2026-09-15):
@@ -424,15 +447,15 @@ namespace ClawTweaksCenter
             const int stride = 2;
             // The tail from the widget row down is ONE column (the test toggle sits under the widget
             // row, its right-hand cell is empty), so there Up/Down step one and Left/Right nothing.
-            bool inTail = _centerSettingsIndex >= CenterSettingsWidgetCheckRow;
+            bool inTail = _centerSettingsIndex >= CenterSettingsTailStart;
             if (dir == PadButton.Left) { if (inTail) return; next--; }
             else if (dir == PadButton.Right) { if (inTail) return; next++; }
-            else if (dir == PadButton.Up) next -= (_centerSettingsIndex > CenterSettingsWidgetCheckRow) ? 1 : stride;
+            else if (dir == PadButton.Up) next -= (_centerSettingsIndex > CenterSettingsTailStart) ? 1 : stride;
             else if (dir == PadButton.Down) next += inTail ? 1 : stride;
             else return;
 
-            // Down from the right-hand cell above the tail lands on the widget row, not past it.
-            if (dir == PadButton.Down && !inTail && next > CenterSettingsWidgetCheckRow) next = CenterSettingsWidgetCheckRow;
+            // Down from the right-hand cell above the tail lands on the tail's first row, not past it.
+            if (dir == PadButton.Down && !inTail && next > CenterSettingsTailStart) next = CenterSettingsTailStart;
 
             // Down from the last row lands on the last cell rather than nowhere: with an odd number
             // of rows the cell below is missing, and refusing the press reads as a dead d-pad.
@@ -484,6 +507,14 @@ namespace ClawTweaksCenter
                 case CenterSettingsWidgetTestRow:
                     CenterSettings.WidgetNotifyTestBuilds = !CenterSettings.WidgetNotifyTestBuilds;
                     break;
+
+                case CenterSettingsDriverBetaRow:
+                    if (_driverResult != null) SetDriverOptIn("SetUseIntelBeta", !_driverResult.UseIntelBeta);
+                    return;   // the pipe answer redraws this screen
+
+                case CenterSettingsDriverWifiRow:
+                    if (_driverResult != null) SetDriverOptIn("SetUseModdedWifi", !_driverResult.UseModdedWifi);
+                    return;
 
                 // Removed 2026-09-15 with the experimental band - see the note where the row
                 // constants are declared, at the top of this file.

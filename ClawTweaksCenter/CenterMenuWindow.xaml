@@ -155,8 +155,12 @@
                     <ColumnDefinition Width="Auto" SharedSizeGroup="FooterSide" />
                 </Grid.ColumnDefinitions>
 
+                <!-- 7 above and below on both outer cells: in immersive mode the chip row is
+                     collapsed, so these two are all that gives the footer its height, and without
+                     the margin the text sat on the bottom edge of the window (user, 2026-09-16).
+                     With the chips up they are centred in a taller row and the margin is slack. -->
                 <TextBlock x:Name="FooterBattery" Grid.Column="0"
-                           VerticalAlignment="Center" Margin="28,0,8,0"
+                           VerticalAlignment="Center" Margin="28,7,8,7"
                            FontSize="12" Foreground="{StaticResource SubtleTextBrush}"
                            Visibility="Collapsed" />
 
@@ -172,7 +176,7 @@
                      as a glyph plus a number: it is not free space, it is space the battery readout
                      pays for as well. -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal"
-                            VerticalAlignment="Center" Margin="8,0,28,0">
+                            VerticalAlignment="Center" Margin="8,7,28,7">
                     <!-- 24 rather than 12: at 12 the count read as part of the clock. It is the
                          only gap on this side, so it has to do the whole job of separating two
                          unrelated readings (user, 2026-09-13). -->

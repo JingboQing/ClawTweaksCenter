@@ -248,6 +248,13 @@ namespace ClawTweaksCenter
                 case "widget":
                     OpenBrowse();
                     break;
+                case "fse":
+                    // The setup that registers the FSE package is on the releases page; Center does
+                    // not download executables itself (self-updater removed, see the dev guidelines).
+                    Core.PrerequisiteGuide.OpenPage(Core.SetupVersionCheck.ReleasesPageUrl, m => Core.InstallLog.Write(m));
+                    RenderNotifications();
+                    RefreshActionBar();
+                    break;
                 case "announcement":
                     // Nowhere to send anyone. The message IS the content, and it is text fetched
                     // over the network - nothing in it may drive navigation.
@@ -275,6 +282,7 @@ namespace ClawTweaksCenter
                 case "driver": return "\uE977";        // PC1 - the device itself
                 case "windows": return "\uE90F";       // Repair - the toolbox
                 case "widget": return "\uE896";        // Download
+                case "fse": return "\uE7FC";           // Game - the full-screen (Xbox) mode
                 default: return "\uE946";              // Info
             }
         }

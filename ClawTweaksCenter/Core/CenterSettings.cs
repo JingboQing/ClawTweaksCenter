@@ -35,6 +35,60 @@ namespace ClawTweaksCenter.Core
         private const string KeyPath = @"Software\ClawTweaks\Center";
 
         /// <summary>
+        /// Center is the Windows full-screen experience start app - the thing the shell boots into
+        /// instead of the desktop. Read ONCE per process from the same two registry values
+        /// FseHelperStart.IsFseStartApp reads; Windows starts Center itself in that mode, so a change
+        /// of the choice always comes with a fresh process.
+        ///
+        /// ── WHAT IT CHANGES, AND WHY THOSE FOUR ─────────────────────────────────────────────────
+        /// In FSE there is no desktop, no tray and no taskbar behind Center. A window that hides or
+        /// minimises itself there does not go "to the tray" - it goes to nowhere the user can reach,
+        /// and the library is simply gone (user, 2026-09-16). So four settings stop being choices:
+        ///
+        ///   RunInBackground           always ON  - the process must survive every "close"
+        ///   LaunchBehavior            never Close - a game start must not end the process
+        ///   OpenLibraryAtStartup      always ON  - the library IS the home screen
+        ///   StartCenterWithClawTweaks always OFF - the shell starts Center, the helper need not
+        ///
+        /// The getters below return the forced value in FSE and the stored one otherwise; the stored
+        /// value is left untouched, so leaving FSE brings the user's own choice back. The settings
+        /// screen shows the four rows greyed out with the forced value - a switch that flips and
+        /// changes nothing would read as broken.
+        /// </summary>
+        public static bool FseMode
+        {
+            get
+            {
+                if (_fseMode == null) _fseMode = FseHelperStart.IsFseStartApp(out _);
+                return _fseMode.Value;
+            }
+        }
+        private static bool? _fseMode;
+
+        /// <summary>
+        /// The one-time hint outside FSE that Center can be the full-screen start app has been
+        /// posted. A flag rather than the notification key alone: read notifications are dropped
+        /// after thirty days, and the key would then let the hint come back.
+        /// </summary>
+        public static bool FseHintPosted
+        {
+            get => ReadBool("FseHintPosted", false);
+            set => WriteBool("FseHintPosted", value);
+        }
+
+        /// <summary>
+        /// Backups and the full reset take Center's own data with them - library, Center settings,
+        /// the user's cover picks (Core/CenterDataBackup.cs). OFF by default and remembered once
+        /// ticked (user, 2026-09-16): the widget-only backup is what everyone had until now, and the
+        /// automatic safety copies before a reset follow this switch too.
+        /// </summary>
+        public static bool BackupIncludesCenter
+        {
+            get => ReadBool("BackupIncludesCenter", false);
+            set => WriteBool("BackupIncludesCenter", value);
+        }
+
+        /// <summary>
         /// Borderless fullscreen instead of a normal resizable window.
         ///
         /// Defaults to TRUE. Center is driven with a gamepad on a handheld, where a windowed app sits
@@ -143,7 +197,7 @@ namespace ClawTweaksCenter.Core
         /// </summary>
         public static bool OpenLibraryAtStartup
         {
-            get => ReadBool("OpenLibraryAtStartup", false);
+            get => FseMode || ReadBool("OpenLibraryAtStartup", false);   // forced on in FSE, see FseMode
             set => WriteBool("OpenLibraryAtStartup", value);
         }
 
@@ -159,7 +213,11 @@ namespace ClawTweaksCenter.Core
         /// </summary>
         public static bool StartCenterWithClawTweaks
         {
-            get => ReadBool("StartCenterWithClawTweaks", false);
+            // Forced OFF in FSE (see FseMode). The HELPER reads the registry value directly, not this
+            // getter, so it may still launch a second Center at boot - the single-instance gate turns
+            // that into a raise of the running window, which is harmless. This getter is what the
+            // settings screen shows.
+            get => !FseMode && ReadBool("StartCenterWithClawTweaks", false);
             set => WriteBool("StartCenterWithClawTweaks", value);
         }
 
@@ -207,7 +265,11 @@ namespace ClawTweaksCenter.Core
             get
             {
                 int raw = ReadInt("LaunchBehavior", (int)LaunchBehavior.Close);
-                return raw >= 0 && raw <= (int)LaunchBehavior.StayOpen ? (LaunchBehavior)raw : LaunchBehavior.Close;
+                var stored = raw >= 0 && raw <= (int)LaunchBehavior.StayOpen ? (LaunchBehavior)raw : LaunchBehavior.Close;
+                // Never Close in FSE (see FseMode): the process is the home screen, and a game start
+                // that ended it would leave the session with no launcher. Minimize keeps the running
+                // screen's restore-on-exit path intact.
+                return FseMode && stored == LaunchBehavior.Close ? LaunchBehavior.Minimize : stored;
             }
             set => WriteInt("LaunchBehavior", (int)value);
         }
@@ -316,7 +378,7 @@ namespace ClawTweaksCenter.Core
 
         public static bool RunInBackground
         {
-            get => ReadBool("RunInBackground", false);
+            get => FseMode || ReadBool("RunInBackground", false);   // forced on in FSE, see FseMode
             set => WriteBool("RunInBackground", value);
         }
 

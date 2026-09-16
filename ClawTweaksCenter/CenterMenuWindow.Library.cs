@@ -1189,6 +1189,11 @@ namespace ClawTweaksCenter
             return list;
         }
 
+        /// <summary>Where the ROM tab opens: its own Recent shelf (user, 2026-09-16). Every other
+        /// tab has no system filter at all.</summary>
+        private static string DefaultRomSystem(LibraryGroup group) =>
+            group == LibraryGroup.Roms ? GameLibrary.RomRecentSystem : null;
+
         private void SetRomSystem(string system)
         {
             if (string.Equals(system, _romSystem, StringComparison.OrdinalIgnoreCase)) return;
@@ -1772,8 +1777,9 @@ namespace ClawTweaksCenter
             if (_libraryGroup == group) return;
             _libraryGroup = group;
             // Leaving ROMs drops the system filter: coming back to a tab still narrowed to "Atari
-            // 2600" from three tabs ago looks like a library that lost most of its games.
-            _romSystem = null;
+            // 2600" from three tabs ago looks like a library that lost most of its games. Entering
+            // ROMs lands on its own Recent shelf (user, 2026-09-16), not on the all-systems list.
+            _romSystem = DefaultRomSystem(group);
             _libSelectedIndex = 0;
             CloseLetterBar(clearFilter: true);
             RenderLibrary();
@@ -2412,6 +2418,21 @@ namespace ClawTweaksCenter
         // a short label plus a switch, so the width was never carrying anything.
         private const int SettingsColumns = 3;
 
+        /// <summary>
+        /// The rows that are not choices while Center is the Windows full-screen start app - see
+        /// CenterSettings.FseMode for what each one is forced to and why. They stay ON the screen,
+        /// greyed and showing the forced value: a row that disappears leaves someone looking for a
+        /// setting they had last week, a row that flips and changes nothing looks broken.
+        /// </summary>
+        private static bool IsSettingLockedInFse(int row)
+        {
+            if (!Core.CenterSettings.FseMode) return false;
+            return row == SettingsStartInLibraryRow
+                || row == SettingsStartWithClawTweaksRow
+                || row == SettingsRunInBackgroundRow
+                || row == SettingsLaunchBehaviorRow;
+        }
+
         private void OpenLibrarySettings()
         {
             _settingsOpen = true;
@@ -2471,7 +2492,7 @@ namespace ClawTweaksCenter
                 Core.CenterSettings.RunInBackground, null));
             pairs.Children.Add(BuildSettingRow(SettingsLaunchBehaviorRow, "After starting a game",
                 null, LaunchBehaviorLabel(Core.CenterSettings.LaunchBehavior)));
-            pairs.Children.Add(BuildSettingRow(SettingsTabsRow, "Library tabs", null, TabsSummary()));
+            pairs.Children.Add(BuildSettingRow(SettingsTabsRow, "Tabs order and visibility", null, TabsSummary()));
 
             pairs.Children.Add(BuildSettingRow(SettingsDenseGridRow, "Denser grid",
                 Core.CenterSettings.DenseLibraryGrid, null));
@@ -2595,6 +2616,13 @@ namespace ClawTweaksCenter
                 Tag = index,
             };
             row.MouseLeftButtonUp += (_, __) => { _settingsIndex = index; ActivateSetting(); };
+            if (IsSettingLockedInFse(index))
+            {
+                // Greyed, not hidden - see IsSettingLockedInFse. The cursor can still land on it, so
+                // the hint line underneath gets to say why it does nothing.
+                row.Opacity = 0.45;
+                row.Cursor = null;
+            }
             _settingsRows.Add(row);
             return row;
         }
@@ -2635,7 +2663,10 @@ namespace ClawTweaksCenter
             foreach (var row in _settingsRows)
                 row.BorderBrush = row.Tag is int i && i == _settingsIndex ? UiHelpers.Accent : Brushes.Transparent;
 
-            if (_settingsHint != null) _settingsHint.Text = Core.Loc.T(SettingDescription(_settingsIndex));
+            if (_settingsHint != null)
+                _settingsHint.Text = IsSettingLockedInFse(_settingsIndex)
+                    ? Core.Loc.T("Fixed while Center is the Windows full-screen start app.")
+                    : Core.Loc.T(SettingDescription(_settingsIndex));
         }
 
         /// <summary>
@@ -2651,7 +2682,7 @@ namespace ClawTweaksCenter
             {
                 case SettingsStartInLibraryRow: return "Center opens on the library, not on Home.";
                 case SettingsStartWithClawTweaksRow: return "ClawTweaks starts Center when it starts itself.";
-                case SettingsStartSteamRow: return "Opens Steam in the tray when you open the library.";
+                case SettingsStartSteamRow: return "Opens Steam in the tray when you open the library. The first Steam game after a boot starts faster.";
                 case SettingsRunInBackgroundRow: return "Closing the window leaves Center running in the tray.";
                 case SettingsLaunchBehaviorRow: return "What Center does with itself once a game runs.";
                 case SettingsTabsRow: return "Which tabs the library shows, and in which order.";
@@ -2716,6 +2747,10 @@ namespace ClawTweaksCenter
 
         private void ActivateSetting()
         {
+            // Forced in FSE; the hint line says so. Toggling the stored value underneath would be
+            // invisible now and a surprise the day the user leaves FSE.
+            if (IsSettingLockedInFse(_settingsIndex)) return;
+
             switch (_settingsIndex)
             {
                 case SettingsStartInLibraryRow:
@@ -2865,7 +2900,7 @@ namespace ClawTweaksCenter
             if (!visible.Contains(_libraryGroup))
             {
                 _libraryGroup = visible[0];
-                _romSystem = null;
+                _romSystem = DefaultRomSystem(_libraryGroup);
                 _libSelectedIndex = 0;
             }
 
@@ -3788,6 +3823,23 @@ namespace ClawTweaksCenter
                     Margin = new Thickness(0, 10, 0, 0),
                 });
 
+            // Steam's own install dialog is a desktop window, and a borderless fullscreen Center is
+            // in front of the desktop - so the dialog can come up BEHIND it (user, 2026-09-16). Said
+            // on both install states, not on a launch: a game takes the screen for itself.
+            if ((_launchPrompt == LaunchPrompt.ConfirmInstall || _launchPrompt == LaunchPrompt.InstallHandedOver)
+                && Ui.WindowMode.IsFullscreen(this))
+                stack.Children.Add(new TextBlock
+                {
+                    Text = Core.Loc.T("In fullscreen mode, Steam's window can open behind Center."),
+                    FontSize = 13,
+                    Foreground = UiHelpers.Warn,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    TextAlignment = TextAlignment.Center,
+                    TextWrapping = TextWrapping.Wrap,
+                    MaxWidth = 520,
+                    Margin = new Thickness(0, 6, 0, 0),
+                });
+
             var opti = game == null ? null : Library.GamePresets.For(game);
             if (opti != null && opti.HasAnything)
             {
@@ -3851,6 +3903,22 @@ namespace ClawTweaksCenter
                 });
 
                 stack.Children.Add(steamNote);
+
+                // The way out of the wait, named where the wait is (user, 2026-09-16). Only while the
+                // switch is off: with it on, Steam was already asked for when the library opened,
+                // and a cold start here just means the game was picked faster than Steam came up.
+                if (!Core.CenterSettings.StartSteamWithLibrary)
+                    stack.Children.Add(new TextBlock
+                    {
+                        Text = Core.Loc.T("Turn on \"Start Steam with the library\" in the library settings to speed this up next time."),
+                        FontSize = 13,
+                        Foreground = UiHelpers.Subtle,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        TextAlignment = TextAlignment.Center,
+                        TextWrapping = TextWrapping.Wrap,
+                        MaxWidth = 520,
+                        Margin = new Thickness(0, 6, 0, 0),
+                    });
             }
 
             // Under the cover: how far along, the last two unlocked, and a row into the full list.

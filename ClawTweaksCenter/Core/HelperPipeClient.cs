@@ -338,6 +338,37 @@ namespace ClawTweaksCenter.Core
             }
         }
 
+        /// <summary>The fire-and-forget form with more than one extra key - SetDriverIgnore plus its
+        /// IgnoreState is the case. Same wire format as <see cref="RequestWithResultAsync"/>, same
+        /// "it went out" promise as the single-key overload above.</summary>
+        public bool SendRequest(IEnumerable<KeyValuePair<string, object>> extras)
+        {
+            if (!IsConnected) return false;
+            try
+            {
+                var parts = new List<string>();
+                foreach (var kv in extras)
+                {
+                    string extraJson = kv.Value is bool bVal
+                        ? (bVal ? "true" : "false")
+                        : (kv.Value is int || kv.Value is long
+                            ? Convert.ToString(kv.Value, System.Globalization.CultureInfo.InvariantCulture)
+                            : "\"" + EscapeJson(Convert.ToString(kv.Value, System.Globalization.CultureInfo.InvariantCulture)) + "\"");
+                    parts.Add($"\"{kv.Key}\":{extraJson}");
+                }
+                lock (_writeLock)
+                {
+                    _writer.WriteLine("{\"RequestId\":0,\"Command\":0,\"Function\":0," + string.Join(",", parts) + "}");
+                    _writer.Flush();
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         private static string EscapeJson(string s) =>
             (s ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
 

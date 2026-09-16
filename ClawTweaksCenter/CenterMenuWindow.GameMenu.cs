@@ -360,8 +360,13 @@ namespace ClawTweaksCenter
             if (game?.Store == GameStore.Steam)
             {
                 bool canUninstall = game.Installed;
+                // Steam's "are you sure" is a desktop window; a fullscreen Center sits in front of
+                // the desktop, so it can open behind us (user, 2026-09-16). One sentence, on the row.
+                string uninstallSub = !canUninstall ? "Not installed"
+                    : Ui.WindowMode.IsFullscreen(this) ? "Steam removes the game files. In fullscreen, Steam's dialog can open behind Center."
+                    : "Steam removes the game files";
                 stack.Children.Add(GameMenuRow("", "Uninstall\u2026",
-                    canUninstall ? "Steam removes the game files" : "Not installed",
+                    uninstallSub,
                     canUninstall ? UiHelpers.Text : UiHelpers.Subtle, "Uninstall",
                     () => { if (GameMenuTargetIsInstalledSteam) UninstallThroughSteam(); }));
             }

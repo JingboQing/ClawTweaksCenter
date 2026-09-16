@@ -77,6 +77,40 @@ namespace ClawTweaksCenter
             }
         }
 
+        /// <summary>
+        /// One notification, once per machine, outside FSE: Center can be the Windows full-screen
+        /// start app - the Xbox-style mode - and that saves the RAM and start-up time of the desktop
+        /// underneath (user, 2026-09-16). The setup from the GitHub releases page registers it, so
+        /// opening the card goes there.
+        ///
+        /// NOT POSTED when Windows has no such picker (older than 26100.8039 - the same floor the
+        /// installer uses), when Center is the start app already, or when its package is registered
+        /// and the user simply chose not to boot into it: all three are questions already answered.
+        /// The flag is written whether or not a card was posted, so the check runs once and not on
+        /// every start.
+        /// </summary>
+        private void PostFseHintOnce()
+        {
+            if (Core.CenterSettings.FseHintPosted) return;
+            if (Core.CenterSettings.FseMode) return;
+            try
+            {
+                Core.CenterSettings.FseHintPosted = true;
+                if (!Core.FseHelperStart.WindowsHasFsePicker()) return;
+                if (Core.FseHelperStart.IsFsePackageChosen()) return;
+
+                Core.Notifications.Add(
+                    key: "fse:hint",
+                    kind: "fse",
+                    title: Core.Loc.T("Make the library your Xbox full-screen start app"),
+                    detail: Core.Loc.T("Saves memory and start-up time. Run the setup from the GitHub releases page to register it."));
+            }
+            catch (Exception ex)
+            {
+                Core.InstallLog.Write("FSE hint: " + ex.Message);
+            }
+        }
+
         private async Task RunBackgroundUpdateChecksAsync()
         {
             try
@@ -153,8 +187,15 @@ namespace ClawTweaksCenter
             if (result == null) return;
 
             Core.CenterSettings.DriverCheckLastUtc = DateTime.UtcNow;
+            PostDriverNotifications(result);
+        }
 
-            foreach (var d in result.Drivers ?? new List<DriverEntryDto>())
+        /// <summary>One card per driver with an update, muted ones excluded. Shared by the background
+        /// pass and the manual refresh on the drivers screen - a finding is a finding whichever way
+        /// it was found (user, 2026-09-16), and the key makes a second posting a no-op.</summary>
+        private static void PostDriverNotifications(DriversResult result)
+        {
+            foreach (var d in result?.Drivers ?? new List<DriverEntryDto>())
             {
                 if (d.Ignored) continue;                                    // muted is muted
                 if (d.UpdateStatus != DriverUpdateStatusDto.UpdateAvailable) continue;
@@ -195,6 +236,14 @@ namespace ClawTweaksCenter
             if (result == null || result.ResultCode != 2) return;
 
             Core.CenterSettings.WindowsUpdateCheckLastUtc = DateTime.UtcNow;
+            PostWindowsUpdateNotifications(result);
+        }
+
+        /// <summary>Shared with the manual check on the drivers screen, like PostDriverNotifications
+        /// above. Only a search that really ran (resultCode 2) and found something posts.</summary>
+        private static void PostWindowsUpdateNotifications(WindowsUpdateResultDto result)
+        {
+            if (result == null || result.ResultCode != 2) return;
 
             var updates = result.Updates ?? new List<WindowsUpdateEntryDto>();
             if (updates.Count == 0) return;
