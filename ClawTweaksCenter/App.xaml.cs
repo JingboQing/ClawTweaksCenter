@@ -21,6 +21,12 @@ namespace ClawTweaksCenter
             Update.VelopackUpdates.Bootstrap(e.Args);
             base.OnStartup(e);
 
+            // A restore or a wipe of Center's own data that the previous process scheduled before
+            // it restarted (Core/CenterDataBackup.cs). Here, before Loc, before any store is read:
+            // once something has been loaded, the restored files are already the wrong ones.
+            string pending = Core.CenterDataBackup.RunPendingAtStartup();
+            if (pending != null) Core.InstallLog.Write(pending);
+
 
             // BEFORE the uninstall branch and before any window: every builder that draws text asks
             // Loc for it, so the language has to be resolved while nothing has been drawn yet.
