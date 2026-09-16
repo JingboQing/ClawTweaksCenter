@@ -92,6 +92,9 @@ OSD_KEYS = [
     'Charge Limit: Off',
     'FPS Limit: {0} FPS',
     'FPS Limit: Off',
+    # the native Quick Panel's one translated notice: it cannot be used without the virtual pad
+    'This panel works only with the virtual controller',
+    'Use the Game Bar instead.',
 ]
 
 # TSV column -> the C# field name for that language's dictionary. The order here is the order the
@@ -407,7 +410,8 @@ OSD_HEADER = u"""// GENERATED FROM ClawTweaksCenter/Tools/i18n/strings.tsv BY To
 // DO NOT EDIT BY HAND - an edit here survives exactly until the next run of that script.
 //
 // The notification cards only, which is the scope the i18n plan set (decision 5): the native
-// Quick Panel's own labels are not in here and are not meant to be.
+// Quick Panel's own labels are not in here and are not meant to be - with ONE exception, the
+// notice it shows when the virtual controller is off (user, 2026-09-16).
 //
 // Keyed by the English line, like every other table in this project, so a line with no row simply
 // renders in English. OsdLoc.Card splits a card on its newline and looks up each line separately -

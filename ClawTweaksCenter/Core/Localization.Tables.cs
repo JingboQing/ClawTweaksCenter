@@ -936,6 +936,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "Backup ohne Center-Daten erstellt",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "{0} Speicher und {1} Center-Dateien gesichert nach:\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "{0} Dateien wiederhergestellt. Center startet jetzt neu, um Bibliothek und Einstellungen zur\u00FCckzuholen \u2014 \u00F6ffne danach die Game Bar (Win+G) erneut.",
+            ["This panel works only with the virtual controller"] = "Dieses Panel geht nur mit dem virtuellen Controller",
+            ["Use the Game Bar instead."] = "Nutze stattdessen die Game Bar.",
         };
 
         private static readonly Dictionary<string, string> French = new Dictionary<string, string>
@@ -1843,6 +1845,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "Sauvegarde cr\u00E9\u00E9e sans les donn\u00E9es Center",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "{0} magasins et {1} fichiers Center enregistr\u00E9s dans :\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "{0} fichiers restaur\u00E9s. Center red\u00E9marre pour r\u00E9tablir la biblioth\u00E8que et ses r\u00E9glages \u2014 rouvrez ensuite la Game Bar (Win+G).",
+            ["This panel works only with the virtual controller"] = "Ce panneau ne fonctionne qu'avec la manette virtuelle",
+            ["Use the Game Bar instead."] = "Utilisez la Game Bar \u00E0 la place.",
         };
 
         private static readonly Dictionary<string, string> Korean = new Dictionary<string, string>
@@ -2755,6 +2759,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "Center \uB370\uC774\uD130 \uC5C6\uC774 \uBC31\uC5C5 \uC0DD\uC131\uB428",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "\uC800\uC7A5\uC18C {0}\uAC1C\uC640 Center \uD30C\uC77C {1}\uAC1C\uB97C \uC800\uC7A5\uD588\uC2B5\uB2C8\uB2E4:\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "\uD30C\uC77C {0}\uAC1C\uB97C \uBCF5\uC6D0\uD588\uC2B5\uB2C8\uB2E4. \uB77C\uC774\uBE0C\uB7EC\uB9AC\uC640 \uC124\uC815\uC744 \uB418\uB3CC\uB9AC\uAE30 \uC704\uD574 Center\uAC00 \uC9C0\uAE08 \uB2E4\uC2DC \uC2DC\uC791\uB429\uB2C8\uB2E4. \uC774\uD6C4 Game Bar(Win+G)\uB97C \uB2E4\uC2DC \uC5EC\uC138\uC694.",
+            ["This panel works only with the virtual controller"] = "\uC774 \uD328\uB110\uC740 \uAC00\uC0C1 \uCEE8\uD2B8\uB864\uB7EC\uB85C\uB9CC \uC870\uC791\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4",
+            ["Use the Game Bar instead."] = "\uB300\uC2E0 Game Bar\uB97C \uC0AC\uC6A9\uD558\uC138\uC694.",
         };
 
         private static readonly Dictionary<string, string> Spanish = new Dictionary<string, string>
@@ -3664,6 +3670,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "Copia creada sin datos de Center",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "{0} almacenes y {1} archivos de Center guardados en:\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "{0} archivos restaurados. Center se reinicia ahora para recuperar la biblioteca y sus ajustes; despu\u00E9s vuelve a abrir la Game Bar (Win+G).",
+            ["This panel works only with the virtual controller"] = "Este panel solo funciona con el mando virtual",
+            ["Use the Game Bar instead."] = "Usa la Game Bar en su lugar.",
         };
 
         private static readonly Dictionary<string, string> Russian = new Dictionary<string, string>
@@ -4577,6 +4585,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F \u0441\u043E\u0437\u0434\u0430\u043D\u0430 \u0431\u0435\u0437 \u0434\u0430\u043D\u043D\u044B\u0445 Center",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449: {0}, \u0444\u0430\u0439\u043B\u043E\u0432 Center: {1}, \u0432:\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u043E \u0444\u0430\u0439\u043B\u043E\u0432: {0}. Center \u043F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u043A\u0430\u0435\u0442\u0441\u044F, \u0447\u0442\u043E\u0431\u044B \u0432\u0435\u0440\u043D\u0443\u0442\u044C \u0431\u0438\u0431\u043B\u0438\u043E\u0442\u0435\u043A\u0443 \u0438 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u2014 \u0437\u0430\u0442\u0435\u043C \u0441\u043D\u043E\u0432\u0430 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 Game Bar (Win+G).",
+            ["This panel works only with the virtual controller"] = "\u042D\u0442\u0430 \u043F\u0430\u043D\u0435\u043B\u044C \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0442\u043E\u043B\u044C\u043A\u043E \u0441 \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u044B\u043C \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u043B\u0435\u0440\u043E\u043C",
+            ["Use the Game Bar instead."] = "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0432\u043C\u0435\u0441\u0442\u043E \u043D\u0435\u0451 Game Bar.",
         };
 
         private static readonly Dictionary<string, string> Greek = new Dictionary<string, string>
@@ -5481,6 +5491,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "\u03A4\u03BF \u03B1\u03BD\u03C4\u03AF\u03B3\u03C1\u03B1\u03C6\u03BF \u03B4\u03B7\u03BC\u03B9\u03BF\u03C5\u03C1\u03B3\u03AE\u03B8\u03B7\u03BA\u03B5 \u03C7\u03C9\u03C1\u03AF\u03C2 \u03B4\u03B5\u03B4\u03BF\u03BC\u03AD\u03BD\u03B1 Center",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "\u0391\u03C0\u03BF\u03B8\u03B7\u03BA\u03B5\u03CD\u03C4\u03B7\u03BA\u03B1\u03BD {0} \u03C7\u03CE\u03C1\u03BF\u03B9 \u03BA\u03B1\u03B9 {1} \u03B1\u03C1\u03C7\u03B5\u03AF\u03B1 Center \u03C3\u03B5:\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "\u0395\u03C0\u03B1\u03BD\u03B1\u03C6\u03AD\u03C1\u03B8\u03B7\u03BA\u03B1\u03BD {0} \u03B1\u03C1\u03C7\u03B5\u03AF\u03B1. \u03A4\u03BF Center \u03B5\u03C0\u03B1\u03BD\u03B5\u03BA\u03BA\u03B9\u03BD\u03B5\u03AF \u03B3\u03B9\u03B1 \u03BD\u03B1 \u03C6\u03AD\u03C1\u03B5\u03B9 \u03C0\u03AF\u03C3\u03C9 \u03C4\u03B7 \u03B2\u03B9\u03B2\u03BB\u03B9\u03BF\u03B8\u03AE\u03BA\u03B7 \u03BA\u03B1\u03B9 \u03C4\u03B9\u03C2 \u03C1\u03C5\u03B8\u03BC\u03AF\u03C3\u03B5\u03B9\u03C2 \u2014 \u03B1\u03BD\u03BF\u03AF\u03BE\u03C4\u03B5 \u03BE\u03B1\u03BD\u03AC \u03C4\u03BF Game Bar (Win+G) \u03BC\u03B5\u03C4\u03AC.",
+            ["This panel works only with the virtual controller"] = "\u0391\u03C5\u03C4\u03CC \u03C4\u03BF \u03C0\u03AC\u03BD\u03B5\u03BB \u03BB\u03B5\u03B9\u03C4\u03BF\u03C5\u03C1\u03B3\u03B5\u03AF \u03BC\u03CC\u03BD\u03BF \u03BC\u03B5 \u03C4\u03BF \u03B5\u03B9\u03BA\u03BF\u03BD\u03B9\u03BA\u03CC \u03C7\u03B5\u03B9\u03C1\u03B9\u03C3\u03C4\u03AE\u03C1\u03B9\u03BF",
+            ["Use the Game Bar instead."] = "\u03A7\u03C1\u03B7\u03C3\u03B9\u03BC\u03BF\u03C0\u03BF\u03B9\u03AE\u03C3\u03C4\u03B5 \u03C4\u03BF Game Bar.",
         };
 
         private static readonly Dictionary<string, string> ChineseSimplified = new Dictionary<string, string>
@@ -6390,6 +6402,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "\u5DF2\u521B\u5EFA\u5907\u4EFD\uFF0C\u4F46\u4E0D\u542B Center \u6570\u636E",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "\u5DF2\u4FDD\u5B58 {0} \u4E2A\u5B58\u50A8\u548C {1} \u4E2A Center \u6587\u4EF6\u5230\uFF1A\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "\u5DF2\u6062\u590D {0} \u4E2A\u6587\u4EF6\u3002Center \u73B0\u5728\u91CD\u542F\u4EE5\u6062\u590D\u6E38\u620F\u5E93\u548C\u8BBE\u7F6E\uFF0C\u4E4B\u540E\u8BF7\u91CD\u65B0\u6253\u5F00 Game Bar\uFF08Win+G\uFF09\u3002",
+            ["This panel works only with the virtual controller"] = "\u6B64\u9762\u677F\u4EC5\u652F\u6301\u865A\u62DF\u624B\u67C4\u64CD\u4F5C",
+            ["Use the Game Bar instead."] = "\u8BF7\u6539\u7528 Game Bar\u3002",
         };
 
         private static readonly Dictionary<string, string> ChineseTraditional = new Dictionary<string, string>
@@ -7299,6 +7313,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "\u5DF2\u5EFA\u7ACB\u5099\u4EFD\uFF0C\u4F46\u4E0D\u542B Center \u8CC7\u6599",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "\u5DF2\u5132\u5B58 {0} \u500B\u5B58\u653E\u5340\u548C {1} \u500B Center \u6A94\u6848\u5230\uFF1A\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "\u5DF2\u9084\u539F {0} \u500B\u6A94\u6848\u3002Center \u73FE\u5728\u91CD\u65B0\u555F\u52D5\u4EE5\u9084\u539F\u904A\u6232\u5EAB\u548C\u8A2D\u5B9A\uFF0C\u4E4B\u5F8C\u8ACB\u91CD\u65B0\u958B\u555F Game Bar\uFF08Win+G\uFF09\u3002",
+            ["This panel works only with the virtual controller"] = "\u6B64\u9762\u677F\u50C5\u80FD\u4EE5\u865B\u64EC\u63A7\u5236\u5668\u64CD\u4F5C",
+            ["Use the Game Bar instead."] = "\u8ACB\u6539\u7528 Game Bar\u3002",
         };
 
         private static readonly Dictionary<string, string> Italian = new Dictionary<string, string>
@@ -8206,6 +8222,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "Backup creato senza dati Center",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "Salvati {0} archivi e {1} file Center in:\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "Ripristinati {0} file. Center si riavvia ora per riportare libreria e impostazioni \u2014 poi riapri la Game Bar (Win+G).",
+            ["This panel works only with the virtual controller"] = "Questo pannello funziona solo con il controller virtuale",
+            ["Use the Game Bar instead."] = "Usa invece la Game Bar.",
         };
 
         private static readonly Dictionary<string, string> Portuguese = new Dictionary<string, string>
@@ -9101,6 +9119,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "Backup criado sem dados do Center",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "{0} armazenamentos e {1} arquivos do Center salvos em:\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "{0} arquivos restaurados. O Center reinicia agora para trazer de volta a biblioteca e as configura\u00E7\u00F5es \u2014 depois reabra a Game Bar (Win+G).",
+            ["This panel works only with the virtual controller"] = "Este painel s\u00F3 funciona com o controle virtual",
+            ["Use the Game Bar instead."] = "Use a Game Bar em vez disso.",
         };
 
         private static readonly Dictionary<string, string> Japanese = new Dictionary<string, string>
@@ -10012,6 +10032,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "Center \u30C7\u30FC\u30BF\u306A\u3057\u3067\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u4F5C\u6210",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "{0} \u4EF6\u306E\u30B9\u30C8\u30A2\u3068 {1} \u4EF6\u306E Center \u30D5\u30A1\u30A4\u30EB\u3092\u4FDD\u5B58\u3057\u307E\u3057\u305F\uFF1A\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "{0} \u4EF6\u306E\u30D5\u30A1\u30A4\u30EB\u3092\u5FA9\u5143\u3057\u307E\u3057\u305F\u3002\u30E9\u30A4\u30D6\u30E9\u30EA\u3068\u8A2D\u5B9A\u3092\u623B\u3059\u305F\u3081 Center \u3092\u518D\u8D77\u52D5\u3057\u307E\u3059\u3002\u305D\u306E\u5F8C Game Bar\uFF08Win+G\uFF09\u3092\u958B\u304D\u76F4\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+            ["This panel works only with the virtual controller"] = "\u3053\u306E\u30D1\u30CD\u30EB\u306F\u4EEE\u60F3\u30B3\u30F3\u30C8\u30ED\u30FC\u30E9\u30FC\u3067\u306E\u307F\u64CD\u4F5C\u3067\u304D\u307E\u3059",
+            ["Use the Game Bar instead."] = "\u4EE3\u308F\u308A\u306B Game Bar \u3092\u4F7F\u3063\u3066\u304F\u3060\u3055\u3044\u3002",
         };
 
         private static readonly Dictionary<string, string> Polish = new Dictionary<string, string>
@@ -10914,6 +10936,8 @@ namespace ClawTweaksCenter.Core
             ["Backup created without Center data"] = "Kopia utworzona bez danych Center",
             ["Saved {0} stores and {1} Center files to:\n{2}"] = "Zapisano {0} magazyn\u00F3w i {1} plik\u00F3w Center do:\n{2}",
             ["Restored {0} files. Center restarts now to bring back the library and its settings \u2014 reopen the Game Bar (Win+G) afterwards."] = "Przywr\u00F3cono {0} plik\u00F3w. Center uruchamia si\u0119 ponownie, aby odtworzy\u0107 bibliotek\u0119 i ustawienia \u2014 potem otw\u00F3rz ponownie Game Bar (Win+G).",
+            ["This panel works only with the virtual controller"] = "Ten panel dzia\u0142a tylko z kontrolerem wirtualnym",
+            ["Use the Game Bar instead."] = "U\u017Cyj zamiast tego Game Bar.",
         };
 
     }
