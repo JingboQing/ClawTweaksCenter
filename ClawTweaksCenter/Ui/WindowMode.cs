@@ -93,18 +93,39 @@ namespace ClawTweaksCenter.Ui
                                 // a refresh-rate switch, a second adapter settling, the same mode being
                                 // re-applied - so the repair ran where there was nothing to repair.
                                 //
-                                // A borderless maximized window covers the primary screen exactly, so
-                                // "do the bounds match the screen" IS the question. Two DIPs of slack
-                                // because rounding at fractional scale factors is not a mismatch.
-                                if (Math.Abs(window.ActualWidth - SystemParameters.PrimaryScreenWidth) < 2
-                                 && Math.Abs(window.ActualHeight - SystemParameters.PrimaryScreenHeight) < 2)
+                                // THE QUESTION IS RIGHT, THE MEASURING STICK WAS WRONG. This used to
+                                // compare window.ActualWidth/Height against SystemParameters.Primary-
+                                // Screen*, and both of those are WPF's own cached values in DIPs. A
+                                // display event is exactly the moment they are stale: the mode has
+                                // changed and WPF has not caught up, so the comparison reported a
+                                // mismatch that did not exist and the cycle ran anyway.
+                                //
+                                // That cycle is not cosmetic. It drops WindowStyle, returns the window
+                                // to Normal and re-maximizes it, and WPF throws the window's rendering
+                                // surface away and rebuilds it. Measured 2026-09-14: the library goes
+                                // black except for whatever repainted first, and the UI thread does not
+                                // run for about 1.2 s - which is the reported "library black for a
+                                // second and a half, right when the virtual controller appears". The
+                                // display events that set it off arrive during the mount.
+                                //
+                                // So ask Win32 instead. GetWindowRect and the monitor rectangle are
+                                // both physical pixels straight from the OS, need no DPI conversion,
+                                // and are current the moment the mode change lands.
+                                if (CoversItsMonitor(window, out string why))
+                                {
+                                    UiStallTrace.Write("window-mode reflow SKIPPED - " + why);
                                     return;
+                                }
 
                                 // The same cycle the toggle performs. Leave first so WPF recomputes
                                 // the bounds for the mode that is live NOW; re-entering while already
                                 // maximized would keep the stale ones, which is the whole bug.
+                                UiStallTrace.Write("window-mode reflow RUNNING (rebuilds the render " +
+                                                   "surface, the window goes black) - " + why);
+                                var reflow = System.Diagnostics.Stopwatch.StartNew();
                                 LeaveFullscreen(window);
                                 EnterFullscreen(window);
+                                UiStallTrace.Write($"window-mode reflow done in {reflow.ElapsedMilliseconds}ms");
                             };
                         }
                         debounce.Stop();
@@ -120,6 +141,58 @@ namespace ClawTweaksCenter.Ui
                 try { Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= onChanged; } catch { }
                 try { debounce?.Stop(); } catch { }
             };
+        }
+
+        /// <summary>
+        /// Does this window already cover the monitor it is on, measured in real pixels?
+        ///
+        /// Deliberately NOT asked of WPF. SystemParameters and ActualWidth/Height are cached DIP
+        /// values, and the instant this matters - just after a display mode change - they are the OLD
+        /// ones. GetWindowRect and GetMonitorInfo both answer in physical pixels from the OS, so there
+        /// is no scale factor in the comparison and nothing to be stale.
+        ///
+        /// MONITOR_DEFAULTTONEAREST rather than the PRIMARY screen: the window is not necessarily on
+        /// the primary one, and comparing it against a monitor it is not on would report a mismatch
+        /// that never clears.
+        ///
+        /// <paramref name="why"/> carries the numbers either way, so the log says what was compared
+        /// and not merely what was decided.
+        /// </summary>
+        private static bool CoversItsMonitor(Window window, out string why)
+        {
+            why = "no window handle yet";
+            try
+            {
+                IntPtr hwnd = new WindowInteropHelper(window).Handle;
+                if (hwnd == IntPtr.Zero) return false;
+
+                if (!GetWindowRect(hwnd, out RECT w)) { why = "GetWindowRect failed"; return false; }
+
+                IntPtr monitor = MonitorFromWindow(hwnd, MonitorDefaultToNearest);
+                var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
+                if (monitor == IntPtr.Zero || !GetMonitorInfo(monitor, ref mi))
+                {
+                    why = "GetMonitorInfo failed";
+                    return false;
+                }
+
+                int wWidth = w.Right - w.Left, wHeight = w.Bottom - w.Top;
+                int mWidth = mi.rcMonitor.Right - mi.rcMonitor.Left;
+                int mHeight = mi.rcMonitor.Bottom - mi.rcMonitor.Top;
+
+                // Two pixels of slack: rounding is not a mismatch.
+                bool covers = Math.Abs(wWidth - mWidth) <= 2 && Math.Abs(wHeight - mHeight) <= 2;
+                why = $"window {wWidth}x{wHeight} at {w.Left},{w.Top} vs monitor {mWidth}x{mHeight} " +
+                      $"at {mi.rcMonitor.Left},{mi.rcMonitor.Top}";
+                return covers;
+            }
+            catch (Exception ex)
+            {
+                // Never let the guard itself be the reason the window stays the wrong size: an
+                // unreadable measurement falls through to the repair, which is what this always did.
+                why = "guard threw: " + ex.Message;
+                return false;
+            }
         }
 
         /// <summary>True when the window is currently borderless fullscreen.</summary>
@@ -264,6 +337,31 @@ namespace ClawTweaksCenter.Ui
         }
 
         private const int SwShow = 5;
+
+        private const uint MonitorDefaultToNearest = 2;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT { public int Left, Top, Right, Bottom; }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MONITORINFO
+        {
+            public int cbSize;
+            public RECT rcMonitor;
+            public RECT rcWork;
+            public uint dwFlags;
+        }
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromWindow(IntPtr hWnd, uint dwFlags);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();

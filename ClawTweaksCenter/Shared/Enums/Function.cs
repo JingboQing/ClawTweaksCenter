@@ -917,5 +917,50 @@
         // earlier, so it is never stale by the time the user presses a button on it.
         // APPEND-ONLY: Function is serialised by ordinal - new members go at the END.
         TrayAppList,                    // string - JSON array, see above
+
+        // ── Two members Center does not use, carried ONLY to keep the ordinals lined up ──────────
+        // Function is serialised BY ORDINAL and this file is a copy of the helper's. On 2026-09-13
+        // the copy was two members short: harmless while nobody used them, and a silent wrong answer
+        // the moment anything was appended, because the same new name would sit on 428 in the helper
+        // and 426 here. Never delete these, never reorder them.
+        // APPEND-ONLY: Function is serialised by ordinal - new members go at the END.
+        Settings_QuickSettingsPanelEnabled_Retired,   // bool  - retired in the helper, unused here
+        Settings_RestoreControllerOnShutdown,         // bool  - helper-owned, unused here
+
+        // The helper's answer to an Extra["CheckDriverUpdates"] request: the full
+        // MsiDriverUpdateResult JSON from MsiClawDriverCheckService, unchanged.
+        //
+        // WHY THIS EXISTS AS A FUNCTION AT ALL: the handler used to answer with an Extra key and
+        // Function = 0, straight onto the WIDGET pipe by name. Center correlates a request with its
+        // answer by Function (HelperPipeClient.RequestWithResultAsync), so it waited for something
+        // that never came - and with no widget connected the answer was skipped outright. A READ has
+        // no second channel that catches that; a Set still travels on via the ProfileSnapshot, a
+        // query has exactly one answer and it was lost. Same defect class as the property and
+        // BatchGet answers fixed in 0.3.1.42.
+        // APPEND-ONLY: Function is serialised by ordinal - new members go at the END.
+        DriverUpdateResult,             // string - MsiDriverUpdateResult JSON
+
+        // The helper's answer to an Extra["CheckWindowsUpdates"] request.
+        //   { "resultCode":2, "checkedUtc":"...", "rebootRequired":false,
+        //     "updates":[ { "title","kb","severity","sizeBytes","rebootBehavior",
+        //                   "supportUrl","categories","description" } ] }
+        //
+        // ⚠️ "updates" is ALREADY FILTERED and deliberately narrower than what WUA returns. Counted
+        // is only DeploymentAction == 1 (daInstallation) AND Type == 1 (Software) AND not the
+        // Definition Updates category. Measured 2026-09-13 on a machine Windows itself calls up to
+        // date: a raw IsInstalled=0 search returns Defender's Security Intelligence update (ships
+        // several times a day, installed by Defender itself, so the raw count can never reach zero
+        // anywhere) and an optional Intel driver with DeploymentAction 4 (daOptionalInstallation),
+        // which Windows files under Optional updates. BrowseOnly reads False on BOTH and is NOT the
+        // discriminator - that was the obvious guess and it is disproven.
+        // Windows-Update drivers are dropped entirely (user, 2026-09-13): the Intel catalogue in the
+        // drivers column knows the same device more precisely.
+        // See Doku/PLAN_Drivers_And_Windows_Updates.md section 3.0.
+        // APPEND-ONLY: Function is serialised by ordinal - new members go at the END.
+        WindowsUpdateResult,            // string - JSON, see above
+
+        // The MSI Quick Settings button opens the helper's native Quick Panel instead of the Game
+        // Bar. Helper-owned, unused here - mirrored so the ordinals stay aligned.
+        Settings_QuickSettingsButtonOpensPanel,   // bool
     }
 }

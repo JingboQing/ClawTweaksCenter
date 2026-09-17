@@ -109,6 +109,19 @@ namespace ClawTweaksCenter.Library
         /// </summary>
         public bool Installed { get; set; } = true;
 
+        /// <summary>
+        /// Steam is installing this one right now: a manifest exists and StateFlags is not yet
+        /// "fully installed". Steam only.
+        ///
+        /// ⚠️ THIS IS THE WHOLE SIGNAL - THERE IS NO PERCENTAGE. Measured on 2026-09-15 with a
+        /// 3.7 GB install: the manifest was written three times in total - at 0 %, at 0 % with the
+        /// totals filled in, and at 100 % three minutes later. BytesDownloaded is never updated in
+        /// between, the downloading folder is preallocated to full size in the first seconds, and
+        /// content_log.txt carries state words but no figures. A bar that moves would have to come
+        /// from Steam's undocumented client interface; this flag comes from a file.
+        /// </summary>
+        public bool Downloading { get; set; }
+
         /// <summary>Download progress, where the store reports it. Both 0 means "not downloading" or
         /// "no figures" - only Steam fills these in, out of the same manifest the entry came from.
         /// </summary>

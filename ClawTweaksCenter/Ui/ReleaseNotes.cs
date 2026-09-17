@@ -22,7 +22,7 @@ namespace ClawTweaksCenter.Ui
             if (parent == null) return;
             if (string.IsNullOrWhiteSpace(body))
             {
-                parent.Children.Add(BodyText("No release notes."));
+                parent.Children.Add(BodyText(Core.Loc.T("No release notes.")));
                 return;
             }
 

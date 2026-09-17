@@ -520,8 +520,6 @@ namespace ClawTweaksCenter
                         : Core.Loc.F("Achievement in {0}", game);
                 case FriendActivityKind.FirstPlayed:
                     return Core.Loc.F("Played {0} for the first time", game);
-                case FriendActivityKind.Wishlist:
-                    return Core.Loc.F("Added {0} to the wishlist", game);
                 default:
                     return game;
             }

@@ -101,18 +101,18 @@ namespace ClawTweaksCenter
             {
                 // Locked on older ClawTweaks: name the required version and point at the update path.
                 string have = !_installedVersionChecked
-                    ? "checking the installed version…"
-                    : (_installedVersion != null ? $"you have {_installedVersion}." : "ClawTweaks is not installed.");
+                    ? Loc.T("checking the installed version…")
+                    : (_installedVersion != null ? Loc.F("you have {0}.", _installedVersion) : Loc.T("ClawTweaks is not installed."));
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Warning,
-                    $"Requires ClawTweaks {MaintenanceMinVersion} or newer",
-                    $"Reset, Backup and Restore need ClawTweaks {MaintenanceMinVersion} (or 0.1.8+) — {have} " +
-                    "Update ClawTweaks from \"Update & Release\" first."));
+                    Loc.F("Requires ClawTweaks {0} or newer", MaintenanceMinVersion),
+                    Loc.F("Reset, Backup and Restore need ClawTweaks {0} (or 0.1.8+) — {1} Update ClawTweaks from \"Update & Release\" first.",
+                          MaintenanceMinVersion, have)));
             }
 
             var items = new (string title, string detail)[]
             {
-                ("CTW Full Reset", "Wipe every ClawTweaks setting back to a clean state (all profiles, fan curves, TDP, controller). This cannot be undone — take a backup first if unsure."),
-                ("Create Backup", "Save all your profiles and settings into a single ZIP you can restore later."),
+                ("CTW Full Reset", "Wipe every ClawTweaks setting back to a clean state (all profiles, fan curves, TDP, controller). Optionally the library and Center settings too."),
+                ("Create Backup", "Save all your profiles and settings into a single ZIP you can restore later. Optionally with the library, Center settings and your game art."),
                 ("Restore Backup", "Bring back a previous backup. A safety copy of the current state is taken automatically first."),
             };
 
@@ -154,6 +154,53 @@ namespace ClawTweaksCenter
 
             ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Info, "A safety backup is saved first",
                 "An automatic backup of your current settings is created before the reset, so you can restore it later from Restore Backup. The Game Bar will be closed — reopen it (Win+G) afterwards."));
+
+            ContentHost.Children.Add(BuildCenterDataCheckbox(
+                "Also reset the library and Center settings",
+                "Favorites, play history, your own apps, cover picks and every Center setting. Center restarts afterwards. The safety backup includes them too."));
+        }
+
+        /// <summary>
+        /// The one opt-in on the backup and reset pages: take Center's own half along (see
+        /// Core/CenterDataBackup.cs). A checkbox card rather than a settings row, because it is a
+        /// question about THIS operation - and it remembers its answer, because someone who ticked it
+        /// once for backups wants it ticked next time (user, 2026-09-16). X toggles it; A stays the
+        /// confirm button, so a stray press cannot both change the scope and start the operation.
+        /// </summary>
+        private Border BuildCenterDataCheckbox(string title, string detail)
+        {
+            bool on = CenterSettings.BackupIncludesCenter;
+            var row = new StackPanel { Orientation = Orientation.Horizontal };
+            row.Children.Add(new TextBlock
+            {
+                Text = on ? "\uE73A" : "\uE739",          // Segoe MDL2: CheckboxComposite / Checkbox
+                FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                FontSize = 20,
+                Foreground = on ? UiHelpers.Accent : UiHelpers.Subtle,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, 2, 12, 0),
+            });
+            var text = new StackPanel();
+            text.Children.Add(new TextBlock { Text = Loc.T(title), FontSize = 16, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Text, TextWrapping = TextWrapping.Wrap });
+            text.Children.Add(new TextBlock { Text = Loc.T(detail), FontSize = 13, Foreground = UiHelpers.Subtle, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0) });
+            row.Children.Add(text);
+
+            var card = new Border
+            {
+                Background = UiHelpers.Card, CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(16, 12, 16, 12), Margin = new Thickness(0, 10, 0, 0),
+                BorderBrush = on ? UiHelpers.Accent : Brushes.Transparent, BorderThickness = new Thickness(1),
+                Cursor = Cursors.Hand,
+                Child = row,
+            };
+            card.MouseLeftButtonUp += (_, __) => ToggleCenterDataCheckbox();
+            return card;
+        }
+
+        private void ToggleCenterDataCheckbox()
+        {
+            CenterSettings.BackupIncludesCenter = !CenterSettings.BackupIncludesCenter;
+            RenderMaintenance();
         }
 
         private void RenderBackupConfirm()
@@ -171,11 +218,15 @@ namespace ClawTweaksCenter
                 {
                     Children =
                     {
-                        new TextBlock { Text = "Will be saved to", FontSize = 13, Foreground = UiHelpers.Subtle },
+                        new TextBlock { Text = Loc.T("Will be saved to"), FontSize = 13, Foreground = UiHelpers.Subtle },
                         new TextBlock { Text = target, FontSize = 15, Foreground = UiHelpers.Text, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 3, 0, 0) },
                     },
                 },
             });
+
+            ContentHost.Children.Add(BuildCenterDataCheckbox(
+                "Also back up the library and Center settings",
+                "Favorites, play history, your own apps, cover picks, the art cache and every Center setting."));
         }
 
         private void RenderRestoreList()
@@ -187,7 +238,7 @@ namespace ClawTweaksCenter
             if (_maintBackups.Count == 0)
             {
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Info, "No backups found",
-                    $"Backups live in {MaintenanceRunner.BackupsFolder}. Create one first."));
+                    Loc.F("Backups live in {0}. Create one first.", MaintenanceRunner.BackupsFolder)));
                 return;
             }
 
@@ -204,13 +255,14 @@ namespace ClawTweaksCenter
                 string when = b.CreatedUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? b.FileTime.ToString("yyyy-MM-dd HH:mm");
                 stack.Children.Add(new TextBlock
                 {
-                    Text = (b.IsPreRestore ? "Auto pre-restore — " : "") + when,
+                    Text = b.IsPreRestore ? Core.Loc.F("Auto pre-restore — {0}", when) : when,
                     FontSize = 16, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Text, TextWrapping = TextWrapping.Wrap,
                 });
 
                 string sub = b.ManifestValid
-                    ? $"ClawTweaks {b.AppVersion ?? "?"} · {b.DeviceModel ?? "?"} · {b.StoreCount} stores · {FormatSize(b.SizeBytes)}"
+                    ? Core.Loc.F("ClawTweaks {0} · {1} · {2} stores · {3}", b.AppVersion ?? "?", b.DeviceModel ?? "?", b.StoreCount, FormatSize(b.SizeBytes))
                     : $"⚠ No valid backup manifest · {FormatSize(b.SizeBytes)}";
+                if (b.HasCenterData) sub += " · " + Core.Loc.T("with library and Center settings");
                 stack.Children.Add(new TextBlock { Text = Core.Loc.T(sub), FontSize = 13, Foreground = UiHelpers.Subtle, Margin = new Thickness(0, 3, 0, 0), TextWrapping = TextWrapping.Wrap });
                 stack.Children.Add(new TextBlock { Text = b.FileName, FontSize = 12, Foreground = UiHelpers.Subtle, Margin = new Thickness(0, 2, 0, 0), TextWrapping = TextWrapping.Wrap });
 
@@ -234,6 +286,10 @@ namespace ClawTweaksCenter
 
             ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Info, "What happens",
                 "A safety copy of your current settings is saved first, the Game Bar closes, the backup is written back, and the helper restarts. Reopen the Game Bar (Win+G) when it's done."));
+
+            if (b.HasCenterData)
+                ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Info, "Library and Center settings included",
+                    "Favorites, play history, your own apps, cover picks and every Center setting come back too. Center restarts when it is done."));
         }
 
         private void RenderMaintenanceBusy()
@@ -320,12 +376,13 @@ namespace ClawTweaksCenter
 
                 case MaintPage.ResetConfirm:
                     AddAction(PadButton.A, "Yes, reset everything", true, () => _ = DoResetAsync());
+                    AddAction(PadButton.X, CenterSettings.BackupIncludesCenter ? "Center data: included" : "Center data: not included", true, ToggleCenterDataCheckbox);
                     AddAction(PadButton.B, "Cancel", true, BackToMaintMenu);
-                    AddScrollHint();
                     break;
 
                 case MaintPage.BackupConfirm:
                     AddAction(PadButton.A, "Create backup", true, () => _ = DoBackupAsync());
+                    AddAction(PadButton.X, CenterSettings.BackupIncludesCenter ? "Center data: included" : "Center data: not included", true, ToggleCenterDataCheckbox);
                     AddAction(PadButton.B, "Cancel", true, BackToMaintMenu);
                     break;
 
@@ -400,13 +457,31 @@ namespace ClawTweaksCenter
         // ── Flow: operations ────────────────────────────────────────────────────────────────────
         private async Task DoResetAsync()
         {
+            bool withCenter = CenterSettings.BackupIncludesCenter;
             EnterBusy("Resetting all ClawTweaks settings…");
             var r = await _maintenance.ResetAsync();
             if (r.Ok)
             {
-                string pre = string.IsNullOrEmpty(r.Path) ? "" : $"\nSafety copy of the previous state: {r.Path}";
+                string pre = string.IsNullOrEmpty(r.Path) ? "" : "\n" + Loc.F("Safety copy of the previous state: {0}", r.Path);
+
+                // Center's half, AFTER the helper's: its safety copy exists now, so ours goes into
+                // the same zip before anything of ours is wiped - the one order in which the reset
+                // stays reversible. Then Center restarts, because every store it just wiped is still
+                // in memory (see CenterDataBackup.RestoreFromZip).
+                if (withCenter)
+                {
+                    if (!string.IsNullOrEmpty(r.Path)) await Task.Run(() => Core.CenterDataBackup.AppendToZip(r.Path, out _));
+                    // The wipe itself runs in the NEXT process (CenterDataBackup.ScheduleWipe): this
+                    // one has the covers mapped and every store in memory.
+                    Core.CenterDataBackup.ScheduleWipe();
+                    ShowResult(StatusKind.Ok, "Reset complete",
+                        Loc.T("All ClawTweaks settings, the library and the Center settings were reset. Center restarts now.") + pre);
+                    RestartCenterAfter(TimeSpan.FromSeconds(3));
+                    return;
+                }
+
                 ShowResult(StatusKind.Ok, "Reset complete",
-                    $"All ClawTweaks settings were reset to a clean state. Reopen the Game Bar (Win+G) to continue.{pre}");
+                    Loc.T("All ClawTweaks settings were reset to a clean state. Reopen the Game Bar (Win+G) to continue.") + pre);
             }
             else
                 ShowResult(StatusKind.Error, "Reset failed", r.Error ?? "Unknown error.");
@@ -418,8 +493,27 @@ namespace ClawTweaksCenter
             EnterBusy("Creating backup…");
             var r = await _maintenance.BackupAsync(target);
             if (r.Ok)
+            {
+                string zip = r.Path ?? target;
+                if (CenterSettings.BackupIncludesCenter)
+                {
+                    // Off the UI thread: the art cache is tens of megabytes, and the busy screen has
+                    // to keep drawing while they are compressed.
+                    string appendError = null;
+                    int added = await Task.Run(() => Core.CenterDataBackup.AppendToZip(zip, out appendError));
+                    if (added < 0)
+                    {
+                        ShowResult(StatusKind.Warning, "Backup created without Center data",
+                            Loc.F("Saved {0} stores to:\n{1}", r.Count, zip) + "\n" + (appendError ?? ""));
+                        return;
+                    }
+                    ShowResult(StatusKind.Ok, "Backup created",
+                        Loc.F("Saved {0} stores and {1} Center files to:\n{2}", r.Count, added, zip));
+                    return;
+                }
                 ShowResult(StatusKind.Ok, "Backup created",
-                    $"Saved {r.Count} stores to:\n{r.Path ?? target}");
+                    Loc.F("Saved {0} stores to:\n{1}", r.Count, zip));
+            }
             else
                 ShowResult(StatusKind.Error, "Backup failed", r.Error ?? "Unknown error.");
         }
@@ -433,9 +527,25 @@ namespace ClawTweaksCenter
             var r = await _maintenance.RestoreAsync(b.FilePath);
             if (r.Ok)
             {
-                string pre = string.IsNullOrEmpty(r.Path) ? "" : $"\nSafety copy of the previous state: {r.Path}";
+                string pre = string.IsNullOrEmpty(r.Path) ? "" : "\n" + Loc.F("Safety copy of the previous state: {0}", r.Path);
+
+                // Center's half rides along whenever the backup HAS one - the user chose that when
+                // they made it. The safety copy the helper just took gets Center's current state
+                // appended first, so this restore is as reversible as the helper's.
+                if (b.HasCenterData)
+                {
+                    if (!string.IsNullOrEmpty(r.Path)) await Task.Run(() => Core.CenterDataBackup.AppendToZip(r.Path, out _));
+                    // Written back by the NEXT process, before it opens a single store - see
+                    // CenterDataBackup.ScheduleRestore for why not here.
+                    Core.CenterDataBackup.ScheduleRestore(b.FilePath);
+                    ShowResult(StatusKind.Ok, "Restore complete",
+                        Loc.F("Restored {0} files. Center restarts now to bring back the library and its settings — reopen the Game Bar (Win+G) afterwards.", r.Count) + pre);
+                    RestartCenterAfter(TimeSpan.FromSeconds(3));
+                    return;
+                }
+
                 ShowResult(StatusKind.Ok, "Restore complete",
-                    $"Restored {r.Count} files. The helper is restarting — reopen the Game Bar (Win+G) to continue.{pre}");
+                    Loc.F("Restored {0} files. The helper is restarting — reopen the Game Bar (Win+G) to continue.", r.Count) + pre);
             }
             else if (r.TimedOut)
             {
@@ -445,6 +555,42 @@ namespace ClawTweaksCenter
             }
             else
                 ShowResult(StatusKind.Error, "Restore failed", r.Error ?? "Unknown error.");
+        }
+
+        /// <summary>
+        /// Ends this Center and starts a fresh one a moment later. A restore or a reset of Center's
+        /// own data leaves every in-memory store stale (favorites, play history, the art index, the
+        /// settings cache), and a process that would write any of them back at the next change is
+        /// not a process that can be trusted with the restored files.
+        ///
+        /// A second Center cannot simply be started from here: the single-instance gate would hand
+        /// the new one a "show" signal and end it, because this one still holds the mutex. So a tiny
+        /// detached cmd waits out our exit and starts the exe after it - the same shape an updater
+        /// uses. _reallyExiting keeps the Closing handler from turning the exit into a hide.
+        /// </summary>
+        private void RestartCenterAfter(TimeSpan delay)
+        {
+            string exe = Environment.ProcessPath;
+            if (string.IsNullOrEmpty(exe)) return;
+            try
+            {
+                int seconds = Math.Max(1, (int)delay.TotalSeconds);
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c timeout /t {seconds} /nobreak >nul & start \"\" \"{exe}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                });
+                InstallLog.Write("Maintenance: Center restarts in " + seconds + "s (" + exe + ").");
+                _reallyExiting = true;
+                Dispatcher.BeginInvoke((Action)(() => Application.Current.Shutdown()),
+                    System.Windows.Threading.DispatcherPriority.Background);
+            }
+            catch (Exception ex)
+            {
+                InstallLog.Write("Maintenance: could not schedule the Center restart: " + ex.Message);
+            }
         }
 
         private void EnterBusy(string text)
@@ -482,7 +628,7 @@ namespace ClawTweaksCenter
                 && b.DeviceModel.IndexOf(localToken, StringComparison.OrdinalIgnoreCase) < 0)
             {
                 warnings.Add(Tuple.Create("Different device",
-                    $"This backup is from '{b.DeviceModel}', but this device looks like {localToken}. Device-specific values (TDP limits, fan scale) will be restored as-is."));
+                    Loc.F("This backup is from '{0}', but this device looks like {1}. Device-specific values (TDP limits, fan scale) will be restored as-is.", b.DeviceModel, localToken)));
             }
 
             // App-version mismatch (best-effort — only when the installed version is known).
@@ -490,7 +636,7 @@ namespace ClawTweaksCenter
                 && Version.TryParse(b.AppVersion, out var backupVer) && backupVer != _installedVersion)
             {
                 warnings.Add(Tuple.Create("Different ClawTweaks version",
-                    $"Backup is from {backupVer}; you have {_installedVersion} installed. Restoring across versions usually works, but isn't guaranteed."));
+                    Loc.F("Backup is from {0}; you have {1} installed. Restoring across versions usually works, but isn't guaranteed.", backupVer, _installedVersion)));
             }
 
             return warnings;

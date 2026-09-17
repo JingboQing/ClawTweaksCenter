@@ -425,12 +425,18 @@ namespace ClawTweaksCenter.Library
                     // Misc is out for a second reason on top of the ROM one: these are tools, and
                     // a shelf meant to hold "what you were playing" should not fill up with the fan
                     // curve editor you open more often than any game.
-                    return playable.Where(g => g.LastPlayed.HasValue
-                                            && g.Store != GameStore.Playnite
-                                            && g.Store != GameStore.Misc)
-                                .OrderByDescending(g => g.LastPlayed.Value)
-                                .Take(RecentLimit)
-                                .ToList();
+                    //
+                    // A DOWNLOAD LEADS THE SHELF (user, 2026-09-15). It is the one thing on the
+                    // machine that is happening right now, and the user pressed a button to cause
+                    // it. Not playable, so it is added in front of the playable list rather than
+                    // filtered out of it, and it does not eat into RecentLimit.
+                    var downloading = Games.Where(g => g.Downloading).ToList();
+                    downloading.AddRange(playable.Where(g => g.LastPlayed.HasValue
+                                                          && g.Store != GameStore.Playnite
+                                                          && g.Store != GameStore.Misc)
+                                                 .OrderByDescending(g => g.LastPlayed.Value)
+                                                 .Take(RecentLimit));
+                    return downloading;
                 // "All" means the PC library - installed GAMES. ROMs are hundreds of entries with
                 // their own tab and would bury the installed games they sit next to; Misc is not
                 // games at all.

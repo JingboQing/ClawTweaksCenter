@@ -62,10 +62,21 @@ namespace ClawTweaksCenter
 
         /// <summary>Which idle screen ContentHost shows — Confirm/Install are transient overlays
         /// triggered from Browse and don't need their own value here.</summary>
-        private enum View { Home, Browse, Onboarding, Maintenance, Library, InstallDone, CenterSettings, Leave, Faq }
+        private enum View { Home, Browse, Onboarding, Maintenance, Library, InstallDone, CenterSettings, Leave, Faq, Drivers, Notifications }
         private View _view = View.Home;
 
         private DeviceDetect.Model _deviceModel = DeviceDetect.Model.Unknown;
+
+        /// <summary>
+        /// The last detection result, kept so the banner can be drawn again without detecting again.
+        ///
+        /// It exists for ONE reason: the banner's second line ("Supported.", "Recognized, but not
+        /// supported yet.", …) is translated when it is built, and the banner is built once at
+        /// startup. Change the language afterwards and everything else redraws while the banner
+        /// keeps the old language — reported 2026-09-15. Detection is a hardware probe on a
+        /// background thread; re-running it to re-translate a line would be the wrong fix.
+        /// </summary>
+        private DeviceDetect.Result? _lastDeviceDetect;
         private Version _installedVersion;
         private bool _installedVersionChecked;
         private SetupVersionCheck.Result _setupVersionCheck;
@@ -175,6 +186,9 @@ namespace ClawTweaksCenter
             // ModernWindow.Apply — see WindowMode.Attach for why the ordering is not cosmetic.
             WindowMode.Attach(this);
 
+            // BEFORE ApplyBackgroundImage, not after: the seed writes the setting that call reads,
+            // so the other order would show the packaged default one start late.
+            Core.DefaultBackground.SeedOnce();
             // Before anything else is rendered: the background is the one thing that must already be
             // there on the first frame. Painting it later is a visible flash of the flat colour.
             ApplyBackgroundImage();
@@ -189,6 +203,11 @@ namespace ClawTweaksCenter
             {
                 if (_view == View.Leave) RenderLeave();
             });
+
+            // Subscribed once, here, rather than each time the list is opened: a per-open
+            // subscription that one exit path forgets to remove leaks a handler for the lifetime of
+            // the window, and this store is written from background checks.
+            HookNotifications();
 
             SizeChanged += (_, __) => { UpdateShellLayout(); OnLibrarySizeChanged(); RefreshFooterBlurMask(); };
             // The footer changes height when the chips wrap, and the blur mask is a fraction of the
@@ -278,6 +297,10 @@ namespace ClawTweaksCenter
             _startupWorkStarted = true;
 
             {
+                // Diagnostic, and only that: it records which dispatcher operation or which window
+                // message the UI thread is inside when a stall is measured. See Ui.UiStallTrace.
+                Ui.UiStallTrace.Attach(this);
+
                 _nav = new XInputNavigator(this);
                 _nav.ButtonPressed += b => Dispatcher.Invoke(() => Invoke(b));
                 _nav.RightStickScrollRequested += d => Dispatcher.Invoke(() =>
@@ -328,6 +351,15 @@ namespace ClawTweaksCenter
 
                 _setupVersionCheck = await setupVersionTask;
                 _windowsChannel = await windowsChannelTask;
+
+                // Announcements land the moment the manifest does, NOT with the background update
+                // pass. That pass waits for a library scan, runs once a session and skips entirely
+                // once a game has been started - fine for "a driver is out", wrong for the two cases
+                // this channel exists for: something is badly broken, or a release needs a special
+                // setup. The duplicate key is what stops it repeating.
+                PostManifestAnnouncements();
+                PostFseHintOnce();
+
                 RenderCurrentView(); // picks up the outdated-Setup / Insider-channel warnings once known
 
                 // Reached via MainWindow after a successful install/update (release-folder wizard
@@ -478,6 +510,7 @@ namespace ClawTweaksCenter
             }
 
             var d = device.Value;
+            _lastDeviceDetect = device;
             _deviceModel = d.Model;
             RenderCurrentView(); // the build list's per-device gating tags depend on this
 
@@ -508,7 +541,7 @@ namespace ClawTweaksCenter
             var textStack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
             textStack.Children.Add(new TextBlock
             {
-                Text = d.DisplayName, FontSize = 21, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Text,
+                Text = Core.Loc.T(d.DisplayName), FontSize = 21, FontWeight = FontWeights.SemiBold, Foreground = UiHelpers.Text,
                 TextWrapping = TextWrapping.Wrap,
             });
             textStack.Children.Add(new TextBlock
@@ -527,13 +560,52 @@ namespace ClawTweaksCenter
             content.Children.Add(image);
             content.Children.Add(textStack);
 
-            DeviceBanner.Content = new Border
+            _deviceBannerCard = new Border
             {
-                Background = UiHelpers.Card,
                 CornerRadius = new CornerRadius(10),
                 Padding = new Thickness(14, 10, 18, 10),
                 Child = content,
             };
+            ApplyDeviceBannerChrome();
+            DeviceBanner.Content = _deviceBannerCard;
+        }
+
+        /// <summary>The card itself, kept so its fill can be recomputed without rebuilding the row.</summary>
+        private Border _deviceBannerCard;
+
+        /// <summary>
+        /// The banner's fill: solid on the flat background, see-through once there is a picture
+        /// behind it (user, 2026-09-13 - the grey slab sat on top of the wallpaper).
+        ///
+        /// THE CONDITION IS NOT DECORATION. CardColor is #2B2B2B against a #202020 window, so a
+        /// translucent card over the flat background would very nearly vanish - it would read as the
+        /// banner having lost its shape rather than as a lighter card.
+        ///
+        /// Thinned from the resource rather than written out as a second hex, the same way
+        /// ApplyFooterChrome does it: a palette change moves both, and a hand-picked colour here
+        /// would be the one left behind.
+        ///
+        /// ⚠️ ONE writer, always recomputed, and it hangs off ApplyBackgroundImage as well as the
+        /// render - the picture can arrive or be removed long after this row was drawn, and a fill
+        /// that is only computed while drawing is the stale-derived-state trap CLAUDE.md keeps
+        /// naming.
+        /// </summary>
+        private void ApplyDeviceBannerChrome()
+        {
+            if (_deviceBannerCard == null) return;
+
+            bool overPicture = BackgroundImage != null && BackgroundImage.Visibility == Visibility.Visible;
+            if (!overPicture || !(UiHelpers.Card is SolidColorBrush card))
+            {
+                _deviceBannerCard.Background = UiHelpers.Card;
+                return;
+            }
+
+            var colour = card.Color;
+            colour.A = 0x66;
+            var brush = new SolidColorBrush(colour);
+            brush.Freeze();
+            _deviceBannerCard.Background = brush;
         }
         #endregion
 
@@ -620,6 +692,8 @@ namespace ClawTweaksCenter
                 case View.CenterSettings: RenderCenterSettings(); break;
                 case View.Leave: RenderLeave(); break;
                 case View.Faq: RenderFaq(); break;
+                case View.Drivers: RenderDrivers(); break;
+                case View.Notifications: RenderNotifications(); break;
                 default: RenderBrowse(); break;
             }
         }
@@ -802,6 +876,7 @@ namespace ClawTweaksCenter
                 case HomeLibrarySettingsIndex: OpenLibrarySettingsFromHome(); break;
                 case HomeFaqIndex: OpenFaq(); break;
                 case HomeLeaveIndex: OpenLeave(); break;
+                case HomeDriversIndex: OpenDrivers(); break;
             }
         }
 
@@ -815,10 +890,14 @@ namespace ClawTweaksCenter
         // Onboarding moved DOWN out of the first row. It is a once-per-device screen, and it was
         // sitting in the second-most prominent cell on every visit after that one.
 
-        /// <summary>First row: library, builds, maintenance.</summary>
+        /// <summary>First row: the library, the widget releases, and drivers &amp; updates.
+        ///
+        /// Drivers came UP here on 2026-09-13 and backup/restore went down to the last cell: the two
+        /// update screens now sit side by side, which is how they are used - "is there anything new"
+        /// is one question asked of two places.</summary>
         private const int HomeLibraryIndex = 0;
         private const int HomeBrowseIndex = 1;
-        private const int HomeMaintenanceIndex = 2;
+        private const int HomeDriversIndex = 2;
 
         /// <summary>Second row: onboarding, then the two settings screens.</summary>
         private const int HomeOnboardingIndex = 3;
@@ -841,7 +920,16 @@ namespace ClawTweaksCenter
         private const int HomeFaqIndex = 6;
         private const int HomeLeaveIndex = 7;
 
-        private const int HomeMaxIndex = HomeLeaveIndex;
+        /// <summary>Last cell of the third row. Backup and restore is the least frequent of the
+        /// nine and the one nobody hunts for in a hurry, so it took the cell drivers &amp; updates
+        /// vacated rather than leaving a hole at the end of the grid.
+        ///
+        /// ⚠️ ONLY THE NUMBERS MOVED. Every reader uses these names, the switch in ActivateHomeTile
+        /// included, so swapping two values here moves two tiles and nothing else has to be found.
+        /// The order of the Add calls below is the other half of the pair and has to match.</summary>
+        private const int HomeMaintenanceIndex = 8;
+
+        private const int HomeMaxIndex = HomeMaintenanceIndex;
 
         /// <summary>True when a newer Center is offered — either as a notice from setup-manifest.json
         /// (SetupVersionCheck.IsUpdateOffered) or as something this installation can install itself
@@ -1001,11 +1089,12 @@ namespace ClawTweaksCenter
 
             if (_setupVersionCheck?.Outdated == true)
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "This Setup build is outdated",
-                    $"{_setupVersionCheck.Message} (running {_setupVersionCheck.RunningVersion}, needs {_setupVersionCheck.MinimumVersion}+)"));
+                    Core.Loc.F("{0} (running {1}, needs {2}+)", Core.Loc.T(_setupVersionCheck.Message),
+                               _setupVersionCheck.RunningVersion, _setupVersionCheck.MinimumVersion)));
 
             if (_windowsChannel?.IsInsider == true)
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Warning, "Windows Insider Preview detected",
-                    $"You're on the \"{_windowsChannel.ChannelName}\" channel — the install routine is currently known not to work correctly on Insider builds."));
+                    Core.Loc.F("You're on the \"{0}\" channel — the install routine is currently known not to work correctly on Insider builds.", _windowsChannel.ChannelName)));
 
             if (SelfInstaller.LegacyInstallPresent() && !_legacyNoticeDismissed)
                 ContentHost.Children.Add(BuildLegacyInstallCard());
@@ -1016,7 +1105,7 @@ namespace ClawTweaksCenter
             if (update != null)
                 ContentHost.Children.Add(new TextBlock
                 {
-                    Text = $"▲ Update available on GitHub: {update.Version} ({update.Origin})",
+                    Text = Core.Loc.F("▲ Update available on GitHub: {0} ({1})", update.Version, Core.Loc.T(update.Origin)),
                     FontSize = 15, Foreground = UiHelpers.Ok, Margin = new Thickness(0, 0, 0, 16),
                 });
 
@@ -1041,14 +1130,15 @@ namespace ClawTweaksCenter
                 selected: _homeSelectedIndex == HomeLibraryIndex));
 
             tiles.Children.Add(BuildHomeTile(
-                "", "Update & Release", "Install releases, test builds and nightlies.",
+                "", "Gamebar Widget Releases", "Install releases, test builds and nightlies.",
                 clickable: true, onClick: () => { _homeSelectedIndex = HomeBrowseIndex; OpenBrowse(); },
                 selected: _homeSelectedIndex == HomeBrowseIndex));
 
             tiles.Children.Add(BuildHomeTile(
-                "", "Reset · Backup · Restore", "Reset the app, or back up your profiles.",
-                clickable: true, onClick: () => { _homeSelectedIndex = HomeMaintenanceIndex; OpenMaintenance(); },
-                selected: _homeSelectedIndex == HomeMaintenanceIndex));
+                "", "Drivers & Updates", "Device drivers and the state of Windows Update.",
+                clickable: true,
+                onClick: () => { _homeSelectedIndex = HomeDriversIndex; OpenDrivers(); },
+                selected: _homeSelectedIndex == HomeDriversIndex));
             // Second row. Onboarding came DOWN out of the first row: it is a once-per-device screen
             // that was holding the second-most prominent cell on every visit after that one. The two
             // settings screens follow it.
@@ -1085,6 +1175,13 @@ namespace ClawTweaksCenter
                 clickable: true,
                 onClick: () => { _homeSelectedIndex = HomeLeaveIndex; OpenLeave(); },
                 selected: _homeSelectedIndex == HomeLeaveIndex));
+
+            // Ninth cell: three columns, so this one completes the third row instead of
+            // leaving a hole at the end of it.
+            tiles.Children.Add(BuildHomeTile(
+                "", "Reset · Backup · Restore", "Reset the app, or back up your profiles.",
+                clickable: true, onClick: () => { _homeSelectedIndex = HomeMaintenanceIndex; OpenMaintenance(); },
+                selected: _homeSelectedIndex == HomeMaintenanceIndex));
 
             ContentHost.Children.Add(tiles);
         }
@@ -1399,15 +1496,14 @@ namespace ClawTweaksCenter
             var stack = new StackPanel();
             stack.Children.Add(new TextBlock
             {
-                Text = $"ClawTweaks Center update available: {offered}",
+                Text = Core.Loc.F("ClawTweaks Center update available: {0}", offered),
                 FontSize = 19, FontWeight = FontWeights.Bold, Foreground = UiHelpers.Text,
             });
             stack.Children.Add(new TextBlock
             {
                 Text = pending != null
-                    ? $"You're running {running}. Install it here — Center restarts when it's done."
-                    : $"You're running {running}. Download the new Setup file and run it — " +
-                      "it installs over this one, and no administrator rights are needed.",
+                    ? Core.Loc.F("You're running {0}. Install it here — Center restarts when it's done.", running)
+                    : Core.Loc.F("You're running {0}. Download the new Setup file and run it — it installs over this one, and no administrator rights are needed.", running),
                 FontSize = 14, Foreground = UiHelpers.Subtle,
                 TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0),
             });
@@ -1418,7 +1514,7 @@ namespace ClawTweaksCenter
             if (pending?.AutoApplyFailed == true)
                 stack.Children.Add(new TextBlock
                 {
-                    Text = "The update could not install itself. Try the button below.",
+                    Text = Core.Loc.T("The update could not install itself. Try the button below."),
                     FontSize = 14, Foreground = UiHelpers.Warn,
                     TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0),
                 });
@@ -1426,7 +1522,7 @@ namespace ClawTweaksCenter
             var button = new Button
             {
                 Content = pending == null ? "Open download page"
-                        : _velopackApplying ? "Installing…" : "Install update now",
+                        : _velopackApplying ? Core.Loc.T("Installing…") : Core.Loc.T("Install update now"),
                 Style = (Style)Application.Current.Resources["SetupButton"],
                 IsEnabled = !_busy && !_velopackApplying,
                 Opacity = !_busy && !_velopackApplying ? 1.0 : 0.4,
@@ -1474,19 +1570,19 @@ namespace ClawTweaksCenter
             var legacyVersion = SelfInstaller.GetLegacyInstalledVersion();
             stack.Children.Add(new TextBlock
             {
-                Text = (legacyVersion != null ? $"Version {legacyVersion} is " : "A previous version is ") +
-                       $"still installed for all users, in {SelfInstaller.LegacyInstallDir}. This version " +
-                       "installs into your own user folder instead, so the old one is no longer used — but " +
-                       "it stays in Settings → Apps and in the Start Menu until it's removed, where it's " +
-                       "easy to launch by mistake.",
+                // Two whole sentences as keys, not "Version {0} is" + a shared tail: a language
+                // may not split the sentence where English does.
+                Text = legacyVersion != null
+                    ? Core.Loc.F("Version {0} is still installed for all users, in {1}. This version installs into your own user folder instead, so the old one is no longer used — but it stays in Settings → Apps and in the Start Menu until it's removed, where it's easy to launch by mistake.",
+                                 legacyVersion, SelfInstaller.LegacyInstallDir)
+                    : Core.Loc.F("A previous version is still installed for all users, in {0}. This version installs into your own user folder instead, so the old one is no longer used — but it stays in Settings → Apps and in the Start Menu until it's removed, where it's easy to launch by mistake.",
+                                 SelfInstaller.LegacyInstallDir),
                 FontSize = 14, Foreground = UiHelpers.Subtle,
                 TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0),
             });
             stack.Children.Add(new TextBlock
             {
-                Text = "Removing it needs administrator rights. ClawTweaks Center never asks for those — " +
-                       "the button below starts the old version's own uninstaller, so the prompt you see " +
-                       "comes from it, about removing itself.",
+                Text = Core.Loc.T("Removing it needs administrator rights. ClawTweaks Center never asks for those — the button below starts the old version's own uninstaller, so the prompt you see comes from it, about removing itself."),
                 FontSize = 14, Foreground = UiHelpers.Subtle,
                 TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0),
             });
@@ -1509,8 +1605,7 @@ namespace ClawTweaksCenter
             remove.Click += (_, __) =>
             {
                 if (SelfInstaller.RemoveLegacyInstall(m => _legacyRemovalStatus = m))
-                    _legacyRemovalStatus = "The old version's uninstaller is running — confirm its prompt. " +
-                                           "This notice disappears once it's gone (press Ⓨ to refresh).";
+                    _legacyRemovalStatus = Core.Loc.T("The old version's uninstaller is running — confirm its prompt. This notice disappears once it's gone (press Ⓨ to refresh).");
                 RenderHome();
             };
             buttons.Children.Add(remove);
@@ -1942,6 +2037,10 @@ namespace ClawTweaksCenter
             if (_view == View.CenterSettings) { MoveCenterSettingsSelection(dir); return; }
             if (_view == View.Leave) { MoveLeaveSelection(dir); return; }
             if (_view == View.Faq) { MoveFaqSelection(dir); return; }
+            // Read-only and nothing selectable on it: the right stick scrolls, the d-pad has
+            // nothing to move.
+            if (_view == View.Drivers) { MoveDriversSelection(dir); return; }
+            if (_view == View.Notifications) { MoveNotificationsSelection(dir); return; }
 
             // A hand-off screen (missing prerequisites / untrusted certificate) is up. _view is still
             // Browse — these screens replace the CONTENT without being their own view — so without this
@@ -2065,6 +2164,14 @@ namespace ClawTweaksCenter
 
             BuildActionBar();
 
+            // Notifications claim LT, but ONLY where the current screen left it alone: the letter bar
+            // owns it in All and Not installed, the ROM tab cycles systems with it. Bound here, after
+            // every screen has declared what it wants, so "is LT free" is a fact rather than a list
+            // of screens somebody has to keep in sync. Where it is taken, no keycap appears - the
+            // letter bar's own rule, and the reason nobody has to press a key to find out whether it
+            // does anything.
+            RefreshNotificationIndicator(bindLeftTrigger: !_liveActions.ContainsKey(PadButton.LT));
+
             // OrderBy, not List.Sort: it is stable, so two chips on the same button (which no screen
             // does today) keep the order the screen declared them in instead of swapping at random.
             foreach (var chip in _pendingChips.OrderBy(c => ChipRank(c.Button)))
@@ -2124,8 +2231,14 @@ namespace ClawTweaksCenter
                 // it minimizing reads as two different things. Shutdown() is still correct here - it
                 // closes every window through Close(), and the Closing handler in Tray.cs cancels the
                 // whole shutdown and hides instead.
-                AddAction(PadButton.B, Core.CenterSettings.RunInBackground ? "Minimize" : "Exit",
-                    true, () => Application.Current.Shutdown());
+                //
+                // ⚠️ NO B AT ALL IN FSE (user, 2026-09-16). There is no tray and no desktop behind
+                // Center there, so "Minimize" would put the window somewhere the user cannot reach
+                // and the library would be gone until a reboot. The Closing handler in Tray.cs has
+                // the same guard for every other route into Close().
+                if (!Core.CenterSettings.FseMode)
+                    AddAction(PadButton.B, Core.CenterSettings.RunInBackground ? "Minimize" : "Exit",
+                        true, () => Application.Current.Shutdown());
                 return;
             }
 
@@ -2173,6 +2286,18 @@ namespace ClawTweaksCenter
             if (_view == View.Faq)
             {
                 RefreshFaqActionBar();
+                return;
+            }
+
+            if (_view == View.Drivers)
+            {
+                RefreshDriversActionBar();
+                return;
+            }
+
+            if (_view == View.Notifications)
+            {
+                RefreshNotificationsActionBar();
                 return;
             }
 
@@ -2234,12 +2359,13 @@ namespace ClawTweaksCenter
         ///
         /// Built by ActionBarBuilder so it lines up with the action tiles next to it: same glyph size,
         /// same height, same padding. Hand-sizing it here is what made it sit a few pixels off.</summary>
-        private void AddScrollHint()
-        {
-            _pendingHint = ActionBarBuilder.BuildHint(
-                new BitmapImage(new Uri("pack://application:,,,/Assets/xbox/xbox_stick_r_vertical.png", UriKind.Absolute)),
-                "Scroll");
-        }
+        /// <summary>
+        /// Used to put a right-stick "Scroll" hint in the footer. A NO-OP since 2026-09-16 (user:
+        /// "das brauchen wir nie" - people know how to scroll a list). Kept as a method so the
+        /// fifteen call sites stay where a screen's action bar is assembled; the hint slot itself
+        /// (_pendingHint) is still used by other hints.
+        /// </summary>
+        private void AddScrollHint() { }
 
         /// <summary>
         /// Stacks the header's brand block and device banner vertically below the narrow breakpoint.
@@ -2302,7 +2428,7 @@ namespace ClawTweaksCenter
             {
                 _buildBlocked = true;
                 ContentHost.Children.Add(UiHelpers.Title("This version can't be installed"));
-                ContentHost.Children.Add(UiHelpers.Body($"{build.Version} — {build.Origin} — {build.Title}"));
+                ContentHost.Children.Add(UiHelpers.Body($"{build.Version} — {Core.Loc.T(build.Origin)} — {build.Title}"));
                 ContentHost.Children.Add(UiHelpers.StatusRow(StatusKind.Error, "Blocked", blockReason));
                 RefreshActionBar();
                 return;
@@ -2311,7 +2437,7 @@ namespace ClawTweaksCenter
 
             ContentHost.Children.Add(UiHelpers.Title(Core.Loc.T("Install this version?")));
             ContentHost.Children.Add(UiHelpers.Body(build.Version));
-            ContentHost.Children.Add(UiHelpers.Body($"{build.Origin} — {build.Title}"));
+            ContentHost.Children.Add(UiHelpers.Body($"{Core.Loc.T(build.Origin)} — {build.Title}"));
 
             if (_installedVersion != null && TryParseVersion(build.Version, out var selVer) && selVer < _installedVersion)
             {
@@ -2400,7 +2526,7 @@ namespace ClawTweaksCenter
         {
             var button = new Button
             {
-                Content = "Ⓨ  " + label,
+                Content = "Ⓨ  " + Core.Loc.T(label),
                 Style = (Style)Application.Current.Resources["SetupButton"],
                 MinWidth = 220,
                 HorizontalAlignment = HorizontalAlignment.Left,
@@ -2471,8 +2597,7 @@ namespace ClawTweaksCenter
                 });
                 rebootStack.Children.Add(new TextBlock
                 {
-                    Text = "These install kernel drivers. Without the restart everything looks installed " +
-                           "and the virtual controller still won't start.",
+                    Text = Core.Loc.T("These install kernel drivers. Without the restart everything looks installed and the virtual controller still won't start."),
                     FontSize = 15, Foreground = UiHelpers.Text,
                     TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0),
                 });
@@ -2508,7 +2633,7 @@ namespace ClawTweaksCenter
                 if (broken)
                     stack.Children.Add(new TextBlock
                     {
-                        Text = tool.Detail, FontSize = 14, FontWeight = FontWeights.SemiBold,
+                        Text = Core.Loc.T(tool.Detail), FontSize = 14, FontWeight = FontWeights.SemiBold,
                         Foreground = UiHelpers.Warn, TextWrapping = TextWrapping.Wrap,
                         Margin = new Thickness(0, 6, 0, 0),
                     });
@@ -2517,7 +2642,7 @@ namespace ClawTweaksCenter
                 {
                     stack.Children.Add(new TextBlock
                     {
-                        Text = info.Why + "  " + info.WhatToGet,
+                        Text = Core.Loc.T(info.Why) + "  " + Core.Loc.T(info.WhatToGet),
                         FontSize = 14, Foreground = UiHelpers.Subtle,
                         TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0),
                     });
@@ -2536,7 +2661,7 @@ namespace ClawTweaksCenter
                             HorizontalAlignment = HorizontalAlignment.Left,
                             Child = new TextBlock
                             {
-                                Text = info.Warning,
+                                Text = Core.Loc.T(info.Warning),
                                 FontSize = 16, FontWeight = FontWeights.Bold, Foreground = UiHelpers.Error,
                                 TextWrapping = TextWrapping.Wrap,
                             },
@@ -2662,7 +2787,7 @@ namespace ClawTweaksCenter
             {
                 stack.Children.Add(new TextBlock
                 {
-                    Text = $"{step++}.  {line}",
+                    Text = $"{step++}.  {Core.Loc.T(line)}",
                     FontSize = 15, Foreground = UiHelpers.Text,
                     TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10),
                 });
@@ -2767,8 +2892,8 @@ namespace ClawTweaksCenter
             BeginContent(centred: false);
             ContentHost.Children.Add(layout);
 
-            left.Children.Add(UiHelpers.Title($"Installing {build.Version}"));
-            left.Children.Add(UiHelpers.Body($"{build.Origin} — {build.Title}"));
+            left.Children.Add(UiHelpers.Title(Core.Loc.F("Installing {0}", build.Version)));
+            left.Children.Add(UiHelpers.Body($"{Core.Loc.T(build.Origin)} — {build.Title}"));
 
             var progressBar = new ProgressBar
             {
@@ -2857,7 +2982,11 @@ namespace ClawTweaksCenter
             // Dispatcher.Invoke matters here: PackageInstaller.Install runs inside Task.Run further
             // down and calls this synchronously from a thread-pool thread, not just via awaited
             // continuations — same guard InstallPhase.Log already uses for the same reason.
-            void Log(string s)
+            void Log(string s) => LogShown(s, null);
+
+            // A line whose on-screen form is already composed (a Loc.F over a translated part) - the
+            // file still gets the English; Log alone cannot take a composed line apart.
+            void LogShown(string s, string shown)
             {
                 // Mirrored to file before touching the UI: these rows scroll away and are finally replaced
                 // when onboarding takes over, so the panel alone cannot answer "what happened during that
@@ -2869,7 +2998,7 @@ namespace ClawTweaksCenter
                     // ENGLISH to the file, translated to the screen. The file is read by whoever is
                     // diagnosing an install and has to line up with the helper's log, which is
                     // English; the panel is read by the user while it happens.
-                    logPanel.Children.Add(BuildLogRow(Core.Loc.T(s), out currentLogBadge, out currentLogDetail));
+                    logPanel.Children.Add(BuildLogRow(shown ?? Core.Loc.T(s), out currentLogBadge, out currentLogDetail));
                     logScroller.ScrollToBottom();
                 });
             }
@@ -3052,9 +3181,13 @@ namespace ClawTweaksCenter
                         priorHelperPids, previousVersion != null, sameVersionReinstall, helperProgress, statusPanel, historyPanel);
                     progressBar.Value = 100;
 
-                    Log(up
-                        ? $"{DescribeTransition(previousVersion, build.Version)} — helper is up and running."
-                        : "Installed, but the helper did not appear in time — open the Game Bar (Win+G) manually.");
+                    if (up)
+                        // English to the file, translated to the panel - the same split Log makes for
+                        // fixed lines, done by hand here because the transition is composed.
+                        LogShown($"{DescribeTransition(previousVersion, build.Version)} — helper is up and running.",
+                                 Core.Loc.F("{0} — helper is up and running.", DescribeTransition(previousVersion, build.Version, forScreen: true)));
+                    else
+                        Log("Installed, but the helper did not appear in time — open the Game Bar (Win+G) manually.");
                 }
 
                 FinishLogRow(currentLogBadge, ok);
@@ -3082,13 +3215,17 @@ namespace ClawTweaksCenter
         }
 
         /// <summary>Human-readable version transition for the final status ("Updated X → Y", not just "Installed Y").</summary>
-        private static string DescribeTransition(Version previous, string selectedVersion)
+        private static string DescribeTransition(Version previous, string selectedVersion, bool forScreen = false)
         {
-            if (previous == null) return $"Installed {selectedVersion}";
-            if (!TryParseVersion(selectedVersion, out var selected)) return $"Installed {selectedVersion}";
-            if (selected > previous) return $"Updated {previous} → {selected}";
-            if (selected < previous) return $"Downgraded {previous} → {selected}";
-            return $"Reinstalled {selected}";
+            string format; object[] args;
+            if (previous == null || !TryParseVersion(selectedVersion, out var selected))
+            {
+                format = "Installed {0}"; args = new object[] { selectedVersion };
+            }
+            else if (selected > previous) { format = "Updated {0} → {1}"; args = new object[] { previous, selected }; }
+            else if (selected < previous) { format = "Downgraded {0} → {1}"; args = new object[] { previous, selected }; }
+            else { format = "Reinstalled {0}"; args = new object[] { selected }; }
+            return forScreen ? Core.Loc.F(format, args) : string.Format(format, args);
         }
 
         /// <summary>
@@ -3189,7 +3326,7 @@ namespace ClawTweaksCenter
                 AddHistory(true, "No duplicate helper detected",
                     handedOver + killed == 0
                         ? "The old helper exited on its own."
-                        : $"Unexpected survivor: {handedOver} handed over, {killed} terminated.");
+                        : Core.Loc.F("Unexpected survivor: {0} handed over, {1} terminated.", handedOver, killed));
             }
             progress?.Report(82);
 
@@ -3227,8 +3364,8 @@ namespace ClawTweaksCenter
                 {
                     if (result.VirtualPadCount > 0)
                     {
-                        string name = result.VirtualPadName ?? "Virtual pad";
-                        return (true, "Virtual controller mode detected", $"{name} active and running.", null);
+                        string name = result.VirtualPadName ?? Core.Loc.T("Virtual pad");
+                        return (true, "Virtual controller mode detected", Core.Loc.F("{0} active and running.", name), null);
                     }
                     return (true, "HW controller mode detected", "MSI HW Controller active and running.", null);
                 }

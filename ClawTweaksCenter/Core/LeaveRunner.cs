@@ -203,12 +203,14 @@ namespace ClawTweaksCenter.Core
                 Function.DefaultControllerMode, 0, "0", TimeSpan.FromSeconds(15)).ConfigureAwait(false);
 
             var parts = new List<string>();
-            parts.Add("Settings reset.");
-            parts.Add(controller ? "Hardware controller confirmed." : "The controller did not confirm — check it before you unplug.");
-            parts.Add(chargeSent && fanSent
+            // Translated here, part by part: the screen localises the joined Detail as one string,
+            // and a sentence glued to three others is not a key anybody could have entered.
+            parts.Add(Loc.T("Settings reset."));
+            parts.Add(Loc.T(controller ? "Hardware controller confirmed." : "The controller did not confirm — check it before you unplug."));
+            parts.Add(Loc.T(chargeSent && fanSent
                 ? "Charge limit off and fan handed back to firmware."
-                : "Some hardware commands could not be sent.");
-            if (!string.IsNullOrEmpty(reset.Path)) parts.Add("A backup of your settings is at " + reset.Path);
+                : "Some hardware commands could not be sent."));
+            if (!string.IsNullOrEmpty(reset.Path)) parts.Add(Loc.F("A backup of your settings is at {0}", reset.Path));
 
             step.State = controller && chargeSent && fanSent ? LeaveStepState.Ok : LeaveStepState.Warning;
             step.Detail = string.Join(" ", parts);

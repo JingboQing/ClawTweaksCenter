@@ -1,0 +1,52 @@
+term	note	de	fr	ko	es	ru	el	zh-Hans	zh-Hant	it	pt-BR	ja	pl
+ClawTweaks	product name, never translated or declined; "ClawTweaks-Setup" style compounds are fine	ClawTweaks	ClawTweaks	ClawTweaks	ClawTweaks	ClawTweaks	ClawTweaks	ClawTweaks	ClawTweaks	ClawTweaks	ClawTweaks	ClawTweaks	ClawTweaks
+Center	the app itself, short form of ClawTweaks Center; stays English, no article games	Center	Center	Center	Center	Center	Center	Center	Center	Center	Center	Center	Center
+helper	the background process; English in every language, lower case in a sentence, the language's own article	Helper	helper	헬퍼	helper	helper	helper	helper	helper	helper	helper	ヘルパー	helper
+widget	the Game Bar widget; stays English	Widget	widget	위젯	widget	виджет	widget	小组件	小工具	widget	widget	ウィジェット	widżet
+Game Bar	Microsoft's name; never translated	Game Bar	Game Bar	Game Bar	Game Bar	Game Bar	Game Bar	Game Bar	Game Bar	Game Bar	Game Bar	Game Bar	Game Bar
+MSI Center M	vendor product; never translated	MSI Center M	MSI Center M	MSI Center M	MSI Center M	MSI Center M	MSI Center M	MSI Center M	MSI Center M	MSI Center M	MSI Center M	MSI Center M	MSI Center M
+setup	the Inno installer file the user runs	Setup	setup	설치 파일	setup	установщик	setup	安装程序	安裝程式	setup	setup	セットアップ	instalator
+onboarding	the guided first-run steps; English in de/fr/es/it/pt, own word where the loanword is unusual	Onboarding	onboarding	온보딩	onboarding	первичная настройка	αρχική ρύθμιση	初始设置	初始設定	onboarding	onboarding	初期設定	wdrożenie
+library	the game library	Bibliothek	bibliothèque	라이브러리	biblioteca	библиотека	βιβλιοθήκη	游戏库	遊戲庫	libreria	biblioteca	ライブラリ	biblioteka
+Home	the start screen; a menu heading, stays English on the heading, translated in prose	Home	accueil	홈	Inicio	главная	αρχική	主页	主頁	Home	Início	ホーム	ekran główny
+Recent	the recently played shelf; heading stays English, prose translated	Zuletzt	Récents	최근	Recientes	недавние	πρόσφατα	最近	最近	Recenti	Recentes	最近	ostatnie
+favorite	the starred games	Favorit	favori	즐겨찾기	favorito	избранное	αγαπημένο	收藏	收藏	preferito	favorito	お気に入り	ulubione
+shelf	a horizontal row of covers in the library	Regal	étagère	선반	estante	полка	ράφι	书架	書架	scaffale	prateleira	棚	półka
+cover	the game artwork	Cover	jaquette	커버	carátula	обложка	εξώφυλλο	封面	封面	copertina	capa	カバー	okładka
+wallpaper	library background picture	Hintergrund	fond d'écran	배경	fondo	обои	ταπετσαρία	壁纸	桌布	sfondo	papel de parede	壁紙	tapeta
+achievement	Steam achievements	Errungenschaft	succès	도전 과제	logro	достижение	επίτευγμα	成就	成就	obiettivo	conquista	実績	osiągnięcie
+friends	Steam friends	Freunde	amis	친구	amigos	друзья	φίλοι	好友	好友	amici	amigos	フレンド	znajomi
+playtime	hours played	Spielzeit	temps de jeu	플레이 시간	tiempo de juego	время игры	χρόνος παιχνιδιού	游戏时间	遊戲時間	tempo di gioco	tempo de jogo	プレイ時間	czas gry
+controller	the gamepad; de keeps the English word, fr/es use their own	Controller	manette	컨트롤러	mando	контроллер	χειριστήριο	手柄	控制器	controller	controle	コントローラー	kontroler
+virtual controller	the VIIPER pad	virtueller Controller	manette virtuelle	가상 컨트롤러	mando virtual	виртуальный контроллер	εικονικό χειριστήριο	虚拟手柄	虛擬控制器	controller virtuale	controle virtual	仮想コントローラー	kontroler wirtualny
+hardware controller	the native MSI pad	Hardware-Controller	manette matérielle	하드웨어 컨트롤러	mando físico	аппаратный контроллер	υλικό χειριστήριο	硬件手柄	硬體控制器	controller hardware	controle físico	ハードウェアコントローラー	kontroler sprzętowy
+DInput / XInput	protocol names, never translated	DInput / XInput	DInput / XInput	DInput / XInput	DInput / XInput	DInput / XInput	DInput / XInput	DInput / XInput	DInput / XInput	DInput / XInput	DInput / XInput	DInput / XInput	DInput / XInput
+TDP	never translated; the unit stays W	TDP	TDP	TDP	TDP	TDP	TDP	TDP	TDP	TDP	TDP	TDP	TDP
+FPS	never translated; "FPS cap" / "FPS limit"	FPS	FPS	FPS	FPS	FPS	FPS	FPS	FPS	FPS	FPS	FPS	FPS
+FPS cap	the frame limiter	FPS-Limit	limite de FPS	FPS 제한	límite de FPS	лимит FPS	όριο FPS	帧率限制	幀率限制	limite FPS	limite de FPS	FPS上限	limit FPS
+boost	CPU/TDP boost; stays English	Boost	boost	부스트	boost	буст	boost	加速	加速	boost	boost	ブースト	boost
+fan curve	the six-slider curve	Lüfterkurve	courbe du ventilateur	팬 커브	curva del ventilador	кривая вентилятора	καμπύλη ανεμιστήρα	风扇曲线	風扇曲線	curva della ventola	curva do ventilador	ファンカーブ	krzywa wentylatora
+charge limit	battery charge limit	Ladelimit	limite de charge	충전 제한	límite de carga	лимит заряда	όριο φόρτισης	充电限制	充電限制	limite di carica	limite de carga	充電制限	limit ładowania
+overlay	the on-screen display	Overlay	overlay	오버레이	overlay	оверлей	overlay	叠加层	疊加層	overlay	overlay	オーバーレイ	nakładka
+profile	a per-game or global settings profile	Profil	profil	프로필	perfil	профиль	προφίλ	配置文件	設定檔	profilo	perfil	プロファイル	profil
+preset	a named set of values	Preset	préréglage	프리셋	preajuste	пресет	προεπιλογή	预设	預設	preset	predefinição	プリセット	preset
+per-game	scope of a setting	pro Spiel	par jeu	게임별	por juego	для каждой игры	ανά παιχνίδι	每个游戏	每款遊戲	per gioco	por jogo	ゲームごと	dla każdej gry
+power mode	the Windows power mode	Energiemodus	mode d'alimentation	전원 모드	modo de energía	режим питания	λειτουργία ενέργειας	电源模式	電源模式	modalità energetica	modo de energia	電源モード	tryb zasilania
+sleep	S0 standby	Standby	veille	절전	suspender	сон	αναστολή	睡眠	睡眠	sospensione	suspender	スリープ	uśpienie
+hibernate	S4	Ruhezustand	veille prolongée	최대 절전	hibernar	гибернация	αδρανοποίηση	休眠	休眠	ibernazione	hibernar	休止状態	hibernacja
+backup	a settings backup (noun)	Backup	sauvegarde	백업	copia de seguridad	резервная копия	αντίγραφο ασφαλείας	备份	備份	backup	backup	バックアップ	kopia zapasowa
+restore	put a backup back (verb)	wiederherstellen	restaurer	복원	restaurar	восстановить	επαναφορά	还原	還原	ripristinare	restaurar	復元	przywróć
+reset	back to defaults; "Reset · Backup · Restore" as a heading stays English	zurücksetzen	réinitialiser	초기화	restablecer	сбросить	επαναφορά εργοστασιακών	重置	重設	reimpostare	redefinir	リセット	resetuj
+maintenance	the Reset/Backup/Restore area	Wartung	maintenance	유지 관리	mantenimiento	обслуживание	συντήρηση	维护	維護	manutenzione	manutenção	メンテナンス	konserwacja
+install / uninstall	verbs for the app package	installieren / deinstallieren	installer / désinstaller	설치 / 제거	instalar / desinstalar	установить / удалить	εγκατάσταση / απεγκατάσταση	安装 / 卸载	安裝 / 解除安裝	installare / disinstallare	instalar / desinstalar	インストール / アンインストール	zainstaluj / odinstaluj
+update	a newer build (noun and verb)	Update / aktualisieren	mise à jour / mettre à jour	업데이트	actualización / actualizar	обновление / обновить	ενημέρωση	更新	更新	aggiornamento / aggiornare	atualização / atualizar	更新	aktualizacja / zaktualizuj
+release	a published build; "Release" as an origin label stays English in de	Release	version	정식 버전	versión	релиз	έκδοση	正式版	正式版	release	versão	リリース	wydanie
+test build	an experimental build	Testbuild	build de test	테스트 빌드	build de prueba	тестовая сборка	δοκιμαστική έκδοση	测试版	測試版	build di test	build de teste	テストビルド	kompilacja testowa
+download	verb and noun	Download / herunterladen	téléchargement / télécharger	다운로드	descarga / descargar	загрузка / скачать	λήψη	下载	下載	download / scaricare	download / baixar	ダウンロード	pobieranie / pobierz
+device	the handheld itself	Gerät	appareil	장치	dispositivo	устройство	συσκευή	设备	裝置	dispositivo	dispositivo	デバイス	urządzenie
+handheld	the device class	Handheld	console portable	휴대용 기기	consola portátil	портативная консоль	φορητή κονσόλα	掌机	掌機	handheld	portátil	携帯機	handheld
+certificate	the signing certificate	Zertifikat	certificat	인증서	certificado	сертификат	πιστοποιητικό	证书	憑證	certificato	certificado	証明書	certyfikat
+prerequisite	a tool the install needs first	Voraussetzung	prérequis	필수 구성 요소	requisito	необходимый компонент	προαπαιτούμενο	先决条件	必要條件	prerequisito	pré-requisito	前提条件	wymaganie wstępne
+scheduled task	the Windows task that elevates the helper	geplante Aufgabe	tâche planifiée	예약 작업	tarea programada	запланированная задача	προγραμματισμένη εργασία	计划任务	排程工作	attività pianificata	tarefa agendada	タスクスケジューラのタスク	zaplanowane zadanie
+D-pad	the directional pad	Steuerkreuz	croix directionnelle	십자키	cruceta	крестовина	σταυρός κατεύθυνσης	方向键	方向鍵	croce direzionale	direcional	十字キー	krzyżak
+left stick / right stick	LS / RS in short labels	linker / rechter Stick	stick gauche / droit	왼쪽 / 오른쪽 스틱	stick izquierdo / derecho	левый / правый стик	αριστερό / δεξί μοχλό	左摇杆 / 右摇杆	左搖桿 / 右搖桿	levetta sinistra / destra	analógico esquerdo / direito	左スティック / 右スティック	lewa / prawa gałka

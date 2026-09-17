@@ -255,7 +255,17 @@ namespace ClawTweaksCenter.Core
         /// the reply comes back on THIS (Center) pipe only, as a Function+Content push the read loop
         /// already parses — no RequestId/ack plumbing needed on the Center side.
         /// </summary>
-        public async Task<string> RequestWithResultAsync(string extraKey, object extraValue, Function resultFunction, TimeSpan timeout)
+        public Task<string> RequestWithResultAsync(string extraKey, object extraValue, Function resultFunction, TimeSpan timeout)
+            => RequestWithResultAsync(new[] { new KeyValuePair<string, object>(extraKey, extraValue) }, resultFunction, timeout);
+
+        /// <summary>
+        /// The same round trip with MORE THAN ONE extra key. The helper dispatches on the first key it
+        /// recognises and reads the others as parameters - "CheckWindowsUpdates" plus "ForceRefresh" is
+        /// the case this exists for, because a check button has to be able to say "not the cached one".
+        /// The single-key overload above delegates here so there is one implementation of the wire
+        /// format, not two that can drift.
+        /// </summary>
+        public async Task<string> RequestWithResultAsync(IEnumerable<KeyValuePair<string, object>> extras, Function resultFunction, TimeSpan timeout)
         {
             if (!IsConnected) return null;
 
@@ -266,10 +276,15 @@ namespace ClawTweaksCenter.Core
             {
                 // Extra value: bool → true/false literal; anything else → a JSON string (paths carry
                 // backslashes/quotes, so they MUST be JSON-escaped or the helper mis-parses the message).
-                string extraJson = extraValue is bool bVal
-                    ? (bVal ? "true" : "false")
-                    : "\"" + EscapeJson(Convert.ToString(extraValue, System.Globalization.CultureInfo.InvariantCulture)) + "\"";
-                string json = $"{{\"RequestId\":0,\"Command\":0,\"Function\":0,\"{extraKey}\":{extraJson}}}";
+                var parts = new List<string>();
+                foreach (var kv in extras)
+                {
+                    string extraJson = kv.Value is bool bVal
+                        ? (bVal ? "true" : "false")
+                        : "\"" + EscapeJson(Convert.ToString(kv.Value, System.Globalization.CultureInfo.InvariantCulture)) + "\"";
+                    parts.Add($"\"{kv.Key}\":{extraJson}");
+                }
+                string json = "{\"RequestId\":0,\"Command\":0,\"Function\":0," + string.Join(",", parts) + "}";
 
                 lock (_writeLock)
                 {
@@ -313,6 +328,37 @@ namespace ClawTweaksCenter.Core
                 lock (_writeLock)
                 {
                     _writer.WriteLine($"{{\"RequestId\":0,\"Command\":0,\"Function\":0,\"{extraKey}\":{extraJson}}}");
+                    _writer.Flush();
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>The fire-and-forget form with more than one extra key - SetDriverIgnore plus its
+        /// IgnoreState is the case. Same wire format as <see cref="RequestWithResultAsync"/>, same
+        /// "it went out" promise as the single-key overload above.</summary>
+        public bool SendRequest(IEnumerable<KeyValuePair<string, object>> extras)
+        {
+            if (!IsConnected) return false;
+            try
+            {
+                var parts = new List<string>();
+                foreach (var kv in extras)
+                {
+                    string extraJson = kv.Value is bool bVal
+                        ? (bVal ? "true" : "false")
+                        : (kv.Value is int || kv.Value is long
+                            ? Convert.ToString(kv.Value, System.Globalization.CultureInfo.InvariantCulture)
+                            : "\"" + EscapeJson(Convert.ToString(kv.Value, System.Globalization.CultureInfo.InvariantCulture)) + "\"");
+                    parts.Add($"\"{kv.Key}\":{extraJson}");
+                }
+                lock (_writeLock)
+                {
+                    _writer.WriteLine("{\"RequestId\":0,\"Command\":0,\"Function\":0," + string.Join(",", parts) + "}");
                     _writer.Flush();
                 }
                 return true;

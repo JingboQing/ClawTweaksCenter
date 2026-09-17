@@ -230,7 +230,7 @@ namespace ClawTweaksCenter.Core
                 {
                     aj.State = OnboardingStepState.Ok;
                     aj.Actionable = true;
-                    aj.Detail = $"Auto-jump active (position {sp}).";
+                    aj.Detail = Loc.F("Auto-jump active (position {0}).", sp);
                 }
                 else
                 {
@@ -419,7 +419,7 @@ namespace ClawTweaksCenter.Core
             {
                 _verifiedThisSession = true;
                 step.State = OnboardingStepState.Ok;
-                step.Detail = $"Enabled and verified ({health.VirtualPadName ?? "virtual pad"}).";
+                step.Detail = Loc.F("Enabled and verified ({0}).", health.VirtualPadName ?? Loc.T("virtual pad"));
                 step.Actionable = false;
             }
             else
@@ -447,7 +447,7 @@ namespace ClawTweaksCenter.Core
             int pos = AutoJumpPositionValue < 1 ? 1 : (AutoJumpPositionValue > 10 ? 10 : AutoJumpPositionValue);
             bool sent = PipeClient.SetProperty(Function.GameBarWidgetPosition, pos);
             step.State = sent ? OnboardingStepState.Ok : OnboardingStepState.Error;
-            step.Detail = sent ? $"Auto-jump set to position {pos}." : "Could not reach the helper.";
+            step.Detail = sent ? Loc.F("Auto-jump set to position {0}.", pos) : "Could not reach the helper.";
             step.Actionable = false;
             RecomputeGating();
         }

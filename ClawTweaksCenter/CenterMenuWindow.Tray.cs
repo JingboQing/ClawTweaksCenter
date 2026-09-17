@@ -67,6 +67,17 @@ namespace ClawTweaksCenter
 
                 if (!resident) return;
                 e.Cancel = true;
+
+                // In FSE "hidden to the tray" is hidden to nowhere: there is no tray, no taskbar and
+                // no desktop behind this window, and a hidden library does not come back (user,
+                // 2026-09-16). Every close that is not a real exit goes to the start screen instead.
+                if (Core.CenterSettings.FseMode)
+                {
+                    Core.InstallLog.Write("Closing: FSE mode - showing the start screen instead of hiding.");
+                    if (_view != View.Home) GoHome();
+                    return;
+                }
+
                 Hide();
             };
 
@@ -126,11 +137,11 @@ namespace ClawTweaksCenter
 
             var menu = new ContextMenu();
 
-            var openItem = new MenuItem { Header = "Open Center" };
+            var openItem = new MenuItem { Header = Core.Loc.T("Open Center") };   // a WPF ContextMenu, not one of our builders
             openItem.Click += (_, __) => BringToFront();
             menu.Items.Add(openItem);
 
-            var libraryItem = new MenuItem { Header = "Open Library" };
+            var libraryItem = new MenuItem { Header = Core.Loc.T("Open Library") };
             libraryItem.Click += (_, __) =>
             {
                 BringToFront();
@@ -140,7 +151,7 @@ namespace ClawTweaksCenter
 
             menu.Items.Add(new Separator());
 
-            var exitItem = new MenuItem { Header = "Exit Center" };
+            var exitItem = new MenuItem { Header = Core.Loc.T("Exit Center") };
             exitItem.Click += (_, __) =>
             {
                 _reallyExiting = true;

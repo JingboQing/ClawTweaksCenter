@@ -38,6 +38,49 @@ namespace ClawTweaksCenter
         private const int CenterSettingsLanguageRow = 0;
         private const int CenterSettingsFullscreenRow = 1;
 
+        // ── Nach Updates suchen und benachrichtigen ─────────────────────────────────────────────
+        //
+        // All three intervals live HERE and not next to the thing they are about (user, 2026-09-13).
+        // They were under their own columns on the drivers screen and inside Update & Release, which
+        // put settings in three places and made two screens part settings screen. One place, one
+        // shape, and each screen keeps only what it is for.
+        private const int CenterSettingsDriverCheckRow = 2;
+        private const int CenterSettingsWindowsCheckRow = 3;
+
+        // The helper's two driver opt-ins, under the driver row (user, 2026-09-16). HELPER STATE,
+        // read out of the driver result and written back over the pipe - the same verbs the widget's
+        // checkboxes send - so Center holds no copy of either. Without a helper the rows say so.
+        private const int CenterSettingsDriverBetaRow = 4;
+        private const int CenterSettingsDriverWifiRow = 5;
+
+        private const int CenterSettingsWidgetCheckRow = 6;
+        private const int CenterSettingsWidgetTestRow = 7;
+
+        /// <summary>From here down the grid is ONE column - see MoveCenterSettingsSelection.</summary>
+        private const int CenterSettingsTailStart = CenterSettingsDriverBetaRow;
+
+        // ── Experimentell - ENTFERNT 2026-09-15 ────────────────────────────────────────────────
+        //
+        // There was one experimental row here, "Center starts the helper" (CenterSettingsFseStartRow
+        // = 6). It asked the helper's scheduled task to run early when Center is the full screen
+        // home app. It is gone, together with the machinery behind it, for three reasons:
+        //
+        //   * THE MEASUREMENT CAME BACK NEGATIVE. Across four boots on 2026-09-14 the logon trigger
+        //     fired at about +16.7s and Center ran at about +21.7s, so the scheduler refused every
+        //     request as a duplicate (event 322). It never once made anything faster.
+        //   * The problem it aimed at - the virtual pad arriving in the middle of the user's first
+        //     navigation - was solved somewhere else entirely, in the scheduled task itself. See
+        //     Doku/TODO_Scheduled_Task_Fast_Controller.md in the helper repo.
+        //   * An experimental switch that does nothing is worse than no switch: it invites people to
+        //     turn it on, and then it owns the blame for the next unrelated startup oddity.
+        //
+        // DISCONNECTED, NOT MERELY HIDDEN. Four places carry this same note: the call site in
+        // App.xaml.cs is commented out, the stored preference CenterSettings.FseStartsHelper is
+        // commented out, Core/FseHelperStart.TryStartHelper returns before it does anything, and the
+        // activation case at the bottom of this file is commented out.
+        //
+        // Row numbers 0..5 above are unchanged, so nothing that remembers an index moves.
+
         private void OpenCenterSettings()
         {
             LeaveLibrary();
@@ -73,6 +116,18 @@ namespace ClawTweaksCenter
                 null, WindowMode.IsFullscreen(this)));
             stack.Children.Add(pairs);
 
+            // RIGHT HERE, under the row it belongs to, and that is the whole fix (user, 2026-09-15).
+            //
+            // This block used to be appended at the END of the screen, which was correct while
+            // Language and Fullscreen were the only rows: the end of the screen WAS under the
+            // language row. Then the update intervals and the experimental band arrived between
+            // them, and the list kept unfolding at the bottom - far below the row that opened it,
+            // past the bottom of the viewport, and therefore not operable with a pad at all: the
+            // selection moved through something the user could not see.
+            //
+            // The lesson generalises: a control that belongs UNDER another one has to be added next
+            // to it, not at the end of the builder. "Last" is only "below" until somebody appends
+            // the next section.
             if (_languageListOpen) stack.Children.Add(BuildLanguageList());
 
             // Under the language row, and ONLY while the preference is "System": it is the one entry
@@ -85,8 +140,51 @@ namespace ClawTweaksCenter
                     Text = "→ " + Loc.NameOf(Loc.Current),
                     FontSize = 13,
                     Foreground = UiHelpers.Subtle,
-                    Margin = new Thickness(2, 2, 0, 0),
+                    Margin = new Thickness(2, 2, 0, 10),
                 });
+
+            stack.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Check for updates and notify"),
+                FontSize = 15,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = UiHelpers.Subtle,
+                Margin = new Thickness(2, 18, 0, 8),
+            });
+
+            var checks = new UniformGrid { Columns = 2 };
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsDriverCheckRow, Loc.T("Device drivers"),
+                IntervalLabel(CenterSettings.DriverCheckIntervalWeeks)));
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsWindowsCheckRow, Loc.T("Windows Update"),
+                IntervalLabel(CenterSettings.WindowsUpdateCheckIntervalWeeks)));
+
+            // The two opt-ins sit UNDER the driver row, one column, with the empty cell doing the
+            // pushing - the same shape as "Include test versions" under the widget row below. Their
+            // value comes from the helper's last answer; until one has arrived the row says so.
+            bool haveHelper = _driverResult != null && string.IsNullOrEmpty(_driverResult.Message);
+            if (_driverResult == null && !_driversBusy) _ = RequestDriversAsync(force: false);
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsDriverBetaRow, Loc.T("Also non-WHQL graphics drivers"),
+                haveHelper ? null : Loc.T("ClawTweaks is not running."), haveHelper ? _driverResult.UseIntelBeta : (bool?)null));
+            checks.Children.Add(new Border());
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsDriverWifiRow, Loc.T("Modded Wi-Fi driver instead of stock"),
+                haveHelper ? null : Loc.T("ClawTweaks is not running."), haveHelper ? _driverResult.UseModdedWifi : (bool?)null));
+            checks.Children.Add(new Border());
+
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsWidgetCheckRow, Loc.T("Gamebar Widget Releases"),
+                IntervalLabel(CenterSettings.WidgetUpdateNotifyIntervalWeeks)));
+            // "Include test versions" belongs UNDER the widget row, not beside it (user, 2026-09-15):
+            // it is a sub-setting of that one check, and in the cell to the right it read as a
+            // fourth, unrelated check. The empty cell is what pushes it down a row.
+            checks.Children.Add(new Border());
+            checks.Children.Add(BuildCenterSettingRow(CenterSettingsWidgetTestRow, Loc.T("Include test versions"),
+                null, CenterSettings.WidgetNotifyTestBuilds));
+            stack.Children.Add(checks);
+
+            // The "read at every start" hint that stood here is gone (user, 2026-09-15).
+
+            // "Experimental" was a band of its own here. REMOVED 2026-09-15 - see the note where
+            // CenterSettingsFseStartRow used to be declared. It held one switch, it measured as
+            // doing nothing, and the speed-up it was aiming at came from the scheduled task instead.
 
             ContentHost.Children.Add(stack);
             ApplyCenterSettingsSelection();
@@ -199,6 +297,16 @@ namespace ClawTweaksCenter
                 case UiLanguage.French: return "French";
                 case UiLanguage.Korean: return "Korean";
                 case UiLanguage.Spanish: return "Spanish";
+                case UiLanguage.Russian: return "Russian";
+                case UiLanguage.Greek: return "Greek";
+                // The parenthesis is what makes these sort next to each other in the list, which is
+                // where a reader looking for one of them expects to find the other.
+                case UiLanguage.ChineseSimplified: return "Chinese (Simplified)";
+                case UiLanguage.ChineseTraditional: return "Chinese (Traditional)";
+                case UiLanguage.Italian: return "Italian";
+                case UiLanguage.Portuguese: return "Portuguese (Brazil)";
+                case UiLanguage.Japanese: return "Japanese";
+                case UiLanguage.Polish: return "Polish";
                 case UiLanguage.English: return "English";
                 default: return "System";
             }
@@ -215,6 +323,14 @@ namespace ClawTweaksCenter
             // The whole window, not just this screen: the footer chips, the tab strip and the header
             // chip are all drawn in the old language and none of them redraw on their own. Half a
             // translated window reads as a broken translation.
+            //
+            // The device banner belongs to that list and was missing from it (reported 2026-09-15):
+            // its second line is translated when the banner is built, and it is built once at
+            // startup, so it kept the old language until Center was restarted. Drawn from the cached
+            // detection result — this must not re-probe the hardware to re-translate a line, and it
+            // goes BEFORE RenderCenterSettings so this screen is the last thing rendered.
+            if (_lastDeviceDetect != null) RenderDeviceBanner(_lastDeviceDetect);
+
             RenderCenterSettings();
             RefreshTabStrip();
             RefreshActionBar();
@@ -269,6 +385,30 @@ namespace ClawTweaksCenter
             return row;
         }
 
+        /// <summary>
+        /// Keeps the highlighted language on screen while the pad walks the list.
+        ///
+        /// Thirteen languages plus System is taller than the viewport once the update bands are
+        /// above it, so without this the selection walks off the bottom edge and the list is again
+        /// something a pad cannot operate - the same complaint that moved the list up in the first
+        /// place, just further down the list instead of at the start of it.
+        ///
+        /// At Loaded priority because RenderCenterSettings has just rebuilt every row: the element
+        /// exists but has no layout yet, and BringIntoView on a thing with no position scrolls
+        /// nowhere. Same shape as the friends list (CenterMenuWindow.Friends.cs).
+        /// </summary>
+        private void ScrollLanguageRowIntoView()
+        {
+            if (!_languageListOpen) return;
+            if (_languageIndex < 0 || _languageIndex >= _languageRows.Count) return;
+
+            var target = _languageRows[_languageIndex];
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                try { target.BringIntoView(); } catch { }
+            }), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
         private void ApplyCenterSettingsSelection()
         {
             foreach (var row in _centerSettingsRows)
@@ -291,6 +431,7 @@ namespace ClawTweaksCenter
 
                 _languageIndex = target;
                 RenderCenterSettings();
+                ScrollLanguageRowIntoView();
                 return;
             }
 
@@ -299,12 +440,26 @@ namespace ClawTweaksCenter
             int last = _centerSettingsRows.Count - 1;
             int next = _centerSettingsIndex;
 
-            // One row of two, so Left/Right move and Up/Down do not. Written as the two directions
-            // that DO something rather than as a grid: a second row would need the stride anyway, and
-            // guessing at one now would be a rule nobody can check.
-            if (dir == PadButton.Left) next--;
-            else if (dir == PadButton.Right) next++;
+            // A two-column GRID since the update intervals moved in: Left/Right step one cell,
+            // Up/Down a whole row. Both UniformGrids on this screen are two wide, so one stride
+            // covers them - if a third grid ever arrives with a different width, this is the line
+            // that has to know.
+            const int stride = 2;
+            // The tail from the widget row down is ONE column (the test toggle sits under the widget
+            // row, its right-hand cell is empty), so there Up/Down step one and Left/Right nothing.
+            bool inTail = _centerSettingsIndex >= CenterSettingsTailStart;
+            if (dir == PadButton.Left) { if (inTail) return; next--; }
+            else if (dir == PadButton.Right) { if (inTail) return; next++; }
+            else if (dir == PadButton.Up) next -= (_centerSettingsIndex > CenterSettingsTailStart) ? 1 : stride;
+            else if (dir == PadButton.Down) next += inTail ? 1 : stride;
             else return;
+
+            // Down from the right-hand cell above the tail lands on the tail's first row, not past it.
+            if (dir == PadButton.Down && !inTail && next > CenterSettingsTailStart) next = CenterSettingsTailStart;
+
+            // Down from the last row lands on the last cell rather than nowhere: with an odd number
+            // of rows the cell below is missing, and refusing the press reads as a dead d-pad.
+            if (next > last && dir == PadButton.Down) next = last;
 
             if (next < 0 || next > last || next == _centerSettingsIndex) return;
 
@@ -326,12 +481,47 @@ namespace ClawTweaksCenter
                     _languageIndex = Math.Max(0, Array.IndexOf(LanguageOrder(), Loc.Preference));
                     _languageListOpen = true;
                     RenderCenterSettings();
+                    ScrollLanguageRowIntoView();
                     RefreshActionBar();
                     return;
 
                 case CenterSettingsFullscreenRow:
                     WindowMode.Toggle(this);
                     break;
+
+                case CenterSettingsDriverCheckRow:
+                    CenterSettings.DriverCheckIntervalWeeks =
+                        NextInterval(CenterSettings.DriverCheckIntervalWeeks);
+                    break;
+
+                case CenterSettingsWindowsCheckRow:
+                    CenterSettings.WindowsUpdateCheckIntervalWeeks =
+                        NextInterval(CenterSettings.WindowsUpdateCheckIntervalWeeks);
+                    break;
+
+                case CenterSettingsWidgetCheckRow:
+                    CenterSettings.WidgetUpdateNotifyIntervalWeeks =
+                        NextInterval(CenterSettings.WidgetUpdateNotifyIntervalWeeks);
+                    break;
+
+                case CenterSettingsWidgetTestRow:
+                    CenterSettings.WidgetNotifyTestBuilds = !CenterSettings.WidgetNotifyTestBuilds;
+                    break;
+
+                case CenterSettingsDriverBetaRow:
+                    if (_driverResult != null) SetDriverOptIn("SetUseIntelBeta", !_driverResult.UseIntelBeta);
+                    return;   // the pipe answer redraws this screen
+
+                case CenterSettingsDriverWifiRow:
+                    if (_driverResult != null) SetDriverOptIn("SetUseModdedWifi", !_driverResult.UseModdedWifi);
+                    return;
+
+                // Removed 2026-09-15 with the experimental band - see the note where the row
+                // constants are declared, at the top of this file.
+                //
+                // case CenterSettingsFseStartRow:
+                //     CenterSettings.FseStartsHelper = !CenterSettings.FseStartsHelper;
+                //     break;
 
             }
 

@@ -231,7 +231,7 @@ namespace ClawTweaksCenter.Core
             }
             catch (Exception ex)
             {
-                log?.Invoke($"Could not start the old uninstaller: {ex.Message}");
+                log?.Invoke(Loc.F("Could not start the old uninstaller: {0}", ex.Message));
                 return false;
             }
         }
@@ -298,7 +298,7 @@ namespace ClawTweaksCenter.Core
                 string sibling = Path.Combine(dir, Path.GetFileNameWithoutExtension(exePath) + ".dll");
                 if (File.Exists(sibling))
                 {
-                    reason = "it is a launcher for the .dll next to it, not a standalone build.";
+                    reason = Loc.T("it is a launcher for the .dll next to it, not a standalone build.");
                     return false;
                 }
 
@@ -306,7 +306,7 @@ namespace ClawTweaksCenter.Core
                 long size = new FileInfo(exePath).Length;
                 if (size < MinimumBundleBytes)
                 {
-                    reason = $"it is only {size / 1024} KB, too small to carry its own runtime.";
+                    reason = Loc.F("it is only {0} KB, too small to carry its own runtime.", size / 1024);
                     return false;
                 }
 
@@ -315,7 +315,7 @@ namespace ClawTweaksCenter.Core
             catch (Exception ex)
             {
                 // Unreadable path: say so and refuse, rather than write an install that may be broken.
-                reason = $"its own file could not be inspected ({ex.Message}).";
+                reason = Loc.F("its own file could not be inspected ({0}).", ex.Message);
                 return false;
             }
         }
@@ -352,13 +352,11 @@ namespace ClawTweaksCenter.Core
                 // builds carry the SAME filename, so the wrong one is easy to run).
                 if (!IsSelfContainedSingleFile(sourceExe, out string why))
                 {
-                    log?.Invoke($"This copy of Center cannot install itself: {why} "
-                        + "Use the single-file build from the release page (or publish/), not the "
-                        + "executable from a plain build output.");
+                    log?.Invoke(Loc.F("This copy of Center cannot install itself: {0} Use the single-file build from the release page (or publish/), not the executable from a plain build output.", why));
                     return false;
                 }
 
-                log?.Invoke($"Installing to {InstallDir}...");
+                log?.Invoke(Loc.F("Installing to {0}...", InstallDir));
                 Directory.CreateDirectory(InstallDir);
 
                 // Close the INSTALLED Center first. Updating means overwriting CTW_Center.exe, and a
@@ -388,7 +386,7 @@ namespace ClawTweaksCenter.Core
                 if (desktopShortcut)
                 {
                     try { CreateDesktopShortcut(); }
-                    catch (Exception ex) { log?.Invoke($"Could not create the desktop icon: {ex.Message}"); }
+                    catch (Exception ex) { log?.Invoke(Loc.F("Could not create the desktop icon: {0}", ex.Message)); }
                 }
                 else
                 {
@@ -410,7 +408,7 @@ namespace ClawTweaksCenter.Core
             }
             catch (Exception ex)
             {
-                log?.Invoke($"Install failed: {ex.Message}");
+                log?.Invoke(Loc.F("Install failed: {0}", ex.Message));
                 return false;
             }
         }
@@ -506,12 +504,12 @@ namespace ClawTweaksCenter.Core
                 }
                 catch (IOException) when (i < attempts)
                 {
-                    log?.Invoke($"Waiting for the running Center to close ({i}/{attempts - 1})...");
+                    log?.Invoke(Loc.F("Waiting for the running Center to close ({0}/{1})...", i, attempts - 1));
                     System.Threading.Thread.Sleep(i * 500);
                 }
                 catch (UnauthorizedAccessException) when (i < attempts)
                 {
-                    log?.Invoke($"Waiting for the running Center to close ({i}/{attempts - 1})...");
+                    log?.Invoke(Loc.F("Waiting for the running Center to close ({0}/{1})...", i, attempts - 1));
                     System.Threading.Thread.Sleep(i * 500);
                 }
             }
