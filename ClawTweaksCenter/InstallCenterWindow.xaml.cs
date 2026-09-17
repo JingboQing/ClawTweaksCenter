@@ -102,7 +102,7 @@ namespace ClawTweaksCenter
                     StatusText.Visibility = Visibility.Visible;
                     // Split rather than interpolated: a key with a version number in it could never
                     // match twice, so the sentence is translated and the number concatenated.
-                    StatusText.Text = "Version " + installedVersion + " — " +
+                    StatusText.Text = Core.Loc.F("Version {0}", installedVersion) + " — " +
                         Core.Loc.T("This version is already installed. Open it from the Start Menu " +
                                    "or the ClawTweaks Game Bar widget instead of running this Setup file again.");
                     break;
@@ -190,8 +190,8 @@ namespace ClawTweaksCenter
             StatusText.Foreground = UiHelpers.Warn;
             StatusText.Visibility = Visibility.Visible;
             StatusText.Text =
-                "The new ClawTweaks Center needs no administrator rights and installs to a different location.\n\n" +
-                "Open Windows Settings, go to Apps, find \"ClawTweaks Center\" and uninstall it, then press Re-check.";
+                Core.Loc.T("The new ClawTweaks Center needs no administrator rights and installs to a different location.") + "\n\n" +
+                Core.Loc.T("Open Windows Settings, go to Apps, find \"ClawTweaks Center\" and uninstall it, then press Re-check.");
         }
 
         /// <summary>Re-reads whether the old install is still there. The user has to actually remove it

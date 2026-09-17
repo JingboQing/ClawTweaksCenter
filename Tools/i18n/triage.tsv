@@ -1,0 +1,551 @@
+file	line	english	verdict	note
+CenterMenuWindow.Library.cs	2898	Tab visibility & order	ui	row added
+CenterMenuWindow.GameMenu.cs	282	Unfavorite	ui	row added; GameMenuRow title
+CenterMenuWindow.GameMenu.cs	282	Favorite	ui	row added
+CenterMenuWindow.GameMenu.cs	347	Rename…	ui	row added
+CenterMenuWindow.GameMenu.cs	349	Rename	ui	row added; footer chip
+CenterMenuWindow.GameMenu.cs	372	Remove	ui	row added; footer chip
+CenterMenuWindow.Leave.cs	73	Uninstall ClawTweaks	heading	screen title = Home tile title, stays English by rule
+CenterMenuWindow.Library.cs	1931	Other	ui	row added; BuildHeading now Loc.T
+CenterMenuWindow.Library.cs	1956	Steam	proper-noun	
+CenterMenuWindow.Library.cs	1957	Epic	proper-noun	
+CenterMenuWindow.Library.cs	1958	Xbox	proper-noun	
+CenterMenuWindow.Library.cs	1959	ROMs	proper-noun	tab name, stays
+CenterMenuWindow.Library.cs	2031	Z-A	not-ui	symbol
+CenterMenuWindow.Library.cs	2031	A-Z	not-ui	symbol
+CenterMenuWindow.Library.cs	2478	Recent immersive	ui	row added
+CenterMenuWindow.Library.cs	4193	OptiScaler wiki · 	interpolated	now Loc.F, row added
+CenterMenuWindow.Library.cs	4608	Sleep	ui	row added
+CenterMenuWindow.Library.cs	4610	Hibernate	ui	row added
+CenterMenuWindow.Library.cs	5042	Launch	ui	row added; footer chip
+CenterMenuWindow.Library.cs	5143	Edit	ui	row added; footer chip
+CenterMenuWindow.Maintenance.cs	95	Reset · Backup · Restore	heading	screen title, stays English by rule
+CenterMenuWindow.Maintenance.cs	207	Auto pre-restore — 	interpolated	now Loc.F, row added
+CenterMenuWindow.Maintenance.cs	212	ClawTweaks {b.AppVersion ?? 	interpolated	now Loc.F, row added
+CenterMenuWindow.Misc.cs	592	Choose a program	ui	row added; Loc.T at call site (Win32 dialog title)
+CenterMenuWindow.Misc.cs	671	Add	ui	row added
+CenterMenuWindow.Misc.cs	671	Add 	interpolated	now Loc.F("Add {0}"), row added
+CenterMenuWindow.Tray.cs	116	ClawTweaks Center	proper-noun	tray tooltip
+CenterMenuWindow.Tray.cs	129	Open Center	ui	row added; Loc.T at call site (WPF ContextMenu)
+CenterMenuWindow.Tray.cs	133	Open Library	ui	row added; Loc.T at call site
+CenterMenuWindow.Tray.cs	143	Exit Center	ui	row added; Loc.T at call site
+CenterMenuWindow.xaml.cs	210	CTW Center v	not-ui	version label
+CenterMenuWindow.xaml.cs	767	Onboarding	heading	Home tile title
+CenterMenuWindow.xaml.cs	1029	ClawTweaks 	not-ui	product + version
+CenterMenuWindow.xaml.cs	1140	Center Settings	heading	Home tile title
+CenterMenuWindow.xaml.cs	1504	The update could not install itself. Try the button below.	ui	row added; Loc.T at call site (direct Text=)
+CenterMenuWindow.xaml.cs	1512	Installing…	ui	row added; Loc.T at call site
+CenterMenuWindow.xaml.cs	1512	Install update now	ui	row added; Loc.T at call site
+CenterMenuWindow.xaml.cs	1560	A previous version is 	interpolated	two whole-sentence Loc.F keys, rows added
+CenterMenuWindow.xaml.cs	1570	Removing it needs administrator rights…	ui	row added; Loc.T at call site
+CenterMenuWindow.xaml.cs	2348	Scroll	ui	row added; hint label
+CenterMenuWindow.xaml.cs	2581	These install kernel drivers…	ui	row added; Loc.T at call site
+CenterMenuWindow.xaml.cs	3294	center post-install	log	
+Core/CenterM.cs	14	MSI Center M	proper-noun	
+Core/PrerequisiteGuide.cs	60	HidHide	proper-noun	
+Core/PrerequisiteGuide.cs	128	PawnIO	proper-noun	
+InstallCenterWindow.xaml.cs	105	Version 	interpolated	now Loc.F("Version {0}"), row added
+InstallCenterWindow.xaml.cs	193	The new ClawTweaks Center needs no administrator rights…	ui	split in two Loc.T; first sentence row added, second existed
+Library/MiscSource.cs	109	shell:appsFolder\	not-ui	
+Library/SteamGridDb.cs	250	heroes/game/	not-ui	url
+Library/SteamGridDb.cs	251	Bearer	not-ui	http header
+Library/SteamGridDb.cs	319	search/autocomplete/	not-ui	url
+Library/SteamGridDb.cs	372	grids/game/	not-ui	url
+Library/SteamGridDb.cs	533	search/autocomplete/portal	not-ui	url
+Library/SteamPlaytime.cs	75	LastPlayed	not-ui	vdf key
+MainWindow.xaml.cs	175	Finish	dead	MainWindow is never constructed
+Phases/DetectPhase.cs	28	Detect	dead	old wizard
+Phases/DetectPhase.cs	53	Welcome	dead	old wizard
+Phases/InstallPhase.cs	96	Trusted.	dead	old wizard
+Phases/InstallPhase.cs	111	Helper	dead	old wizard
+Phases/InstallPhase.cs	111	Running.	dead	old wizard
+Phases/ToolsPhase.cs	51	Tools	dead	old wizard
+Update/UpdateFlow.cs	87	checked - nothing newer than this build	log	
+Update/UpdateFlow.cs	120	update flow threw: 	log	
+Update/UpdateFlow.cs	132	 because the user asked for it	log	
+App.xaml.cs	82	DispatcherUnhandledException	not-ui	identifier
+App.xaml.cs	94	UnobservedTaskException	not-ui	identifier
+App.xaml.cs	362	ClawTweaks	not-ui	identifier
+CenterMenuWindow.Drivers.cs	106	CheckDriverUpdates	not-ui	identifier
+CenterMenuWindow.Drivers.cs	107	ForceRefresh	not-ui	identifier
+CenterMenuWindow.Drivers.cs	148	CheckWindowsUpdates	not-ui	identifier
+CenterMenuWindow.Drivers.cs	662	ms-settings:windowsupdate-action	not-ui	path / uri / registry
+CenterMenuWindow.FooterStatus.cs	155	GetPowerStatus	not-ui	identifier
+CenterMenuWindow.Library.cs	3807	OptiClick	not-ui	identifier
+CenterMenuWindow.Library.cs	3808	OptiScaler	not-ui	identifier
+CenterMenuWindow.Library.cs	4741	PowerAction	not-ui	identifier
+CenterMenuWindow.Misc.cs	556	aumid:	not-ui	path / uri / registry
+CenterMenuWindow.QuickMenu.cs	61	TrayAppList	not-ui	identifier
+CenterMenuWindow.QuickMenu.cs	255	TrayAppOpen	not-ui	identifier
+CenterMenuWindow.QuickMenu.cs	267	TrayAppClose	not-ui	identifier
+CenterMenuWindow.QuickMenu.cs	319	ms-settings:	not-ui	path / uri / registry
+CenterMenuWindow.QuickMenu.cs	321	compmgmt.msc	not-ui	path / uri / registry
+CenterMenuWindow.QuickMenu.cs	322	ms-settings:appsfeatures	not-ui	path / uri / registry
+CenterMenuWindow.UpdateWatch.cs	73	announce:	log	diagnostics only
+CenterMenuWindow.UpdateWatch.cs	125	widget:	log	diagnostics only
+CenterMenuWindow.UpdateWatch.cs	165	driver:	log	diagnostics only
+CenterMenuWindow.UpdateWatch.cs	208	windows:	log	diagnostics only
+CenterMenuWindow.xaml.cs	746	ViewportHeight	not-ui	identifier
+Core/BuildDownloader.cs	59	ClawTweaksCenter	not-ui	identifier
+Core/BuildDownloader.cs	117	AppxMetadata/AppxBundleManifest.xml	not-ui	path / uri / registry
+Core/CenterM.cs	14	MSI_Center_M	not-ui	identifier
+Core/CenterM.cs	14	MSICenterM	not-ui	identifier
+Core/CenterM.cs	14	MSI_Center	not-ui	identifier
+Core/CenterM.cs	80	SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall	not-ui	path / uri / registry
+Core/CenterM.cs	81	SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall	not-ui	path / uri / registry
+Core/CenterSettings.cs	46	BorderlessFullscreen	not-ui	registry value name
+Core/CenterSettings.cs	61	SquareRomArt	not-ui	registry value name
+Core/CenterSettings.cs	75	SteamGridDbApiKey	not-ui	registry value name
+Core/CenterSettings.cs	88	RecentReflections	not-ui	registry value name
+Core/CenterSettings.cs	103	UserImageFolder	not-ui	registry value name
+Core/CenterSettings.cs	117	BackgroundImagePath	not-ui	registry value name
+Core/CenterSettings.cs	133	BackgroundSeedVersion	not-ui	registry value name
+Core/CenterSettings.cs	146	OpenLibraryAtStartup	not-ui	registry value name
+Core/CenterSettings.cs	162	StartCenterWithClawTweaks	not-ui	registry value name
+Core/CenterSettings.cs	193	OnboardingPending	not-ui	registry value name
+Core/CenterSettings.cs	209	LaunchBehavior	not-ui	registry value name
+Core/CenterSettings.cs	245	LibrarySortDescending	not-ui	registry value name
+Core/CenterSettings.cs	254	LibraryGrouped	not-ui	registry value name
+Core/CenterSettings.cs	260	ImmersiveMode	not-ui	registry value name
+Core/CenterSettings.cs	278	DenseLibraryGrid	not-ui	registry value name
+Core/CenterSettings.cs	292	LibraryTabs	not-ui	registry value name
+Core/CenterSettings.cs	313	StartSteamWithLibrary	not-ui	registry value name
+Core/CenterSettings.cs	319	RunInBackground	not-ui	registry value name
+Core/CenterSettings.cs	332	InterfaceSounds	not-ui	registry value name
+Core/CenterSettings.cs	345	NavigateSound	not-ui	registry value name
+Core/CenterSettings.cs	352	BackSound	not-ui	registry value name
+Core/CenterSettings.cs	362	BackgroundMusic	not-ui	registry value name
+Core/CenterSettings.cs	374	EffectsVolume	not-ui	registry value name
+Core/CenterSettings.cs	383	MusicVolume	not-ui	registry value name
+Core/CenterSettings.cs	434	DriverCheckIntervalWeeks	not-ui	registry value name
+Core/CenterSettings.cs	444	WindowsUpdateCheckIntervalWeeks	not-ui	registry value name
+Core/CenterSettings.cs	452	WidgetUpdateNotifyIntervalWeeks	not-ui	registry value name
+Core/CenterSettings.cs	482	WidgetNotifyTestBuilds	not-ui	registry value name
+Core/CenterSettings.cs	491	DriverCheckLastUtc	not-ui	registry value name
+Core/CenterSettings.cs	497	WindowsUpdateCheckLastUtc	not-ui	registry value name
+Core/CenterSettings.cs	503	WidgetNotifyLastUtc	not-ui	registry value name
+Core/ControllerHealth.cs	44	ClawTweaks_Health_	not-ui	identifier
+Core/DeviceDetect.cs	117	SystemSKUNumber	not-ui	identifier
+Core/FseHelperStart.cs	33	MSIClaw.ClawTweaks_7eszav2039cvc	log	diagnostics only
+Core/FseHelperStart.cs	39	MSIClaw.ClawTweaksCenterFSE_	log	diagnostics only
+Core/FseHelperStart.cs	45	helper-start-request.txt	log	diagnostics only
+Core/FseHelperStart.cs	68	GamingConfiguration missing	log	diagnostics only
+Core/FseHelperStart.cs	124	disabled: the FSE helper start was removed on 2026-09-15 (measured: no effect)	log	diagnostics only
+Core/HelperControl.cs	36	XboxGamingBarHelper	not-ui	identifier
+Core/HelperControl.cs	90	WindowsPowerShell	not-ui	identifier
+Core/HelperControl.cs	211	LocalState	not-ui	identifier
+Core/LeaveRunner.cs	194	MsiChargeLimit	not-ui	identifier
+Core/LeaveRunner.cs	194	false:90	not-ui	path / uri / registry
+Core/LeaveRunner.cs	198	MsiFanControl	not-ui	identifier
+Core/MaintenanceRunner.cs	64	FactoryReset	not-ui	identifier
+Core/MaintenanceRunner.cs	73	BackupCreate	not-ui	identifier
+Core/MaintenanceRunner.cs	84	BackupRestore	not-ui	identifier
+Core/Sources/GitHubReleaseSource.cs	46	application/vnd.github+json	not-ui	path / uri / registry
+Core/Sources/GoogleDriveSource.cs	45	AIzaSyCnOwAdpy8Z3CFkCp0nNz2SovHyuBPFD2o	not-ui	identifier
+Core/ToolDetect.cs	78	SOFTWARE\\Nefarius Software Solutions e.U.\\HidHide	not-ui	path / uri / registry
+Core/ToolDetect.cs	182	SOFTWARE\\WOW6432Node\\Unwinder\\RTSS	not-ui	path / uri / registry
+Core/ToolDetect.cs	183	SOFTWARE\\Unwinder\\RTSS	not-ui	path / uri / registry
+Core/ToolDetect.cs	184	SOFTWARE\\WOW6432Node\\Guru3D\\RTSS	not-ui	path / uri / registry
+Core/ToolDetect.cs	185	SOFTWARE\\Guru3D\\RTSS	not-ui	path / uri / registry
+Core/ToolDetect.cs	188	InstallDir	not-ui	identifier
+Core/WindowsChannelDetect.cs	30	SOFTWARE\\Microsoft\\WindowsSelfHost\\Applicability	not-ui	path / uri / registry
+Core/WindowsChannelDetect.cs	39	SOFTWARE\\Microsoft\\WindowsSelfHost\\UI\\Selection	not-ui	path / uri / registry
+Library/ClawProfileDetails.cs	81	TDPBoostEnabled	not-ui	identifier
+Library/ClawProfileDetails.cs	83	TDPBoostFPPTWatts	not-ui	identifier
+Library/ClawProfileDetails.cs	95	CPUMaxFrequencyClass1MHz	not-ui	identifier
+Library/ClawProfileDetails.cs	96	CPUMaxFrequencyMHz	not-ui	identifier
+Library/ClawProfileDetails.cs	100	MaxCPUStateClass1	not-ui	identifier
+Library/ClawProfileDetails.cs	100	MinCPUStateClass1	not-ui	identifier
+Library/ClawProfileDetails.cs	102	MaxCPUState	not-ui	identifier
+Library/ClawProfileDetails.cs	102	MinCPUState	not-ui	identifier
+Library/ClawProfileDetails.cs	105	CPUEPPClass1	not-ui	identifier
+Library/ClawProfileDetails.cs	110	RefreshRate	not-ui	identifier
+Library/ClawProfileDetails.cs	124	HDREnabled	not-ui	identifier
+Library/ClawProfileDetails.cs	140	IntelScalingMode	not-ui	identifier
+Library/ClawProfileDetails.cs	147	IntelScalingMethod	not-ui	identifier
+Library/ClawProfileDetails.cs	164	FpsCapMode	not-ui	identifier
+Library/ClawProfileDetails.cs	167	IntelFpsTier	not-ui	identifier
+Library/ClawProfileDetails.cs	172	FPSLimit	not-ui	identifier
+Library/ClawProfileDetails.cs	201	Aggressive	not-ui	profile XML element name
+Library/ClawProfileDetails.cs	207	CPUBoostMode	not-ui	identifier
+Library/ClawProfileDetails.cs	210	CPUBoost	not-ui	identifier
+Library/ClawProfileDetails.cs	233	ControllerProfileEnabled	not-ui	identifier
+Library/ClawProfileDetails.cs	235	ControllerButtonM1	not-ui	identifier
+Library/ClawProfileDetails.cs	236	ControllerButtonM2	not-ui	identifier
+Library/ClawProfileDetails.cs	240	ControllerGyroTarget	not-ui	identifier
+Library/ClawProfileDetails.cs	243	ControllerLeftStickDeadzone	not-ui	identifier
+Library/ClawProfileDetails.cs	243	ControllerRightStickDeadzone	not-ui	identifier
+Library/ClawProfileDetails.cs	246	ControllerLeftTriggerStart	not-ui	identifier
+Library/ClawProfileDetails.cs	246	ControllerLeftTriggerEnd	not-ui	identifier
+Library/ClawProfileDetails.cs	248	ControllerRightTriggerStart	not-ui	identifier
+Library/ClawProfileDetails.cs	248	ControllerRightTriggerEnd	not-ui	identifier
+Library/ClawProfileDetails.cs	251	ControllerHairTriggers	not-ui	identifier
+Library/ClawProfileDetails.cs	252	ControllerNintendoLayout	not-ui	identifier
+Library/ClawProfileDetails.cs	252	Nintendo	not-ui	profile XML element name
+Library/ClawProfileDetails.cs	254	ControllerVibration	not-ui	identifier
+Library/ClawProfileDetails.cs	258	ControllerVibrationIntensity	not-ui	identifier
+Library/ClawProfileDetails.cs	290	Type	not-ui	profile XML element name
+Library/ClawProfileDetails.cs	302	GamepadAction	not-ui	identifier
+Library/ClawProfileDetails.cs	361	PowerSourceSplit	not-ui	identifier
+Library/ClawProfiles.cs	183	GameId	not-ui	identifier
+Library/EpicSource.cs	24	EpicGamesLauncher	not-ui	identifier
+Library/EpicSource.cs	56	AppName	not-ui	identifier
+Library/EpicSource.cs	57	MainGameAppName	not-ui	identifier
+Library/EpicSource.cs	58	DisplayName	not-ui	identifier
+Library/EpicSource.cs	59	InstallLocation	not-ui	identifier
+Library/EpicSource.cs	60	CatalogNamespace	not-ui	identifier
+Library/EpicSource.cs	61	CatalogItemId	not-ui	identifier
+Library/EpicSource.cs	62	LaunchExecutable	not-ui	identifier
+Library/OptiClick.cs	36	OptiClickApp	not-ui	identifier
+Library/OtherStores.cs	126	UninstallString	not-ui	identifier
+Library/OtherStores.cs	151	SOFTWARE\\Ubisoft\\Launcher\\Installs	not-ui	path / uri / registry
+Library/OtherStores.cs	214	SOFTWARE\\Origin Games	not-ui	path / uri / registry
+Library/OtherStores.cs	482	SOFTWARE\\GOG.com\\Games	not-ui	path / uri / registry
+Library/PlayHistory.cs	49	LocalCache	not-ui	identifier
+Library/PlayniteEmulators.cs	71	BuiltInConfigId	not-ui	identifier
+Library/PlayniteEmulators.cs	74	BuiltinProfiles	not-ui	identifier
+Library/PlayniteEmulators.cs	80	BuiltInProfileName	not-ui	identifier
+Library/PlayniteEmulators.cs	158	StartupExecutable	not-ui	identifier
+Library/PlayniteEmulators.cs	159	StartupArguments	not-ui	identifier
+Library/PlayniteSource.cs	95	AfterLaunch	not-ui	identifier
+Library/PlayniteSource.cs	135	IsInstalled	not-ui	identifier
+Library/PlayniteSource.cs	140	CoverImage	not-ui	identifier
+Library/PlayniteSource.cs	148	InstallDirectory	not-ui	identifier
+Library/PlayniteSource.cs	160	SourceId	not-ui	identifier
+Library/PlayniteSource.cs	162	PlatformIds	not-ui	identifier
+Library/PlayniteSource.cs	188	LastActivity	not-ui	identifier
+Library/PlayniteSource.cs	231	GameActions	not-ui	identifier
+Library/PlayniteSource.cs	238	IsPlayAction	not-ui	identifier
+Library/PlayniteSource.cs	247	OverrideDefaultArgs	not-ui	identifier
+Library/PlayniteSource.cs	249	EmulatorId	not-ui	identifier
+Library/PlayniteSource.cs	251	EmulatorProfileId	not-ui	identifier
+Library/SteamAchievements.cs	312	UserGameStatsSchema_	not-ui	identifier
+Library/SteamAchievements.cs	331	UserGameStats_	not-ui	identifier
+Library/SteamFriends.cs	98	SteamClient020	not-ui	identifier
+Library/SteamFriends.cs	99	SteamFriends017	not-ui	identifier
+Library/SteamFriends.cs	500	SteamAppId	not-ui	identifier
+Library/SteamFriends.cs	501	SteamGameId	not-ui	identifier
+Library/SteamFriends.cs	506	CreateInterface	not-ui	identifier
+Library/SteamOwned.cs	61	packageinfo.vdf	not-ui	path / uri / registry
+Library/SteamOwned.cs	64	appinfo.vdf	not-ui	path / uri / registry
+Library/SteamPlaytime.cs	62	Software	not-ui	path / uri / registry
+Library/SteamPlaytime.cs	187	localconfig.vdf	not-ui	path / uri / registry
+Library/SteamSource.cs	106	appmanifest_*.acf	not-ui	path / uri / registry
+Library/SteamSource.cs	177	libraryfolders.vdf	not-ui	path / uri / registry
+Library/SteamSource.cs	217	StateFlags	not-ui	identifier
+Library/SteamSource.cs	263	BytesDownloaded	not-ui	identifier
+Library/SteamSource.cs	264	BytesToDownload	not-ui	identifier
+Library/SteamSource.cs	271	SizeOnDisk	not-ui	identifier
+Library/XboxSource.cs	141	GameSave	not-ui	identifier
+MainWindow.xaml.cs	175	Continue	dead	old wizard, MainWindow is never constructed
+Navigation/XInputNavigator.cs	163	CenterPadPoll	not-ui	identifier
+Phases/FinalizePhase.cs	92	Controller looks clean.	dead	old wizard, MainWindow is never constructed
+Phases/FinalizePhase.cs	94	See the Controller step for details.	dead	old wizard, MainWindow is never constructed
+Phases/InstallPhase.cs	196	Helper is up.	dead	old wizard, MainWindow is never constructed
+Phases/InstallPhase.cs	196	Helper did not appear in time — open the Game Bar (Win+G) manually.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	25	Hides the physical controller so games only see the virtual one — prevents double input.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	26	Kernel driver behind the VIIPER virtual controller. Mandatory for virtual mode.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	27	RivaTuner Statistics Server — powers the FPS limiter and the on-screen overlay.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	28	Kernel driver used for TDP control.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	131	Install them, then press Ⓨ to re-check.	dead	old wizard, MainWindow is never constructed
+Phases/ToolsPhase.cs	145	Installed — 	dead	old wizard, MainWindow is never constructed
+Shared/Data/ClawHardwareId.cs	136	N/A	not-ui	path / uri / registry
+Shared/IPC/HelperHandover.cs	144	HelperPid	not-ui	identifier
+Ui/UiStallTrace.cs	110	no GC	log	diagnostics only
+Ui/UiStallTrace.cs	164	could not hook the dispatcher: 	log	diagnostics only
+Ui/UiStallTrace.cs	181	could not hook the window messages: 	log	diagnostics only
+Ui/UiStallTrace.cs	190	display settings changed (Center's own clock)	log	diagnostics only
+Ui/UiStallTrace.cs	194	stall witnesses attached (dispatcher operation + window messages)	log	diagnostics only
+Ui/UiStallTrace.cs	258	unnamed at 	log	diagnostics only
+Ui/UiStallTrace.cs	269	no dispatcher operation in flight	log	diagnostics only
+Ui/UiStallTrace.cs	275	no notable window message yet	log	diagnostics only
+Ui/UiStallTrace.cs	330	cpu: no interval	log	diagnostics only
+Ui/UiStallTrace.cs	341	machine {100.0 * (total - idle) / total:F0}% busy	log	diagnostics only
+Ui/UiStallTrace.cs	342	machine load unreadable	log	diagnostics only
+Ui/UiStallTrace.cs	347	cpu: unreadable (	log	diagnostics only
+Ui/WindowMode.cs	163	no window handle yet	log	diagnostics only
+Ui/WindowMode.cs	169	GetWindowRect failed	log	diagnostics only
+Ui/WindowMode.cs	175	GetMonitorInfo failed	log	diagnostics only
+Ui/WindowMode.cs	193	guard threw: 	log	diagnostics only
+Update/VelopackUpdates.cs	58	VelopackUpdates	not-ui	identifier
+Update/VelopackUpdates.cs	80	VelopackSilentUpdates	not-ui	identifier
+Update/VelopackUpdates.cs	100	VelopackFeedOverride	not-ui	identifier
+Update/VelopackUpdates.cs	108	VelopackManifestOverride	not-ui	identifier
+App.xaml.cs	67	uninstall window	log	crash log site name
+App.xaml.cs	378	device=	log	
+Audio/UiSounds.cs	164	Center	not-ui	folder name
+CenterMenuWindow.CenterSettings.cs	273	German	not-ui	language picker: English half is deliberately English
+CenterMenuWindow.CenterSettings.cs	274	French	not-ui	same
+CenterMenuWindow.CenterSettings.cs	275	Korean	not-ui	same
+CenterMenuWindow.CenterSettings.cs	276	Spanish	not-ui	same
+CenterMenuWindow.CenterSettings.cs	277	Russian	not-ui	same
+CenterMenuWindow.CenterSettings.cs	278	Greek	not-ui	same
+CenterMenuWindow.CenterSettings.cs	281	Chinese (Simplified)	not-ui	same
+CenterMenuWindow.CenterSettings.cs	282	Chinese (Traditional)	not-ui	same
+CenterMenuWindow.CenterSettings.cs	283	Italian	not-ui	same
+CenterMenuWindow.CenterSettings.cs	284	Portuguese (Brazil)	not-ui	same
+CenterMenuWindow.CenterSettings.cs	285	Japanese	not-ui	same
+CenterMenuWindow.CenterSettings.cs	286	Polish	not-ui	same
+CenterMenuWindow.CenterSettings.cs	287	English	not-ui	same
+CenterMenuWindow.Library.cs	4722	no pipe client	log	
+CenterMenuWindow.Library.cs	4736	could not reach the helper	log	
+CenterMenuWindow.Library.cs	4743	the pipe rejected the write	log	
+CenterMenuWindow.Maintenance.cs	150	• The widget's stored profile containers	log	appears in the maintenance log box only
+CenterMenuWindow.Tray.cs	65	Closing: staying resident (hiding to tray).	log	
+CenterMenuWindow.xaml.cs	3124	center-post-deploy	log	handover reason
+Core/BuildDownloader.cs	85	package.msix	not-ui	
+Core/BuildDownloader.cs	117	AppxManifest.xml	not-ui	
+Core/BuildDownloader.cs	137	User-Agent	not-ui	
+Core/CenterInstanceSignal.cs	27	Local\ClawTweaksCenter.SingleInstance	not-ui	pipe / mutex names - a contract with the helper, never rename
+Core/CenterInstanceSignal.cs	28	ClawTweaksCenter.Wake	not-ui	pipe / mutex names - a contract with the helper, never rename
+Core/CenterInstanceSignal.cs	40	toggle-library	not-ui	pipe / mutex names - a contract with the helper, never rename
+Core/CenterM.cs	14	MSI Center	proper-noun	
+Core/CenterM.cs	80	SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall	not-ui	registry
+Core/CenterM.cs	81	SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall	not-ui	registry
+Core/CertInstaller.cs	73	Package	not-ui	
+Core/DeviceDetect.cs	61	MSI Claw (A2VM)	proper-noun	device name
+Core/DeviceDetect.cs	62	MSI Claw 8 EX AI+ CG3EM	proper-noun	device name
+Core/DeviceDetect.cs	66	MSI Claw A1M	proper-noun	device name
+Core/DeviceDetect.cs	100	SELECT Vendor, Name FROM Win32_ComputerSystemProduct	not-ui	WMI query
+Core/DeviceDetect.cs	105	Vendor	not-ui	WMI column
+Core/DeviceDetect.cs	106	Name	not-ui	WMI column
+Core/DeviceDetect.cs	112	SELECT SystemSKUNumber FROM Win32_ComputerSystem	not-ui	WMI query
+Core/DeviceDetect.cs	123	SELECT Product FROM Win32_BaseBoard	not-ui	WMI query
+Core/DeviceDetect.cs	128	Product	not-ui	WMI column
+Core/DeviceDetect.cs	134	SELECT Name, Caption FROM Win32_Processor	not-ui	WMI query
+Core/DeviceDetect.cs	140	Caption	not-ui	WMI column
+Core/ElevationGate.cs	70	No running shell to de-elevate through — starting with this process's token.	log	
+Core/HelperControl.cs	35	ClawTweaks\ClawTweaksHelper	not-ui	task name
+Core/HelperControl.cs	90	v1.0	not-ui	path
+Core/HelperControl.cs	211	Packages	not-ui	path
+Core/HelperControl.cs	213	no heartbeat file	log	
+Core/HelperControl.cs	221	heartbeat has no pid	log	
+Core/HelperControl.cs	223	heartbeat has no timestamp	log	
+Core/HelperControl.cs	367	schtasks did not start	log	
+Core/HelperPipeClient.cs	97	Timed out waiting for a LIVE helper on the ClawTweaksCenter pipe.	log	
+Core/HelperPipeClient.cs	180	Helper pipe dropped — reconnecting (helper may have been swapped by an update).	log	
+Core/HelperPipeClient.cs	195	Reconnected to helper after drop.	log	
+Core/HelperPipeClient.cs	200	Reconnect window elapsed without a live helper.	log	
+Core/Localization.cs	152	Hant	not-ui	script tag
+Core/Localization.cs	154	Hans	not-ui	script tag
+Core/Localization.cs	208	Deutsch	proper-noun	endonym
+Core/Localization.cs	209	Français	proper-noun	endonym
+Core/Localization.cs	210	한국어	proper-noun	endonym
+Core/Localization.cs	211	Español	proper-noun	endonym
+Core/Localization.cs	212	Русский	proper-noun	endonym
+Core/Localization.cs	213	Ελληνικά	proper-noun	endonym
+Core/Localization.cs	216	简体中文	proper-noun	endonym
+Core/Localization.cs	217	繁體中文	proper-noun	endonym
+Core/Localization.cs	218	Italiano	proper-noun	endonym
+Core/Localization.cs	219	Português (BR)	proper-noun	endonym
+Core/Localization.cs	220	日本語	proper-noun	endonym
+Core/Localization.cs	221	Polski	proper-noun	endonym
+Core/MaintenanceRunner.cs	36	Backups	not-ui	folder name
+Core/PackageInstaller.cs	42	Dependencies	not-ui	folder
+Core/PackageInstaller.cs	123	registration(s) could not be removed.	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	133	Ok	not-ui	
+Core/PackageInstaller.cs	173	appdata-backup	not-ui	folder
+Core/PackageInstaller.cs	212	Backed up app data: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	212	file(s)	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	213	could not be read	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	218	Could not back up app data: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	252	Restored app data: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	253	failed (backup kept at 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	257	Could not restore app data: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	267	Removing conflicting registration 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	274	Could not remove 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	309	No existing ClawTweaks registration — clean install.	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	310	Existing registration(s): 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	326	Found a 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	326	non-bundle	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	326	registration while installing a 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	328	Found a registration in state '	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	342	Package family check skipped: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	498	Install error: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/PackageInstaller.cs	507	Install exception: 	log	install log lines (shown in the log box, English on purpose - they are what a bug report carries)
+Core/SelfInstaller.cs	59	ClawTweaks Center (Manage Updates and Library)	not-ui	shortcut description / folder / COM progid
+Core/SelfInstaller.cs	71	Programs	not-ui	shortcut description / folder / COM progid
+Core/SelfInstaller.cs	704	WScript.Shell	not-ui	shortcut description / folder / COM progid
+Core/SetupVersionCheck.cs	253	github.com	not-ui	host
+Core/SetupVersionCheck.cs	254	objects.githubusercontent.com	not-ui	host
+Core/SetupVersionCheck.cs	255	release-assets.githubusercontent.com	not-ui	host
+Core/Sources/GitHubReleaseSource.cs	39	widget-test-	not-ui	tag prefix
+Core/Sources/GitHubReleaseSource.cs	40	widget-	not-ui	tag prefix
+Core/Sources/GitHubReleaseSource.cs	46	Accept	not-ui	http header
+Core/Sources/GoogleDriveSource.cs	55	modifiedTime desc	not-ui	query
+Core/Sources/GoogleDriveSource.cs	57	files(id,name,modifiedTime,size)	not-ui	query
+Core/ToolDetect.cs	78	SOFTWARE\Nefarius Software Solutions e.U.\HidHide	not-ui	registry
+Core/ToolDetect.cs	79	HidHide.sys	not-ui	
+Core/ToolDetect.cs	182	SOFTWARE\WOW6432Node\Unwinder\RTSS	not-ui	registry
+Core/ToolDetect.cs	183	SOFTWARE\Unwinder\RTSS	not-ui	registry
+Core/ToolDetect.cs	184	SOFTWARE\WOW6432Node\Guru3D\RTSS	not-ui	registry
+Core/ToolDetect.cs	185	SOFTWARE\Guru3D\RTSS	not-ui	registry
+Core/ToolDetect.cs	199	RivaTuner Statistics Server	proper-noun	
+Core/WindowsChannelDetect.cs	30	SOFTWARE\Microsoft\WindowsSelfHost\Applicability	not-ui	registry
+Core/WindowsChannelDetect.cs	39	SOFTWARE\Microsoft\WindowsSelfHost\UI\Selection	not-ui	registry
+Library/AppInventory.cs	219	if($k.TargetPath){ 'L'+$s+$dirs[$p]+$s+$_.BaseName+$s+$k.TargetPath+$s+$k.Arguments } } } }	not-ui	PowerShell fragment
+Library/ClawProfiles.cs	71	PlayandBuildCustom.10365195AA1EC_8edemd50ez3gg	not-ui	package family / tsv columns / file name
+Library/ClawProfiles.cs	180	Use	not-ui	package family / tsv columns / file name
+Library/ClawProfiles.cs	183	Path	not-ui	package family / tsv columns / file name
+Library/ClawProfiles.cs	208	controller-profiles.tsv	not-ui	package family / tsv columns / file name
+Library/EpicSource.cs	24	Data	not-ui	path
+Library/EpicSource.cs	24	Manifests	not-ui	path
+Library/GameArt.cs	231	remote|	not-ui	cache key
+Library/GameEntry.cs	165	Ubisoft	proper-noun	
+Library/GameEntry.cs	167	Battle.net	proper-noun	
+Library/GameEntry.cs	170	Playnite	proper-noun	
+Library/OptiWiki.cs	39	Upscaler Inputs	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	39	FG Inputs	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	39	Filename	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	39	Last Tested Version	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	40	FG-Settings	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	40	Known Issues	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	40	Notes	not-ui	wiki table column names - data, matched against the page
+Library/OptiWiki.cs	159	a|	not-ui	wiki table column names - data, matched against the page
+Library/OtherStores.cs	151	SOFTWARE\Ubisoft\Launcher\Installs	not-ui	registry / manifest keys
+Library/OtherStores.cs	165	Uplay Install 	not-ui	registry / manifest keys
+Library/OtherStores.cs	214	SOFTWARE\Origin Games	not-ui	registry / manifest keys
+Library/OtherStores.cs	235	Install Dir	not-ui	registry / manifest keys
+Library/OtherStores.cs	269	offerIds=	not-ui	registry / manifest keys
+Library/OtherStores.cs	270	offerId=	not-ui	registry / manifest keys
+Library/OtherStores.cs	302	Agent	not-ui	registry / manifest keys
+Library/OtherStores.cs	482	SOFTWARE\GOG.com\Games	not-ui	registry / manifest keys
+Library/PlayHistory.cs	49	Local	not-ui	file format
+Library/PlayHistory.cs	230	Latched	not-ui	file format
+Library/PlayHistory.cs	243	yyyy-MM-dd HH:mm:ss	not-ui	file format
+Library/PlayniteEmulators.cs	59	emulators.db	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	64	Filename=	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	99	Emulation	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	99	Emulators	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	119	emulator.yaml	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	147	Id	not-ui	Playnite db names
+Library/PlayniteEmulators.cs	151	Profiles	not-ui	Playnite db names
+Library/PlayniteSource.cs	35	games.db	not-ui	Playnite db names
+Library/PlayniteSource.cs	124	platforms.db	not-ui	Playnite db names
+Library/PlayniteSource.cs	125	sources.db	not-ui	Playnite db names
+Library/PlayniteSource.cs	131	Game	not-ui	Playnite db names
+Library/PlayniteSource.cs	239	Emulator	not-ui	Playnite db names
+Library/PlayniteSource.cs	262	Roms	not-ui	Playnite db names
+Library/PlayniteSource.cs	286	playnite-	not-ui	Playnite db names
+Library/SteamAchievements.cs	645	nesting too deep	log	parser errors
+Library/SteamAchievements.cs	679	unknown type 	log	parser errors
+Library/SteamAchievements.cs	687	truncated at 	log	parser errors
+Library/SteamAchievements.cs	704	unterminated string at 	log	parser errors
+Library/SteamFriendActivity.cs	275	varint too long	log	parser error
+Library/SteamFriends.cs	495	Steam is not installed	log	child-process failure reasons, logged
+Library/SteamFriends.cs	509	is not exported	log	child-process failure reasons, logged
+Library/SteamFriends.cs	512	no pipe to the Steam client	log	child-process failure reasons, logged
+Library/SteamFriends.cs	518	no signed-in Steam user	log	child-process failure reasons, logged
+Library/SteamFriends.cs	521	is not available	log	child-process failure reasons, logged
+Library/SteamOwned.cs	258	string index out of range	log	parser error
+Library/SteamPlaytime.cs	62	Valve	not-ui	vdf keys
+Library/SteamPlaytime.cs	72	Playtime	not-ui	vdf keys
+Library/StoreIcons.cs	152	bcc18b79-ba16-442f-80c4-8a59c30c463b	not-ui	guid / svg path
+Shared/Data/ClawHardwareId.cs	98	Micro-Star	proper-noun	
+Shared/Data/ClawHardwareId.cs	127	Please change product name	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	128	To be filled by O.E.M.	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	129	To Be Filled By OEM	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	130	System Product Name	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	131	Default string	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	132	Not Applicable	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	133	Not Specified	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	134	Unknown	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	177	Claw 8 EX	proper-noun	
+Shared/Data/ClawHardwareId.cs	210	no identity data	log	
+Shared/Data/ClawHardwareId.cs	323	Ultra	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	335	Family\s+(\d+)\s+Model\s+(\d+)	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	349	VID_0DB0&PID_1901	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	372	SYSTEM\CurrentControlSet\Enum\USB\	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	381	SYSTEM\CurrentControlSet\Enum\HID	not-ui	BIOS placeholder strings / regex / registry - mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	46	NLog.config	not-ui	
+Shared/Deployment/HelperFileDeployment.cs	183	Helper executable was not copied — version not committed.	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	197	Deployment failed: 	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	143	Token	not-ui	mirrored from the helper
+Update/VelopackUpdates.cs	298	not essential	log	
+CenterMenuWindow.Library.cs		Sweep	not-ui	attached property name
+Core/CenterM.cs		MSI Center M was not running.	dead	CloseNow is only called by the old FinalizePhase wizard
+Core/DeviceDetect.cs		MSI Claw (A2VM) — DEBUG	not-ui	debug override only
+Core/DeviceDetect.cs		MSI Claw 8 EX AI+ CG3EM — DEBUG	not-ui	debug override only
+Core/DeviceDetect.cs		MSI Claw A1M — DEBUG	not-ui	debug override only
+Core/DeviceDetect.cs		Unknown device — DEBUG	not-ui	debug override only
+Core/HelperControl.cs		Deploying helper files failed: 	log	carries the exception text; the install log file stays English
+Core/ToolDetect.cs		driver control device present	log	Detail reaches the screen only when it starts with BROKEN or UNSUPPORTED; otherwise the install log
+Core/ToolDetect.cs		driver service + HidHide.sys present	log	same
+Core/ToolDetect.cs		device opened	log	same
+Core/ToolDetect.cs		device present (access denied — unelevated)	log	same
+Core/ToolDetect.cs		not found	log	same
+App.xaml.cs	91	AppDomain.UnhandledException (terminating={ea.IsTerminating})	log	crash log
+CenterMenuWindow.Tray.cs	66	Closing: really closing (reallyExiting={_reallyExiting}, runInBackground={Core.CenterSettings.RunInBackground}).	log	
+Core/CenterM.cs	31	Closed {p.ProcessName}.	dead	CloseNow is only called by the old FinalizePhase wizard
+Core/CenterM.cs	32	Could not close {n}: {ex.Message}	dead	CloseNow is only called by the old FinalizePhase wizard
+Core/CertInstaller.cs	208	Could not open the folder: {ex.Message}	log	ShowInExplorer is called without a log callback
+Core/ControllerHealth.cs	115	MSI Claw controller detected ({r.ClawNodes} interface node(s), mode: {r.ClawMode}).	log	Info list, read only by the old ControllerPhase
+Core/ElevationGate.cs	78	De-elevating through the shell, so the arguments '{args}' are dropped.	log	
+Core/FseHelperStart.cs	79	GamingHomeApp='{homeApp}' ours={isOurs}, StartupToGamingHome={startup}	log	diagnostics only
+Core/FseHelperStart.cs	85	read threw: {ex.Message}	log	diagnostics only
+Core/FseHelperStart.cs	131	skipped: not the FSE start app ({fseDetail})	log	diagnostics only
+Core/FseHelperStart.cs	134	skipped: helper already alive ({aliveDetail})	log	diagnostics only
+Core/FseHelperStart.cs	140	skipped: a start was already requested {age.TotalSeconds:F0}s ago	log	diagnostics only
+Core/FseHelperStart.cs	148	skipped: no scheduled task yet, the helper registers it itself ({taskDetail})	log	diagnostics only
+Core/FseHelperStart.cs	157	requested: scheduled task run ({runDetail}){qualifier}	log	diagnostics only
+Core/FseHelperStart.cs	158	FAILED: {runDetail}{qualifier}	log	diagnostics only
+Core/HelperControl.cs	145	Helper PID={p.Id} did not hand over - stopping it directly.	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	148	Helper PID={p.Id} did not exit within 5s.	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	153	Helper PID={p.Id}: {ex.Message}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	163	Helpers stopped: {handedOver} handed over, {killed} terminated.	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	229	heartbeat of PID={pid} is {age}s old (limit {HeartbeatAliveWindowSeconds}s)	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	236	heartbeat of PID={pid} is {age}s old but that process is gone	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	238	PID={pid}, heartbeat {age}s old	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	243	heartbeat read threw: {ex.Message}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	373	schtasks /Query did not answer within {SchtasksTimeoutMs}ms	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	378	schtasks /Query exit {code}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	383	schtasks /Query threw: {ex.Message}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	434	schtasks /Run did not answer within {SchtasksTimeoutMs}ms	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	439	schtasks /Run exit {code}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperControl.cs	444	schtasks /Run threw: {ex.Message}	log	install log lines; English on purpose, they line up with the helper log
+Core/HelperPipeClient.cs	90	Connect requested (timeout {timeout.TotalSeconds:0}s).	log	
+Core/HelperPipeClient.cs	123	Pipe bound (attempt {attempt}, server PID {serverPid}). Verifying live helper…	log	
+Core/HelperPipeClient.cs	129	Connected to LIVE helper (server PID {serverPid}).	log	
+Core/HelperPipeClient.cs	133	Bound but server PID {serverPid} sent no status in 4s — treating as not-live (dying/swapped instance), retrying.	log	
+Core/HelperPipeClient.cs	139	Connect attempt {attempt} failed: {ex.GetType().Name} ({ex.Message}).	log	
+Core/PackageInstaller.cs	457	Could not stage the package for a retry: {ex.Message}	log	install log line
+Core/PrerequisiteGuide.cs	159	Could not open {url}: {ex.Message}	log	OpenPage is called without a log callback
+Core/SelfInstaller.cs	136	SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{UninstallKeyName}	not-ui	registry path / cmd line
+Core/SelfInstaller.cs	463	rmdir /S /Q "{dir}"	not-ui	registry path / cmd line
+Core/SelfInstaller.cs	468	timeout /t 3 /nobreak >nul & {once} &	not-ui	registry path / cmd line
+Core/SelfInstaller.cs	469	timeout /t 5 /nobreak >nul & {once}"	not-ui	registry path / cmd line
+Core/ToolDetect.cs	138	UDE driver service '{svc}' registered	log	install log only / registry path
+Core/ToolDetect.cs	390	SYSTEM\CurrentControlSet\Services\{serviceName}	log	install log only / registry path
+Phases/ControllerPhase.cs	63	Last checked {DateTime.Now:HH:mm:ss}	dead	old wizard
+Phases/ControllerPhase.cs	68	Detected — {r.ClawNodes} interface node(s), mode: {r.ClawMode}.	dead	old wizard
+Phases/ControllerPhase.cs	76	Active: {r.VirtualPadName}	dead	old wizard
+Phases/DetectPhase.cs	71	Detected {DateTime.Now:HH:mm:ss}	dead	old wizard
+Phases/ToolsPhase.cs	91	Last checked {DateTime.Now:HH:mm:ss}   ·   Scroll with the D-Pad or left stick	dead	old wizard
+Shared/Data/ClawHardwareId.cs	57	Unknown ({MatchedOn})	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	221	product name '{sources.ProductName}'	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	231	board '{sources.BaseBoardProduct}'	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	235	system SKU '{sources.SystemSku}'	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	250	CPU '{cpu}' + Claw controller present	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	254	Claw controller present but CPU '{sources.ProcessorName}' / '{sources.ProcessorCaption}' matches no known platform	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	259	vendor '{sources.Manufacturer}', product '{sources.ProductName}',	log	mirrored from the helper, never edit here
+Shared/Data/ClawHardwareId.cs	260	board '{sources.BaseBoardProduct}', SKU '{sources.SystemSku}' matched nothing	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	123	Source folder not found: {sourceDir}	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	148	Failed to copy {fileName}: {ex.Message}	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	190	Deployed helper {version}: {result.Copied} file(s) copied	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	217	Swept {swept} stale .old.* file(s) from the deployment folder.	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	254	Copy verification failed for '{Path.GetFileName(targetPath)}':	log	mirrored from the helper, never edit here
+Shared/Deployment/HelperFileDeployment.cs	266	Failed to copy {sourcePath}	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	87	Handover: asked PID={targetPid} to shut down (reason '{reason}', token={Shorten(token)})	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	91	Handover: could not place request for PID={targetPid}: {ex.Message}	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	99	Handover: no ack from PID={targetPid} within {ackTimeoutMs}ms - caller should fall back	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	107	Handover: could not wait for PID={targetPid}: {ex.Message}	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	114	Handover: PID={targetPid} acknowledged and exited - no kill needed	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	115	Handover: PID={targetPid} acknowledged but was alive after {exitTimeoutMs}ms - caller should fall back	log	mirrored from the helper, never edit here
+Shared/IPC/HelperHandover.cs	206	Handover: could not delete {Path.GetFileName(path)}: {ex.Message}	log	mirrored from the helper, never edit here
+Ui/UiStallTrace.cs	111	GC stopped the world {paused}ms (gen0 +{g0}, gen1 +{g1}, gen2 +{g2})	log	diagnostics only
+Ui/UiStallTrace.cs	270	dispatcher op '{op}' running for	log	diagnostics only
+Ui/UiStallTrace.cs	276	last window message {msg},	log	diagnostics only
+Ui/UiStallTrace.cs	345	cpu: this process used {procMs:F0}ms over {wallMs:F0}ms wall ({procMs / wallMs:F2} cores), {system}	log	diagnostics only
+Ui/WindowMode.cs	185	window {wWidth}x{wHeight} at {w.Left},{w.Top} vs monitor {mWidth}x{mHeight}	log	diagnostics only
+Ui/WindowMode.cs	186	at {mi.rcMonitor.Left},{mi.rcMonitor.Top}	log	diagnostics only
+Update/UpdateFlow.cs	113	auto-apply of essential {version} returned instead of restarting - falling back to the card	log	

@@ -196,6 +196,33 @@ namespace ClawTweaksCenter.Library
             return result;
         }
 
+        /// <summary>
+        /// One manifest, re-read: null when Steam has no manifest for the app in any library, false
+        /// while it is downloading, true once StateFlags says fully installed. This is what the
+        /// download watcher polls - a full ScanAsync every few seconds would re-read nine stores and
+        /// re-fetch the owned list to answer a question one file answers.
+        /// </summary>
+        public static bool? IsFullyInstalled(string appId)
+        {
+            try
+            {
+                string steam = SteamPath();
+                if (steam == null || string.IsNullOrEmpty(appId)) return null;
+                foreach (string lib in LibraryFolders(steam))
+                {
+                    string manifest = Path.Combine(lib, "steamapps", "appmanifest_" + appId + ".acf");
+                    if (!File.Exists(manifest)) continue;
+                    var app = Deserialize(manifest);
+                    if (app == null) return false;
+                    if (!int.TryParse(ValueOf(app, "StateFlags"), NumberStyles.Integer, CultureInfo.InvariantCulture, out int flags))
+                        flags = 0;
+                    return (flags & StateFlagFullyInstalled) != 0;
+                }
+            }
+            catch { }
+            return null;
+        }
+
         private static GameEntry ReadManifest(string manifestPath, string steamappsDir)
         {
             try
@@ -232,6 +259,7 @@ namespace ClawTweaksCenter.Library
                     Id = appId,
                     Store = GameStore.Steam,
                     Installed = ready,
+                    Downloading = !ready,
                     DownloadedBytes = Bytes(ValueOf(app, "BytesDownloaded")),
                     DownloadTotalBytes = Bytes(ValueOf(app, "BytesToDownload")),
                     Title = string.IsNullOrWhiteSpace(name) ? installDir : name,

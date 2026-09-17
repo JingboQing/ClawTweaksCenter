@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -194,7 +195,6 @@ namespace ClawTweaksCenter
         private bool _infoOpen;
 
         private const string SteamGridDbUrl = "https://www.steamgriddb.com/";
-        private const string AnyFseUrl = "https://github.com/ashpynov/AnyFSE";
 
         private bool _exitPromptOpen;
         private int _exitPromptIndex;
@@ -818,7 +818,7 @@ namespace ClawTweaksCenter
         /// <summary>
         /// A refresh that leaves the screen alone while it runs.
         ///
-        /// The difference to RescanFromInstall is one line - _libraryScanned STAYS true - and that
+        /// The difference to a Y rescan is one line - _libraryScanned STAYS true - and that
         /// line is the whole point. With it false the grid empties and "Reading your stores..." takes
         /// the screen: the right answer the first time, and a flicker every time after. Here the list
         /// that is already up stays up, and each store repaints it as it lands.
@@ -890,6 +890,12 @@ namespace ClawTweaksCenter
                 _libraryScanning = false;
                 RenderLibraryIfNoOverlay();
                 RefreshTabStrip();
+                ArmDownloadWatch();
+
+                // The library is up and usable: the one moment where a background update check is
+                // affordable. Fire and forget, and it decides for itself whether anything is due -
+                // see CenterMenuWindow.UpdateWatch.cs for the four conditions.
+                StartBackgroundUpdateChecks();
 
                 StartArtFetch();
                 WarmCoverCacheInBackground(ct);
@@ -1039,10 +1045,11 @@ namespace ClawTweaksCenter
 
             foreach (var g in _library.ForGroup(LibraryGroup.NotInstalled))
             {
-                if (g.DownloadTotalBytes <= 0) continue;
+                if (!g.Downloading) continue;
+                // No percentage: Steam does not write one while it downloads (GameEntry.Downloading).
                 stack.Children.Add(new TextBlock
                 {
-                    Text = g.Title + "  ·  " + Core.Loc.T("Downloading") + " " + g.DownloadPercent + "%",
+                    Text = g.Title + "  ·  " + Core.Loc.T("Downloading") + "…",
                     FontSize = 13,
                     FontWeight = FontWeights.SemiBold,
                     Foreground = UiHelpers.Accent,
@@ -1182,6 +1189,11 @@ namespace ClawTweaksCenter
             return list;
         }
 
+        /// <summary>Where the ROM tab opens: its own Recent shelf (user, 2026-09-16). Every other
+        /// tab has no system filter at all.</summary>
+        private static string DefaultRomSystem(LibraryGroup group) =>
+            group == LibraryGroup.Roms ? GameLibrary.RomRecentSystem : null;
+
         private void SetRomSystem(string system)
         {
             if (string.Equals(system, _romSystem, StringComparison.OrdinalIgnoreCase)) return;
@@ -1227,7 +1239,7 @@ namespace ClawTweaksCenter
                 case LibraryGroup.Roms:
                     if (!Library.PlayniteSource.IsPresent) return "Playnite is not installed.";
                     if (_romSystem == GameLibrary.RomRecentSystem) return "No ROM has been played yet.";
-                    return _romSystem == null ? "No ROMs in your Playnite library." : "No ROMs for " + _romSystem + ".";
+                    return _romSystem == null ? "No ROMs in your Playnite library." : Core.Loc.F("No ROMs for {0}.", _romSystem);
                 default: return "No games found.";
             }
         }
@@ -1300,8 +1312,8 @@ namespace ClawTweaksCenter
             // hours come from the account and are real even for a game that lives on another machine
             // - but "12 h" with no explanation on a game that is not there reads as a fault.
             if (!g.Installed)
-                parts.Add(g.DownloadTotalBytes > 0
-                    ? Core.Loc.T("Downloading") + " " + g.DownloadPercent + "%"
+                parts.Add(g.Downloading
+                    ? Core.Loc.T("Downloading") + "…"
                     : Core.Loc.T("Not installed"));
 
             string played = Library.SteamPlaytime.Format(g.PlaytimeMinutes);
@@ -1765,8 +1777,9 @@ namespace ClawTweaksCenter
             if (_libraryGroup == group) return;
             _libraryGroup = group;
             // Leaving ROMs drops the system filter: coming back to a tab still narrowed to "Atari
-            // 2600" from three tabs ago looks like a library that lost most of its games.
-            _romSystem = null;
+            // 2600" from three tabs ago looks like a library that lost most of its games. Entering
+            // ROMs lands on its own Recent shelf (user, 2026-09-16), not on the all-systems list.
+            _romSystem = DefaultRomSystem(group);
             _libSelectedIndex = 0;
             CloseLetterBar(clearFilter: true);
             RenderLibrary();
@@ -2405,6 +2418,21 @@ namespace ClawTweaksCenter
         // a short label plus a switch, so the width was never carrying anything.
         private const int SettingsColumns = 3;
 
+        /// <summary>
+        /// The rows that are not choices while Center is the Windows full-screen start app - see
+        /// CenterSettings.FseMode for what each one is forced to and why. They stay ON the screen,
+        /// greyed and showing the forced value: a row that disappears leaves someone looking for a
+        /// setting they had last week, a row that flips and changes nothing looks broken.
+        /// </summary>
+        private static bool IsSettingLockedInFse(int row)
+        {
+            if (!Core.CenterSettings.FseMode) return false;
+            return row == SettingsStartInLibraryRow
+                || row == SettingsStartWithClawTweaksRow
+                || row == SettingsRunInBackgroundRow
+                || row == SettingsLaunchBehaviorRow;
+        }
+
         private void OpenLibrarySettings()
         {
             _settingsOpen = true;
@@ -2464,7 +2492,7 @@ namespace ClawTweaksCenter
                 Core.CenterSettings.RunInBackground, null));
             pairs.Children.Add(BuildSettingRow(SettingsLaunchBehaviorRow, "After starting a game",
                 null, LaunchBehaviorLabel(Core.CenterSettings.LaunchBehavior)));
-            pairs.Children.Add(BuildSettingRow(SettingsTabsRow, "Library tabs", null, TabsSummary()));
+            pairs.Children.Add(BuildSettingRow(SettingsTabsRow, "Tabs order and visibility", null, TabsSummary()));
 
             pairs.Children.Add(BuildSettingRow(SettingsDenseGridRow, "Denser grid",
                 Core.CenterSettings.DenseLibraryGrid, null));
@@ -2588,6 +2616,13 @@ namespace ClawTweaksCenter
                 Tag = index,
             };
             row.MouseLeftButtonUp += (_, __) => { _settingsIndex = index; ActivateSetting(); };
+            if (IsSettingLockedInFse(index))
+            {
+                // Greyed, not hidden - see IsSettingLockedInFse. The cursor can still land on it, so
+                // the hint line underneath gets to say why it does nothing.
+                row.Opacity = 0.45;
+                row.Cursor = null;
+            }
             _settingsRows.Add(row);
             return row;
         }
@@ -2628,7 +2663,10 @@ namespace ClawTweaksCenter
             foreach (var row in _settingsRows)
                 row.BorderBrush = row.Tag is int i && i == _settingsIndex ? UiHelpers.Accent : Brushes.Transparent;
 
-            if (_settingsHint != null) _settingsHint.Text = Core.Loc.T(SettingDescription(_settingsIndex));
+            if (_settingsHint != null)
+                _settingsHint.Text = IsSettingLockedInFse(_settingsIndex)
+                    ? Core.Loc.T("Fixed while Center is the Windows full-screen start app.")
+                    : Core.Loc.T(SettingDescription(_settingsIndex));
         }
 
         /// <summary>
@@ -2644,7 +2682,7 @@ namespace ClawTweaksCenter
             {
                 case SettingsStartInLibraryRow: return "Center opens on the library, not on Home.";
                 case SettingsStartWithClawTweaksRow: return "ClawTweaks starts Center when it starts itself.";
-                case SettingsStartSteamRow: return "Opens Steam in the tray when you open the library.";
+                case SettingsStartSteamRow: return "Opens Steam in the tray when you open the library. The first Steam game after a boot starts faster.";
                 case SettingsRunInBackgroundRow: return "Closing the window leaves Center running in the tray.";
                 case SettingsLaunchBehaviorRow: return "What Center does with itself once a game runs.";
                 case SettingsTabsRow: return "Which tabs the library shows, and in which order.";
@@ -2709,6 +2747,10 @@ namespace ClawTweaksCenter
 
         private void ActivateSetting()
         {
+            // Forced in FSE; the hint line says so. Toggling the stored value underneath would be
+            // invisible now and a surprise the day the user leaves FSE.
+            if (IsSettingLockedInFse(_settingsIndex)) return;
+
             switch (_settingsIndex)
             {
                 case SettingsStartInLibraryRow:
@@ -2858,7 +2900,7 @@ namespace ClawTweaksCenter
             if (!visible.Contains(_libraryGroup))
             {
                 _libraryGroup = visible[0];
-                _romSystem = null;
+                _romSystem = DefaultRomSystem(_libraryGroup);
                 _libSelectedIndex = 0;
             }
 
@@ -3251,25 +3293,115 @@ namespace ClawTweaksCenter
 
             // Already downloading: there is nothing to ask for, so this opens the queue instead of
             // asking Steam to install something it is already installing.
-            string uri = game.DownloadTotalBytes > 0
+            string uri = game.Downloading
                 ? "steam://open/downloads"
                 : "steam://install/" + game.Id;
 
             _launchPrompt = GameLibrary.OpenSteamUri(uri) ? LaunchPrompt.InstallHandedOver : LaunchPrompt.Failed;
+            // Steam may take a while to answer its own dialog - or never, if the user cancels it.
+            // The watcher looks for the manifest for a bounded time and gives up quietly.
+            if (_launchPrompt == LaunchPrompt.InstallHandedOver) ExpectSteamDownload(game.Id);
             RenderLaunchOverlay();
             RefreshActionBar();
         }
 
-        /// <summary>Closes the hand-over screen and rescans, so a finished install moves out of the
-        /// Not Installed tab without the user having to find the Rescan chip on another screen. It is
-        /// NOT automatic: an install takes minutes to hours, and a library that rescans itself on a
-        /// timer would be doing it for nothing almost every time.</summary>
-        private void RescanFromInstall()
+        // ── The download watcher ───────────────────────────────────────────────────────────────
+        //
+        // While Steam installs something, Recent shows it with a moving band and refreshes by itself
+        // (user, 2026-09-15). Three things start it: a scan that finds a download, an install started
+        // from the launch screen, and Y - which is a scan. Nothing else does; a library that polls
+        // Steam on a timer for no reason is the shape this file has refused twice.
+        //
+        // It does NOT rescan the library every tick. A tick re-reads ONE manifest per watched app
+        // (SteamSource.IsFullyInstalled); the full rescan - nine stores, the owned list, the cover
+        // warm-up - runs exactly when something CHANGED: a manifest appeared for an expected install,
+        // or a download finished. That is also why the tile carries no figure to refresh.
+        private DispatcherTimer _downloadWatch;
+        private readonly HashSet<string> _expectedSteamInstalls = new HashSet<string>(StringComparer.Ordinal);
+        private DateTime _expectedSteamInstallsUntil = DateTime.MinValue;
+        private static readonly TimeSpan DownloadWatchTick = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan ExpectedInstallPatience = TimeSpan.FromMinutes(3);
+
+        /// <summary>The user just asked Steam to install this appid. Steam's own dialog may still be
+        /// open; the manifest appears the moment it is confirmed and never if it is cancelled.</summary>
+        private void ExpectSteamDownload(string appId)
+        {
+            if (string.IsNullOrEmpty(appId)) return;
+            _expectedSteamInstalls.Add(appId);
+            _expectedSteamInstallsUntil = DateTime.UtcNow + ExpectedInstallPatience;
+            ArmDownloadWatch();
+        }
+
+        /// <summary>Called after every scan: starts the watcher when there is something to watch,
+        /// stops it when there is not. Idempotent, so calling it once too often costs nothing.</summary>
+        private void ArmDownloadWatch()
+        {
+            bool anything = _library.Games.Any(g => g.Downloading)
+                            || (_expectedSteamInstalls.Count > 0 && DateTime.UtcNow < _expectedSteamInstallsUntil);
+            if (!anything)
+            {
+                _expectedSteamInstalls.Clear();
+                _downloadWatch?.Stop();
+                return;
+            }
+            if (_downloadWatch == null)
+            {
+                _downloadWatch = new DispatcherTimer(DispatcherPriority.Background) { Interval = DownloadWatchTick };
+                _downloadWatch.Tick += (_, __) => DownloadWatchTick_Elapsed();
+            }
+            if (!_downloadWatch.IsEnabled)
+            {
+                Core.InstallLog.Write("[Downloads] watching: " +
+                    string.Join(", ", _library.Games.Where(g => g.Downloading).Select(g => g.Title)
+                                              .Concat(_expectedSteamInstalls.Select(id => "expected " + id))));
+                _downloadWatch.Start();
+            }
+        }
+
+        private void DownloadWatchTick_Elapsed()
+        {
+            if (_libraryScanning) return;
+
+            bool changed = false;
+            foreach (var g in _library.Games.Where(g => g.Downloading).ToList())
+            {
+                bool? ready = Library.SteamSource.IsFullyInstalled(g.Id);
+                // null = the manifest is gone: the user cancelled the download in Steam. That is a
+                // change too - the band must come off the shelf.
+                if (ready != false)
+                {
+                    Core.InstallLog.Write("[Downloads] " + g.Title + (ready == true ? " finished" : " vanished"));
+                    changed = true;
+                }
+            }
+            foreach (string id in _expectedSteamInstalls.ToList())
+            {
+                if (Library.SteamSource.IsFullyInstalled(id) == null) continue;
+                Core.InstallLog.Write("[Downloads] expected install " + id + " has a manifest now");
+                _expectedSteamInstalls.Remove(id);
+                changed = true;
+            }
+            if (_expectedSteamInstalls.Count > 0 && DateTime.UtcNow >= _expectedSteamInstallsUntil)
+            {
+                Core.InstallLog.Write("[Downloads] no manifest appeared for " + string.Join(", ", _expectedSteamInstalls) +
+                                      " - the install was probably cancelled in Steam");
+                _expectedSteamInstalls.Clear();
+            }
+
+            if (changed) RefreshLibrarySilently();   // ScanLibraryAsync re-arms or stops the watch
+            else ArmDownloadWatch();                  // only to stop it once the patience is spent
+        }
+
+        /// <summary>
+        /// Closes the hand-over screen and goes to Recent, where the download now sits at the front
+        /// with its band (user, 2026-09-15). The rescan that used to be here is the watcher's job:
+        /// ExpectSteamDownload is armed before this screen is even drawn, and it runs the full scan
+        /// the moment Steam writes the manifest.
+        /// </summary>
+        private void BackToRecentFromInstall()
         {
             ClearLaunchOverlay();
-            if (_libraryScanning) return;
-            _libraryScanned = false;
-            _ = ScanLibraryAsync();
+            SetLibraryGroup(LibraryGroup.Recent);
         }
 
         /// <summary>A on the confirmation: this is where the game actually starts.</summary>
@@ -3303,6 +3435,10 @@ namespace ClawTweaksCenter
             // screen has to know when the game ends, and that is the same question the restore was
             // already answering - one tracker, two readers.
             if (started) StartTrackingForRestore(game, startedProcess);
+
+            // Someone who has started something is playing, not maintaining: no background update
+            // check for the rest of this Center session, even after the game ends.
+            if (started) _gameLaunchedThisSession = true;
         }
 
         /// <summary>
@@ -3579,14 +3715,14 @@ namespace ClawTweaksCenter
                     }
                     break;
                 case LaunchPrompt.ConfirmInstall:
-                    head = (game != null && game.DownloadTotalBytes > 0)
+                    head = (game != null && game.Downloading)
                         ? Core.Loc.F("{0} is downloading", title)
                         : Core.Loc.F("Install {0}?", title);
                     sub = "Steam asks you where to put it.";
                     break;
                 case LaunchPrompt.InstallHandedOver:
                     head = title;
-                    sub = "Steam has taken over. Rescan the library when it is done.";
+                    sub = "Steam has taken over. The download shows in Recent.";
                     break;
                 default:
                     head = Core.Loc.F("Could not start {0}.", title);
@@ -3687,6 +3823,23 @@ namespace ClawTweaksCenter
                     Margin = new Thickness(0, 10, 0, 0),
                 });
 
+            // Steam's own install dialog is a desktop window, and a borderless fullscreen Center is
+            // in front of the desktop - so the dialog can come up BEHIND it (user, 2026-09-16). Said
+            // on both install states, not on a launch: a game takes the screen for itself.
+            if ((_launchPrompt == LaunchPrompt.ConfirmInstall || _launchPrompt == LaunchPrompt.InstallHandedOver)
+                && Ui.WindowMode.IsFullscreen(this))
+                stack.Children.Add(new TextBlock
+                {
+                    Text = Core.Loc.T("In fullscreen mode, Steam's window can open behind Center."),
+                    FontSize = 13,
+                    Foreground = UiHelpers.Warn,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    TextAlignment = TextAlignment.Center,
+                    TextWrapping = TextWrapping.Wrap,
+                    MaxWidth = 520,
+                    Margin = new Thickness(0, 6, 0, 0),
+                });
+
             var opti = game == null ? null : Library.GamePresets.For(game);
             if (opti != null && opti.HasAnything)
             {
@@ -3750,6 +3903,22 @@ namespace ClawTweaksCenter
                 });
 
                 stack.Children.Add(steamNote);
+
+                // The way out of the wait, named where the wait is (user, 2026-09-16). Only while the
+                // switch is off: with it on, Steam was already asked for when the library opened,
+                // and a cold start here just means the game was picked faster than Steam came up.
+                if (!Core.CenterSettings.StartSteamWithLibrary)
+                    stack.Children.Add(new TextBlock
+                    {
+                        Text = Core.Loc.T("Turn on \"Start Steam with the library\" in the library settings to speed this up next time."),
+                        FontSize = 13,
+                        Foreground = UiHelpers.Subtle,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        TextAlignment = TextAlignment.Center,
+                        TextWrapping = TextWrapping.Wrap,
+                        MaxWidth = 520,
+                        Margin = new Thickness(0, 6, 0, 0),
+                    });
             }
 
             // Under the cover: how far along, the last two unlocked, and a row into the full list.
@@ -4089,7 +4258,7 @@ namespace ClawTweaksCenter
             });
             stack.Children.Add(new TextBlock
             {
-                Text = "OptiScaler wiki · " + (info.WikiPage ?? string.Empty).Replace('-', ' '),
+                Text = Core.Loc.F("OptiScaler wiki · {0}", (info.WikiPage ?? string.Empty).Replace('-', ' ')),
                 FontSize = 12,
                 Foreground = UiHelpers.Subtle,
                 Margin = new Thickness(0, 2, 0, 14),
@@ -4310,13 +4479,20 @@ namespace ClawTweaksCenter
             // it was the least load-bearing section on it: the setting explains itself where it
             // lives, in Library Settings. The "Immersive mode" translation key stays - the settings
             // row still uses it.
-            stack.Children.Add(InfoHeading("Use CTW Library with Windows Fullscreen Experience (FSE) via AnyFSE"));
-            stack.Children.Add(InfoLine("Add ClawTweaks Center in AnyFSE as your full screen app.", indent: true));
-            stack.Children.Add(InfoLine("Enter the path below, then turn on Start in the library.", indent: true));
-            stack.Children.Add(BuildAnyFsePathRow());
+            // AnyFSE is GONE from this screen (user, 2026-09-13). It was a third-party launcher the
+            // user had to install, find Center's install folder for, and paste a path into - and
+            // Center can be the full screen app itself since 0.3.1.148, which the setup offers as a
+            // plain yes/no question. Two routes to one result meant the harder of the two was on the
+            // screen that explains the library.
+            //
+            // The link is the RELEASES PAGE and stays that from here on: the setup is how the
+            // library gets its full screen mode and how it is updated, so one address answers both.
+            stack.Children.Add(InfoHeading("Use the library as the Windows full screen experience"));
+            stack.Children.Add(InfoLine("Download the ClawTweaks setup from the releases page.", indent: true));
+            stack.Children.Add(InfoLine("Answer Yes when it asks about the full screen mode.", indent: true));
             stack.Children.Add(new TextBlock
             {
-                Text = AnyFseUrl,
+                Text = Core.SetupVersionCheck.ReleasesPageUrl,
                 FontSize = 13,
                 Foreground = UiHelpers.Accent,
                 Margin = new Thickness(InfoIndent + InfoBulletColumn, 6, 0, 0),
@@ -4383,55 +4559,9 @@ namespace ClawTweaksCenter
 
         private static UIElement InfoGap() => new Border { Height = 10 };
 
-        /// <summary>The Center path AnyFSE has to be pointed at, with a Copy button next to it.
-        /// Typing it out on a handheld means an on-screen keyboard and a path with two capitalised
-        /// folder names in it, so the path is offered rather than described.</summary>
-        private UIElement BuildAnyFsePathRow()
-        {
-            var row = new Grid { Margin = new Thickness(InfoIndent + InfoBulletColumn, 6, 0, 0) };
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-            var path = new TextBox
-            {
-                Text = AnyFsePath,
-                IsReadOnly = true,
-                FontSize = 13,
-                Padding = new Thickness(8, 5, 8, 5),
-                VerticalAlignment = VerticalAlignment.Center,
-                VerticalContentAlignment = VerticalAlignment.Center,
-            };
-            row.Children.Add(path);
-
-            var copy = new Button
-            {
-                Content = "Copy",
-                Style = (Style)Application.Current.Resources["SetupButton"],
-                MinWidth = 90,
-                Margin = new Thickness(8, 0, 0, 0),
-            };
-            copy.Click += (_, __) => CopyAnyFsePath();
-            Grid.SetColumn(copy, 1);
-            row.Children.Add(copy);
-
-            return row;
-        }
-
-        /// <summary>The FOLDER Center is installed in, not the exe inside it - AnyFSE's own path
-        /// field does not accept a path down to the exe itself (reported 2026-09-03: it silently
-        /// refused "...\ClawTweaksCenter\CTW_Center.exe"). Derived from <see
-        /// cref="Core.SelfInstaller.InstalledExe"/>, which already resolves classic vs. Velopack -
-        /// stripping the filename here keeps that one source of truth instead of duplicating it.</summary>
-        private static string AnyFsePath => System.IO.Path.GetDirectoryName(Core.SelfInstaller.InstalledExe);
-
-        /// <summary>Puts the installed Center folder on the clipboard. Wrapped because the clipboard
-        /// is a shared OS resource - another process holding it open makes Clipboard.SetText throw,
-        /// and a failed copy must not take the library down with it.</summary>
-        private void CopyAnyFsePath()
-        {
-            try { Clipboard.SetText(AnyFsePath); }
-            catch (Exception ex) { Core.InstallLog.Write("Copying the Center path failed: " + ex.Message); }
-        }
+        // The read-only path box, its Copy button and the clipboard helper went with AnyFSE -
+        // there is no path to hand anybody any more. Where Center is installed is still resolved
+        // in one place (Core.SelfInstaller.InstalledExe); nothing on this screen prints it.
         #endregion
 
         #region Leaving the library
@@ -4505,25 +4635,28 @@ namespace ClawTweaksCenter
                     Margin = new Thickness(0, 0, 0, 12),
                 });
 
-            // \u26A0\uFE0F LEAVING CENTER IS ONE ROW, NOT TWO. "Minimize to tray" and "Close Center" both stood
-            // here, and with Run in background OFF they did the SAME THING: the minimize row calls
-            // Close(), and the Closing handler exits when there is no tray to go to. Two rows, one
-            // outcome, and nothing on screen said which. The setting decides which row exists at all.
+            // \u26A0\uFE0F NEITHER "Minimize" NOR "Close Center" IS HERE ANY MORE (user, 2026-09-13).
             //
-            // Ordered by how much each throws away, least first - so the row order differs between
-            // the two cases rather than the label just swapping in place.
-            if (Core.CenterSettings.RunInBackground)
-                AddExitPromptRow(stack, "\uE921", "Minimize", "Center keeps running.",
-                    () => { _exitPromptOpen = false; Close(); });
-
+            // They used to stand around the start-screen row, and with Run in background OFF they did
+            // the SAME THING: the minimize row calls Close(), and the Closing handler exits when there
+            // is no tray to go to. Two rows, one outcome, and nothing on screen said which.
+            //
+            // The obvious objection is that removing both leaves a handheld with no way out, because
+            // the title bar X cannot be reached with the pad in fullscreen. It is answered, and by the
+            // platform rather than by this menu: the Alt-Tab / fullscreen-experience overview carries
+            // its own close button for the running app.
             AddExitPromptRow(stack, "\uE80F", "Center start screen", "Leave the library open.",
-                () => { _exitPromptOpen = false; _exitPromptRows.Clear(); _exitPromptActions.Clear();
-                        _exitPromptTrayRows.Clear(); _exitPromptTrayActions.Clear(); _exitPromptTrayCloseActions.Clear();
-                        _exitPromptToolsRows.Clear(); _exitPromptToolsActions.Clear(); GoHome(); });
+                () => { _exitPromptOpen = false; ClearExitPromptLists(); GoHome(); });
 
-            if (!Core.CenterSettings.RunInBackground)
-                AddExitPromptRow(stack, "\uE711", "Close Center", "Ends Center completely.",
-                    () => Application.Current.Shutdown());
+            // Drivers and Windows Update, straight out of the library - the two questions someone asks
+            // when a game runs worse than it did last week.
+            //
+            // \u26A0\uFE0F LeaveLibrary() FIRST, and it is not optional. This row draws into ContentHost while
+            // LibraryRoot is still visible ON TOP of it: the first version changed the action bar and
+            // left the quick menu lying over the new screen. GoHome() makes the same call, which is
+            // why the start-screen row above never showed the defect.
+            AddExitPromptRow(stack, "\uE977", "Drivers & Updates", "Device drivers and Windows Update.",
+                () => { _exitPromptOpen = false; ClearExitPromptLists(); LeaveLibrary(); OpenDrivers(); });
 
             // THE DEVICE, not Center - which is why the four sit inside ONE card. They are the same
             // kind of decision as each other and a different kind from the rows above, and four
@@ -4604,6 +4737,19 @@ namespace ClawTweaksCenter
         /// rather than passed in: two hand-kept sequences over the same positions is how the wrong row
         /// gets triggered the moment somebody inserts one, and four of these rows now end the
         /// session.</summary>
+        /// <summary>Drops every cached row and action of the quick menu. Extracted when a second row
+        /// needed it: seven lists cleared inline are seven chances for the next caller to miss one.</summary>
+        private void ClearExitPromptLists()
+        {
+            _exitPromptRows.Clear();
+            _exitPromptActions.Clear();
+            _exitPromptTrayRows.Clear();
+            _exitPromptTrayActions.Clear();
+            _exitPromptTrayCloseActions.Clear();
+            _exitPromptToolsRows.Clear();
+            _exitPromptToolsActions.Clear();
+        }
+
         private void AddExitPromptRow(StackPanel stack, string glyph, string title, string subtitle,
                                       Action activate, bool inCard = false)
         {
@@ -4945,9 +5091,9 @@ namespace ClawTweaksCenter
             {
                 AddAction(PadButton.A, "Open SteamGridDB", true,
                     () => Core.PrerequisiteGuide.OpenPage(SteamGridDbUrl, m => Core.InstallLog.Write(m)));
-                AddAction(PadButton.Y, "Open AnyFSE", true,
-                    () => Core.PrerequisiteGuide.OpenPage(AnyFseUrl, m => Core.InstallLog.Write(m)));
-                AddAction(PadButton.X, "Copy Center path", true, CopyAnyFsePath);
+                AddAction(PadButton.Y, "Open releases", true,
+                    () => Core.PrerequisiteGuide.OpenPage(Core.SetupVersionCheck.ReleasesPageUrl,
+                        m => Core.InstallLog.Write(m)));
                 AddAction(PadButton.B, "Close", true, CloseLibraryInfo);
                 return;
             }
@@ -5009,7 +5155,7 @@ namespace ClawTweaksCenter
                         break;
                     case LaunchPrompt.ConfirmInstall:
                         AddAction(PadButton.A,
-                                  _launchTarget != null && _launchTarget.DownloadTotalBytes > 0 ? "Open Steam" : "Install",
+                                  _launchTarget != null && _launchTarget.Downloading ? "Open Steam" : "Install",
                                   true, ConfirmInstallNow);
                         AddAction(PadButton.B, "Cancel", true, ClearLaunchOverlay);
                         // The wiki and OptiClick apply to a game you own, installed or not - deciding
@@ -5017,7 +5163,7 @@ namespace ClawTweaksCenter
                         AddLaunchOptiActions();
                         break;
                     case LaunchPrompt.InstallHandedOver:
-                        AddAction(PadButton.A, "Rescan", true, RescanFromInstall);
+                        AddAction(PadButton.A, "Back to Recent", true, BackToRecentFromInstall);
                         AddAction(PadButton.B, "Back", true, ClearLaunchOverlay);
                         break;
                     case LaunchPrompt.Running:
@@ -5239,6 +5385,7 @@ namespace ClawTweaksCenter
 
             var badge = BuildProfileBadge(game.Profiles);
             if (badge != null) content.Children.Add(badge);
+            if (game.Downloading) content.Children.Add(BuildDownloadingBand());
 
             if (glass)
             {
@@ -5279,6 +5426,41 @@ namespace ClawTweaksCenter
 
             if (game.ArtPath != null) LoadCover(owner, game.ArtPath, image);
             return tile;
+        }
+
+        /// <summary>
+        /// The band along the bottom of a cover while Steam installs the game: a word and a bar that
+        /// moves. INDETERMINATE ON PURPOSE - Steam writes no progress figure anywhere on disk while
+        /// it downloads (see GameEntry.Downloading), so a bar with a position would be invented.
+        /// The band is what tells "downloading" from "not installed" on a shelf of covers.
+        /// </summary>
+        private static Border BuildDownloadingBand()
+        {
+            var stack = new StackPanel();
+            stack.Children.Add(new TextBlock
+            {
+                Text = Core.Loc.T("Downloading") + "\u2026",
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = Brushes.White,
+                Margin = new Thickness(8, 4, 8, 3),
+            });
+            stack.Children.Add(new ProgressBar
+            {
+                IsIndeterminate = true,
+                Height = 4,
+                BorderThickness = new Thickness(0),
+                Background = new SolidColorBrush(Color.FromArgb(0x50, 0xFF, 0xFF, 0xFF)),
+                Foreground = UiHelpers.Accent,
+                Margin = new Thickness(8, 0, 8, 6),
+            });
+            return new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(0xB4, 0x00, 0x00, 0x00)),
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Child = stack,
+                IsHitTestVisible = false,
+            };
         }
 
         /// <summary>
@@ -5538,7 +5720,9 @@ namespace ClawTweaksCenter
 
             var text = new TextBlock
             {
-                Text = row.Heading,
+                // Platform labels are brand names and ROM system names are what the folder is
+                // called, so almost every heading comes back unchanged - but "Other" is a word.
+                Text = Core.Loc.T(row.Heading),
                 FontSize = 13,
                 FontWeight = FontWeights.SemiBold,
                 Foreground = Ui.UiHelpers.Subtle,

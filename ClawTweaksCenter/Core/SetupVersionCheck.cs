@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -77,6 +78,35 @@ namespace ClawTweaksCenter.Core
             /// could fail unsafely (it used to also require a pinned URL + SHA-256, because it fed a
             /// downloader — see the note on the class for why that is gone).</summary>
             public bool IsUpdateOffered => LatestVersion != null && LatestVersion > RunningVersion;
+
+            /// <summary>Messages the project wants to put in front of users, straight from the
+            /// manifest. Never null; empty when the manifest carries none.</summary>
+            public List<Announcement> Announcements = new List<Announcement>();
+        }
+
+        /// <summary>
+        /// One message pushed from the manifest into Center's notification list - the channel for
+        /// "there is a serious problem" and "this release needs a special setup", which are exactly
+        /// the two cases a shipped build cannot know about in advance (user, 2026-09-13).
+        ///
+        /// ⚠️ THIS IS UNTRUSTED-SHAPED DATA EVEN THOUGH IT IS OURS. It is text fetched over the
+        /// network and shown to the user, so it is TEXT and nothing else: no URL is opened from it,
+        /// no action is taken by it, and the id is the only field with any behaviour attached (it is
+        /// the duplicate key). Anything that acts belongs in a Center release, where it can be
+        /// reviewed.
+        /// </summary>
+        public sealed class Announcement
+        {
+            /// <summary>Stable id, and the reason the same message cannot arrive twice. Changing it
+            /// re-posts the message; editing the text without changing it does not.</summary>
+            public string Id = "";
+            public string Title = "";
+            public string Detail = "";
+
+            /// <summary>Optional ceiling: show only while the INSTALLED ClawTweaks is at or below
+            /// this. That is what makes "you need the new setup" stop appearing once someone has
+            /// followed it. Null means everybody.</summary>
+            public Version MaxAppVersion;
         }
 
         /// <summary>Null on any failure (offline, manifest missing/malformed) — this check must never
@@ -132,8 +162,10 @@ namespace ClawTweaksCenter.Core
                 {
                     result.MinimumAppVersion = minApp;
                     result.AppVersionMessage = GetString(root, msgKey)
-                        ?? $"Outdated version — install {minApp} or newer";
+                        ?? Loc.F("Outdated version — install {0} or newer", minApp);
                 }
+
+                ReadAnnouncements(root, result);
 
                 // Prefer an explicit page, fall back to the direct asset URL older manifests carry, and
                 // finally to the releases page — which always exists, so a manifest that advertises a
@@ -148,6 +180,42 @@ namespace ClawTweaksCenter.Core
             catch
             {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Reads the optional "announcements" array. Every failure is per-entry and silent: one
+        /// malformed message must not cost the others, and none of them may cost the version check
+        /// this method is a passenger on.
+        /// </summary>
+        private static void ReadAnnouncements(JsonElement root, Result result)
+        {
+            try
+            {
+                if (!root.TryGetProperty("announcements", out var arr) || arr.ValueKind != JsonValueKind.Array)
+                    return;
+
+                foreach (var el in arr.EnumerateArray())
+                {
+                    string id = GetString(el, "id");
+                    string title = GetString(el, "title");
+                    if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(title)) continue;
+
+                    var a = new Announcement
+                    {
+                        Id = id,
+                        Title = title,
+                        Detail = GetString(el, "detail") ?? "",
+                    };
+                    if (Version.TryParse(GetString(el, "maxAppVersion") ?? "", out var max))
+                        a.MaxAppVersion = max;
+
+                    result.Announcements.Add(a);
+                }
+            }
+            catch
+            {
+                // Deliberately swallowed - see the summary.
             }
         }
 

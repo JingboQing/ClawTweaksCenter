@@ -144,7 +144,6 @@ namespace ClawTweaksCenter.Library
                 {
                     _loggedFailure = false;
                     ResolveAvatars(snapshot.Friends);
-                    Sort(snapshot.Friends);
 
                     // Steam's feed, trimmed to the people in this list - a removed friend's events stay
                     // in the cache and would otherwise show up under a name nobody can chat with.
@@ -166,6 +165,9 @@ namespace ClawTweaksCenter.Library
                         f.Seen = SteamFriendSeen.Get(f.SteamId);
                         f.LatestActivity = snapshot.Activity.FirstOrDefault(a => a.SteamId == f.SteamId);
                     }
+
+                    // After the activity is attached: the order depends on it.
+                    Sort(snapshot.Friends);
                 }
                 return snapshot;
             });
@@ -367,13 +369,32 @@ namespace ClawTweaksCenter.Library
         }
 
         /// <summary>In a game first, then online, then away and busy, then offline - each by name.</summary>
+        /// <summary>In a game, online, away, offline - and within a group the friend with the most
+        /// recent activity first (user, 2026-09-15), not the alphabet. The name only breaks ties.</summary>
         private static void Sort(List<SteamFriend> friends)
         {
             friends.Sort((a, b) =>
             {
                 int c = Rank(a).CompareTo(Rank(b));
+                if (c != 0) return c;
+                c = LastActivityUtc(b).CompareTo(LastActivityUtc(a));
                 return c != 0 ? c : string.Compare(a.Name, b.Name, StringComparison.CurrentCultureIgnoreCase);
             });
+        }
+
+        /// <summary>The newest thing known about a friend: Steam's feed, or what Center itself saw
+        /// (last game, last online). Same sources as the row's activity line.</summary>
+        private static DateTime LastActivityUtc(SteamFriend f)
+        {
+            DateTime best = DateTime.MinValue;
+            if (f.LatestActivity != null) best = f.LatestActivity.When.ToUniversalTime();
+            var seen = f.Seen;
+            if (seen != null)
+            {
+                if (seen.LastGameUtc.HasValue && seen.LastGameUtc.Value > best) best = seen.LastGameUtc.Value;
+                if (seen.LastOnlineUtc.HasValue && seen.LastOnlineUtc.Value > best) best = seen.LastOnlineUtc.Value;
+            }
+            return best;
         }
 
         private static int Rank(SteamFriend f)

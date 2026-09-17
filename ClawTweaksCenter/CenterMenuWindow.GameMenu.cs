@@ -41,6 +41,9 @@ namespace ClawTweaksCenter
             /// <summary>Every Steam achievement the user has unlocked in this game, newest first -
             /// see CenterMenuWindow.Achievements.cs.</summary>
             Achievements,
+            /// <summary>The backgrounds published in the Center repo, one Y away from the user's own
+            /// pictures - see CenterMenuWindow.CtwWallpapers.cs.</summary>
+            CtwWallpapers,
         }
 
         // Fixed column count for the art picker grid - unlike the library's own grid it does not need
@@ -161,6 +164,11 @@ namespace ClawTweaksCenter
                 UserArtBack();
                 return;
             }
+            if (_gameMenuOverlay == GameMenuOverlay.CtwWallpapers)
+            {
+                CtwWallpapersBack();
+                return;
+            }
             if (_gameMenuOverlay == GameMenuOverlay.Achievements)
             {
                 // Straight back to the launch screen when that is where A came from - it is still
@@ -221,6 +229,9 @@ namespace ClawTweaksCenter
             _userArtScroller = null;
             _achievementRows.Clear();
             _achievementScroller = null;
+            // Same rule as the lists above: these hold elements that are about to be detached.
+            _ctwWallpaperTiles.Clear();
+            _ctwWallpaperScroller = null;
 
             switch (_gameMenuOverlay)
             {
@@ -230,6 +241,7 @@ namespace ClawTweaksCenter
                 case GameMenuOverlay.UserArt: RenderUserArtGrid(); break;
                 case GameMenuOverlay.UserArtFolder: RenderUserArtFolder(); break;
                 case GameMenuOverlay.Achievements: RenderAchievements(); break;
+                case GameMenuOverlay.CtwWallpapers: RenderCtwWallpapers(); break;
             }
         }
 
@@ -337,10 +349,34 @@ namespace ClawTweaksCenter
                 ownEntry ? UiHelpers.Text : UiHelpers.Subtle, "Rename",
                 () => { if (GameMenuTargetIsMisc) OpenRename(); }));
 
-            stack.Children.Add(GameMenuRow("", "Remove from library",
-                ownEntry ? "Deletes the entry, not the app" : "Only for apps you added yourself",
-                ownEntry ? UiHelpers.Text : UiHelpers.Subtle, "Remove",
-                () => { if (GameMenuTargetIsMisc) RemoveMiscGameFromMenu(); }));
+            // A Steam game cannot be removed from the library (the next scan brings it back), but it
+            // CAN be uninstalled - through Steam (user, 2026-09-15). The row takes the place of
+            // "Remove from library" for Steam entries only; every other store keeps the greyed
+            // remove row, because there is nothing we can hand the job to.
+            //
+            // NO PROMPT OF OUR OWN. steam://uninstall/<appid> opens Steam's own "are you sure"
+            // dialog, and a second question in front of it was one too many (user, after the first
+            // device test). Same glyph as the remove row below: it is the same kind of action.
+            if (game?.Store == GameStore.Steam)
+            {
+                bool canUninstall = game.Installed;
+                // Steam's "are you sure" is a desktop window; a fullscreen Center sits in front of
+                // the desktop, so it can open behind us (user, 2026-09-16). One sentence, on the row.
+                string uninstallSub = !canUninstall ? "Not installed"
+                    : Ui.WindowMode.IsFullscreen(this) ? "Steam removes the game files. In fullscreen, Steam's dialog can open behind Center."
+                    : "Steam removes the game files";
+                stack.Children.Add(GameMenuRow("", "Uninstall\u2026",
+                    uninstallSub,
+                    canUninstall ? UiHelpers.Text : UiHelpers.Subtle, "Uninstall",
+                    () => { if (GameMenuTargetIsInstalledSteam) UninstallThroughSteam(); }));
+            }
+            else
+            {
+                stack.Children.Add(GameMenuRow("", "Remove from library",
+                    ownEntry ? "Deletes the entry, not the app" : "Only for apps you added yourself",
+                    ownEntry ? UiHelpers.Text : UiHelpers.Subtle, "Remove",
+                    () => { if (GameMenuTargetIsMisc) RemoveMiscGameFromMenu(); }));
+            }
 
             if (_gameMenuIndex >= _gameMenuActions.Count) _gameMenuIndex = _gameMenuActions.Count - 1;
             if (_gameMenuIndex < 0) _gameMenuIndex = 0;
@@ -422,6 +458,7 @@ namespace ClawTweaksCenter
             if (_gameMenuOverlay == GameMenuOverlay.UserArt) { MoveUserArtSelection(dir); return; }
             if (_gameMenuOverlay == GameMenuOverlay.UserArtFolder) { MoveUserArtFolderSelection(dir); return; }
             if (_gameMenuOverlay == GameMenuOverlay.Achievements) { MoveAchievementSelection(dir); return; }
+            if (_gameMenuOverlay == GameMenuOverlay.CtwWallpapers) { MoveCtwWallpaperSelection(dir); return; }
             if (_gameMenuRows.Count == 0) return;
 
             int next = _gameMenuIndex + (dir == PadButton.Down ? 1 : dir == PadButton.Up ? -1 : 0);
@@ -446,6 +483,29 @@ namespace ClawTweaksCenter
         /// <summary>True when the focused entry is one the user added through the Misc tab, which is
         /// the only kind this menu may delete.</summary>
         private bool GameMenuTargetIsMisc => _gameMenuTarget?.Store == GameStore.Misc;
+
+        /// <summary>The only kind this menu may uninstall: Steam, and actually on the disk.</summary>
+        private bool GameMenuTargetIsInstalledSteam
+            => _gameMenuTarget?.Store == GameStore.Steam && _gameMenuTarget.Installed;
+
+        /// <summary>
+        /// STEAM DOES THE WORK AND STEAM ASKS. <c>steam://uninstall/N</c> opens the client's own
+        /// "are you sure" dialog, exactly like <c>steam://install/N</c> on the launch screen, and
+        /// there is deliberately no way past it from here. Center never touches the game folder.
+        ///
+        /// The menu closes on hand-over; the entry stays on the shelf until the next scan.
+        /// </summary>
+        private void UninstallThroughSteam()
+        {
+            var game = _gameMenuTarget;
+            if (game == null || !GameMenuTargetIsInstalledSteam) return;
+
+            if (GameLibrary.OpenSteamUri("steam://uninstall/" + game.Id))
+                Core.InstallLog.Write("[GameMenu] uninstall handed to Steam: " + game.Title + " (" + game.Id + ")");
+            else
+                Core.InstallLog.Write("[GameMenu] steam://uninstall could not be opened for " + game.Title);
+            CloseGameMenuOverlay();
+        }
 
         /// <summary>
         /// Deletes a Misc entry from here, so it can be removed where it is looked at rather than only
@@ -932,8 +992,9 @@ namespace ClawTweaksCenter
         #region Footer
         private bool RefreshGameMenuActionBar()
         {
-            // The two picker screens keep their footer in their own file, next to the state it reads.
+            // The picker screens keep their footer in their own file, next to the state it reads.
             if (RefreshUserArtActionBar()) return true;
+            if (RefreshCtwWallpaperActionBar()) return true;
 
             switch (_gameMenuOverlay)
             {

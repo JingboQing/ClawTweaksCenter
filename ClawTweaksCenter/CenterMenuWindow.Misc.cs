@@ -348,7 +348,7 @@ namespace ClawTweaksCenter
 
             var origin = new TextBlock
             {
-                Text = candidate.Origin,
+                Text = Core.Loc.T(candidate.Origin),
                 FontSize = 12,
                 Foreground = UiHelpers.Subtle,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -589,7 +589,7 @@ namespace ClawTweaksCenter
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Title = "Choose a program",
+                Title = Core.Loc.T("Choose a program"),   // a Win32 dialog, not one of our builders
                 Filter = "Programs (*.exe)|*.exe",
                 CheckFileExists = true,
                 Multiselect = true,
@@ -668,7 +668,7 @@ namespace ClawTweaksCenter
                 case MiscOverlay.Apps:
                     AddAction(PadButton.A, "Select", !_miscLoadingApps && _miscCandidates.Count > 0, ToggleCandidate);
                     AddAction(PadButton.X,
-                        _miscChecked.Count == 0 ? "Add" : "Add " + _miscChecked.Count,
+                        _miscChecked.Count == 0 ? "Add" : Core.Loc.F("Add {0}", _miscChecked.Count),
                         _miscChecked.Count > 0, CommitCheckedApps);
                     AddAction(PadButton.B, "Back", true, MiscOverlayBack);
                     // The triggers jump by initial, exactly as they step ROM systems one tab over -

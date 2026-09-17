@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -127,6 +127,7 @@ namespace ClawTweaksCenter.Core
             public int StoreCount;        // from manifest.stores[]
             public bool ManifestValid;    // false = not a ClawTweaks backup / unreadable
             public bool IsPreRestore;     // auto pre-restore snapshot (named ctw-prerestore_*)
+            public bool HasCenterData;    // carries Center's half (CENTER/settings.json) - see CenterDataBackup
         }
 
         /// <summary>Lists local backup ZIPs newest-first, reading each one's manifest.json (best-effort —
@@ -171,6 +172,7 @@ namespace ClawTweaksCenter.Core
 
                 using (var zip = ZipFile.OpenRead(zipPath))
                 {
+                    info.HasCenterData = zip.GetEntry("CENTER/settings.json") != null;
                     var entry = zip.GetEntry("manifest.json");
                     if (entry == null) return info; // valid zip, just not (or no longer) a CTW backup manifest
                     using (var s = entry.Open())

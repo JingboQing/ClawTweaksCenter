@@ -21,6 +21,12 @@ namespace ClawTweaksCenter
             Update.VelopackUpdates.Bootstrap(e.Args);
             base.OnStartup(e);
 
+            // A restore or a wipe of Center's own data that the previous process scheduled before
+            // it restarted (Core/CenterDataBackup.cs). Here, before Loc, before any store is read:
+            // once something has been loaded, the restored files are already the wrong ones.
+            string pending = Core.CenterDataBackup.RunPendingAtStartup();
+            if (pending != null) Core.InstallLog.Write(pending);
+
 
             // BEFORE the uninstall branch and before any window: every builder that draws text asks
             // Loc for it, so the language has to be resolved while nothing has been drawn yet.
@@ -251,6 +257,32 @@ namespace ClawTweaksCenter
                     "Another instance holds the mutex but did not answer the wake pipe - " +
                     "starting anyway, without the single-instance claim.");
             }
+
+            // ── Center asking the helper's scheduled task to run early: DISCONNECTED 2026-09-15 ──
+            //
+            // This called Core.FseHelperStart.TryStartHelper() to bring the helper up as soon as
+            // Center was the Windows full screen home app, on the theory that Center is on the
+            // machine before Windows reaches the helper's logon trigger. It was behind an
+            // experimental setting in Center's settings screen, off by default.
+            //
+            // IT NEVER HELPED, and that is measured rather than assumed: across four boots on
+            // 2026-09-14 the logon trigger fired at about +16.7s and Center ran at about +21.7s, so
+            // the scheduler refused every request as a duplicate (event 322).
+            //
+            // What actually fixed the symptom — the virtual pad arriving in the middle of the user's
+            // first navigation — was the scheduled task itself, not a second party asking it to run.
+            // See Doku/TODO_Scheduled_Task_Fast_Controller.md in the helper repo.
+            //
+            // Left commented rather than deleted because the reasoning in Core/FseHelperStart.cs is
+            // worth keeping: if a machine ever DOES serve the logon trigger late, this is the shape
+            // the answer would take, and the guards there are the hard part. Re-enabling means this
+            // call, CenterSettings.FseStartsHelper, and the gate in TryStartHelper — all three.
+            //
+            // System.Threading.Tasks.Task.Run(() =>
+            // {
+            //     try { Core.InstallLog.Write("FSE helper start: " + Core.FseHelperStart.TryStartHelper()); }
+            //     catch (Exception ex) { try { Core.InstallLog.Write("FSE helper start threw: " + ex.Message); } catch { } }
+            // });
 
             var window = new CenterMenuWindow(
                 startOnboarding: startOnboarding,

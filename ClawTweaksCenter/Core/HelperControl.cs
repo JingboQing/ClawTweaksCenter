@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -169,6 +169,82 @@ namespace ClawTweaksCenter.Core
         public static int HelperCount() => Process.GetProcessesByName(HelperProcess).Length;
         public static bool HelperRunning() => HelperCount() > 0;
 
+        /// <summary>Name of the file the helper refreshes every 2s while it is up.</summary>
+        private const string HeartbeatFileName = "helper_heartbeat.json";
+
+        /// <summary>
+        /// How fresh the heartbeat must be for us to call the helper alive.
+        ///
+        /// KEPT IN STEP WITH THE HELPER'S OWN HeartbeatAliveWindowSeconds (Program.cs). Both sides
+        /// must agree on what "alive" means: the helper uses this window to decide whether to yield
+        /// to a running instance, and we use it to decide whether one needs starting. If the two ever
+        /// disagree, the machine can reach a state where Center sees a helper the helper itself is
+        /// about to displace - which is exactly the state measured on 2026-09-14, only with a much
+        /// coarser test on our side.
+        /// </summary>
+        private const int HeartbeatAliveWindowSeconds = 15;
+
+        /// <summary>
+        /// True only when a helper is PROVABLY alive: a heartbeat that is fresh AND a process that
+        /// still carries its pid.
+        ///
+        /// WHY NOT <see cref="HelperRunning"/>. That one asks whether a process with the helper's name
+        /// exists, and MEASURED 2026-09-14, across two reboots, that is not the same question. At
+        /// +21.9s a process named XboxGamingBarHelper was there; the helper that actually performed the
+        /// controller mount started at +36.4s and its FIRST act was to ask that process to shut down.
+        /// The heartbeat at that moment was 64s old - stale from before the reboot - so by the helper's
+        /// own standard nothing was alive. Center had the weaker test and skipped the start it exists
+        /// to make.
+        ///
+        /// FAILS TOWARD "NOT ALIVE" on every doubt - missing file, unreadable, unparsable, clock skew,
+        /// dead pid. The cost of being wrong that way is one superfluous schtasks /Run, which the
+        /// task's IgnoreNew policy absorbs. The cost of the other direction is the mount landing in the
+        /// middle of the user's first navigation, which is the problem being fixed.
+        /// </summary>
+        public static bool HelperAlive(out string detail)
+        {
+            detail = "";
+            try
+            {
+                string path = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "Packages", PackageFamily, "LocalState", HeartbeatFileName);
+
+                if (!System.IO.File.Exists(path)) { detail = "no heartbeat file"; return false; }
+
+                int pid;
+                long timestamp;
+                using (var doc = System.Text.Json.JsonDocument.Parse(System.IO.File.ReadAllText(path)))
+                {
+                    var root = doc.RootElement;
+                    if (!root.TryGetProperty("pid", out var pidEl) || !pidEl.TryGetInt32(out pid))
+                    { detail = "heartbeat has no pid"; return false; }
+                    if (!root.TryGetProperty("timestamp", out var tsEl) || !tsEl.TryGetInt64(out timestamp))
+                    { detail = "heartbeat has no timestamp"; return false; }
+                }
+
+                long age = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - timestamp;
+                if (age < 0 || age > HeartbeatAliveWindowSeconds)
+                {
+                    detail = $"heartbeat of PID={pid} is {age}s old (limit {HeartbeatAliveWindowSeconds}s)";
+                    return false;
+                }
+
+                // A fresh heartbeat outlives a hard-killed helper by up to the window above, so the pid
+                // has to be confirmed too - the same second check the helper makes before yielding.
+                try { using (Process.GetProcessById(pid)) { } }
+                catch { detail = $"heartbeat of PID={pid} is {age}s old but that process is gone"; return false; }
+
+                detail = $"PID={pid}, heartbeat {age}s old";
+                return true;
+            }
+            catch (Exception ex)
+            {
+                detail = $"heartbeat read threw: {ex.Message}";
+                return false;
+            }
+        }
+
         /// <summary>PIDs of currently running helper processes — a stale instance from before an
         /// update lingers (Add-AppxPackage's -ForceApplicationShutdown doesn't reach it, it's a plain
         /// exe, not an app-lifecycle-managed process), so "any helper running" alone is a false
@@ -242,9 +318,40 @@ namespace ClawTweaksCenter.Core
         [DllImport("kernel32.dll")]
         private static extern bool CloseHandle(IntPtr handle);
 
-        /// <summary>True if the helper's scheduled task is registered.</summary>
-        public static bool ScheduledTaskExists()
+        /// <summary>
+        /// What a task query could establish. The third case is the point of this type.
+        ///
+        /// MEASURED 2026-09-14, 13:14:42, 25s into a boot: schtasks /Query did not finish inside the
+        /// timeout while the task not only existed but was RUNNING - it had started the helper nine
+        /// seconds earlier. The old code did `WaitForExit(5000); return p.ExitCode == 0;`, and since
+        /// WaitForExit had not actually waited for the exit, reading ExitCode THREW, the catch turned
+        /// that into false, and a timeout became indistinguishable from "no such task". The guard that
+        /// releases the whole FSE start path said no, for a task that was live.
+        /// </summary>
+        public enum TaskPresence
         {
+            /// <summary>schtasks answered and the task is there.</summary>
+            Present,
+            /// <summary>schtasks answered and the task is not there.</summary>
+            Absent,
+            /// <summary>No answer in time, or the query could not be run. Nothing is known.</summary>
+            Unknown
+        }
+
+        /// <summary>
+        /// Timeout for a schtasks call. Generous ON PURPOSE: the caller that matters runs seconds into
+        /// a boot, against a disk that is serving the logon storm, and there a process start alone
+        /// outlasted the old 5s.
+        /// </summary>
+        private const int SchtasksTimeoutMs = 20000;
+
+        /// <summary>
+        /// Asks whether the helper's scheduled task is registered, and says honestly when it could not
+        /// find out. <paramref name="detail"/> is meant for a log line, not for the user.
+        /// </summary>
+        public static TaskPresence QueryScheduledTask(out string detail)
+        {
+            detail = "";
             try
             {
                 var psi = new ProcessStartInfo
@@ -257,17 +364,56 @@ namespace ClawTweaksCenter.Core
                     RedirectStandardError = true,
                 };
                 using var p = Process.Start(psi);
-                if (p == null) return false;
-                p.WaitForExit(5000);
-                return p.ExitCode == 0;
+                if (p == null) { detail = "schtasks did not start"; return TaskPresence.Unknown; }
+
+                if (!p.WaitForExit(SchtasksTimeoutMs))
+                {
+                    // Leave nothing behind competing for the same disk.
+                    try { p.Kill(entireProcessTree: true); } catch { }
+                    detail = $"schtasks /Query did not answer within {SchtasksTimeoutMs}ms";
+                    return TaskPresence.Unknown;
+                }
+
+                int code = p.ExitCode;
+                detail = $"schtasks /Query exit {code}";
+                return code == 0 ? TaskPresence.Present : TaskPresence.Absent;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                detail = $"schtasks /Query threw: {ex.Message}";
+                return TaskPresence.Unknown;
+            }
         }
 
+        /// <summary>
+        /// True if the helper's scheduled task is registered.
+        ///
+        /// An inconclusive query reads as "not registered" here, which is right for the one caller
+        /// left on this overload: it only decides whether to tell the user a UAC prompt is coming, and
+        /// an unnecessary heads-up costs nothing. Anything that ACTS on the answer should use
+        /// <see cref="QueryScheduledTask"/> and decide for itself what to do with Unknown.
+        /// </summary>
+        public static bool ScheduledTaskExists() => QueryScheduledTask(out _) == TaskPresence.Present;
+
         /// <summary>Runs the helper's scheduled task if it exists. Returns true if launched.</summary>
-        public static bool RunScheduledTask()
+        public static bool RunScheduledTask() => RunScheduledTask(out _);
+
+        /// <summary>
+        /// Starts the helper's scheduled task. <paramref name="detail"/> carries schtasks' own verdict
+        /// so a caller can log WHY a start did not happen.
+        ///
+        /// NO PRE-CHECK any more. It used to call ScheduledTaskExists() first, which doubled the
+        /// schtasks processes at the worst possible moment - seconds into a boot - to learn something
+        /// /Run reports by itself: a missing task comes back as a non-zero exit. The pre-check could
+        /// also veto a perfectly good task on nothing but its own timeout (see QueryScheduledTask).
+        ///
+        /// A zero exit means the REQUEST was accepted, not that a helper started. The task is
+        /// IgnoreNew, so a request arriving while an instance is already running is refused by the
+        /// scheduler afterwards - visible only as the task's LastTaskResult 0x800710E0, never here.
+        /// </summary>
+        public static bool RunScheduledTask(out string detail)
         {
-            if (!ScheduledTaskExists()) return false;
+            detail = "";
             try
             {
                 var psi = new ProcessStartInfo
@@ -276,12 +422,28 @@ namespace ClawTweaksCenter.Core
                     Arguments = $"/Run /TN \"{TaskName}\"",
                     UseShellExecute = false,
                     CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                 };
                 using var p = Process.Start(psi);
-                p?.WaitForExit(5000);
-                return p != null && p.ExitCode == 0;
+                if (p == null) { detail = "schtasks did not start"; return false; }
+
+                if (!p.WaitForExit(SchtasksTimeoutMs))
+                {
+                    try { p.Kill(entireProcessTree: true); } catch { }
+                    detail = $"schtasks /Run did not answer within {SchtasksTimeoutMs}ms";
+                    return false;
+                }
+
+                int code = p.ExitCode;
+                detail = $"schtasks /Run exit {code}";
+                return code == 0;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                detail = $"schtasks /Run threw: {ex.Message}";
+                return false;
+            }
         }
 
         /// <summary>Best-effort: open the Xbox Game Bar so the widget loads and deploys the helper.</summary>
